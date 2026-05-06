@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graflar — Malumotlar Tuzilmasi va Algoritmlar</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{
+  --bg:#080c18;--bg2:#0c1225;--card:#0f1629;--card2:#141d35;
+  --border:#1e293b;--border2:#2d3a50;
+  --accent:#00e5a0;--accent-dim:rgba(0,229,160,.12);
+  --accent2:#ff6b35;--accent2-dim:rgba(255,107,53,.12);
+  --accent3:#fbbf24;--accent3-dim:rgba(251,191,36,.12);
+  --accent4:#e879f9;--accent4-dim:rgba(232,121,249,.12);
+  --text:#e2e8f0;--muted:#94a3b8;--dim:#475569;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;width:100vw}
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent3));transition:width .45s ease;z-index:200;border-radius:0 2px 2px 0}
+.pres{position:relative;z-index:1;width:100%;height:100vh}
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:50px 70px;opacity:0;transform:translateX(50px) scale(.98);transition:opacity .5s ease,transform .5s ease;pointer-events:none;overflow:hidden}
+.slide.active{opacity:1;transform:translateX(0) scale(1);pointer-events:auto}
+.slide.exit{opacity:0;transform:translateX(-50px) scale(.98)}
+.slide-inner{width:100%;max-width:1320px;height:100%;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2}
+.s-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,3.2vw,2.7rem);font-weight:700;line-height:1.15;margin-bottom:6px}
+.s-title .hl{color:var(--accent)}
+.s-title .hl2{color:var(--accent2)}
+.s-title .hl3{color:var(--accent3)}
+.s-sub{font-size:1rem;color:var(--muted);margin-bottom:24px}
+.s-body{display:flex;gap:36px;flex:1;align-items:center;min-height:0}
+.s-text{flex:1;min-width:0}
+.s-visual{flex:1;display:flex;justify-content:center;align-items:center;min-width:0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:14px;transition:border-color .3s,box-shadow .3s}
+.card:hover{border-color:rgba(0,229,160,.35);box-shadow:0 0 20px rgba(0,229,160,.06)}
+.card-t{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.95rem;color:var(--accent);margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.card-t i{font-size:.85rem;opacity:.8}
+.card-p{font-size:.88rem;color:var(--muted);line-height:1.65}
+.card-p strong{color:var(--text);font-weight:700}
+.formula{background:var(--bg2);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 22px;font-family:'Space Grotesk',sans-serif;font-size:1.15rem;color:var(--text);margin:14px 0;letter-spacing:.5px}
+.formula .v{color:var(--accent);font-weight:700}
+.formula .o{color:var(--accent3)}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:.76rem;font-weight:600;font-family:'Space Grotesk',sans-serif}
+.tag-g{background:var(--accent-dim);color:var(--accent)}
+.tag-o{background:var(--accent2-dim);color:var(--accent2)}
+.tag-a{background:var(--accent3-dim);color:var(--accent3)}
+.complexity{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(0,229,160,.25);border-radius:8px;padding:6px 14px;font-family:'Space Grotesk',sans-serif;font-size:.85rem;font-weight:600;color:var(--accent);margin-top:10px}
+.complexity.o{background:var(--accent2-dim);border-color:rgba(255,107,53,.25);color:var(--accent2)}
+.complexity.a{background:var(--accent3-dim);border-color:rgba(251,191,36,.25);color:var(--accent3)}
+/* SVG graflar */
+.gsvg{width:100%;max-width:420px;filter:drop-shadow(0 0 24px rgba(0,229,160,.08))}
+.gsvg .edge{stroke:#2a3650;stroke-width:2.2;fill:none}
+.gsvg .edge-hl{stroke:var(--accent);stroke-width:3;fill:none;filter:drop-shadow(0 0 4px rgba(0,229,160,.4))}
+.gsvg .edge-hl2{stroke:var(--accent2);stroke-width:3;fill:none;filter:drop-shadow(0 0 4px rgba(255,107,53,.4))}
+.gsvg .nd{stroke-width:2.5;filter:drop-shadow(0 0 8px rgba(0,229,160,.35))}
+.gsvg .nd-g{fill:url(#nG);stroke:var(--accent)}
+.gsvg .nd-o{fill:url(#nO);stroke:var(--accent2);filter:drop-shadow(0 0 8px rgba(255,107,53,.35))}
+.gsvg .nd-a{fill:url(#nA);stroke:var(--accent3);filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
+.gsvg .nd-p{fill:url(#nP);stroke:var(--accent4);filter:drop-shadow(0 0 8px rgba(232,121,249,.35))}
+.gsvg .nd-dim{fill:#1e293b;stroke:#334155;stroke-width:2}
+.gsvg .nl{fill:var(--bg);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;text-anchor:middle;dominant-baseline:central}
+.gsvg .wl{fill:var(--accent3);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;text-anchor:middle}
+.gsvg .vl{fill:var(--accent);font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:9px;text-anchor:middle;dominant-baseline:central}
+.gsvg .vl2{fill:var(--accent2)}
+.gsvg .vl3{fill:var(--accent3)}
+.gsvg .vl4{fill:var(--accent4)}
+/* Matritsa */
+.mtx{border-collapse:collapse;font-family:'Space Grotesk',sans-serif}
+.mtx th,.mtx td{width:38px;height:38px;text-align:center;font-size:.82rem;font-weight:600;border:1px solid var(--border)}
+.mtx th{background:var(--card);color:var(--accent)}
+.mtx td{background:var(--bg2);color:var(--dim)}
+.mtx td.on{background:var(--accent-dim);color:var(--accent);font-weight:700}
+/* Qo'shnilik ro'yxati */
+.adjlist{display:flex;flex-direction:column;gap:8px}
+.adj-item{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif}
+.adj-node{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#00b880);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:var(--bg);flex-shrink:0}
+.adj-arr{color:var(--dim);font-size:.8rem}
+.adj-nb{display:flex;gap:6px}
+.button {
+    font-size: 20px;
+    background-color: #28a745;
+    color: white;
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 10px;
+  }
+  .button:hover {
+    background-color: #348ff0;
+  }
+.adj-n{width:32px;height:32px;border-radius:6px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;color:var(--muted)}
+/* Pseudokod */
+.pseudo{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;font-family:'Space Grotesk',monospace;font-size:.8rem;line-height:1.85;color:var(--muted);overflow-x:auto}
+.pseudo .kw{color:var(--accent);font-weight:600}
+.pseudo .fn{color:var(--accent2)}
+.pseudo .cm{color:var(--dim);font-style:italic}
+.pseudo .st{color:var(--accent3)}
+/* Traversal yo'l */
+.tpath{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0}
+.tp-node{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.9rem;color:var(--bg)}
+.tp-arr{color:var(--dim);font-size:.7rem}
+/* Tur kartalari */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.type-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:border-color .3s}
+.type-card:hover{border-color:rgba(0,229,160,.35)}
+.type-card .tn{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.95rem;margin-bottom:2px}
+.type-card .ten{font-size:.78rem;color:var(--dim);margin-bottom:10px}
+.type-card svg{width:100%;max-width:180px;margin:0 auto;display:block}
+/* Qo'llanilish */
+.app-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.app-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 16px;text-align:center;transition:all .3s;cursor:default}
+.app-card:hover{border-color:var(--accent);transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,229,160,.08)}
+.app-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.2rem}
+.app-name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.92rem;margin-bottom:5px}
+.app-desc{font-size:.78rem;color:var(--muted);line-height:1.55}
+/* Dekorativ */
+.decor{position:absolute;border-radius:50%;filter:blur(100px);opacity:.12;pointer-events:none;z-index:0}
+/* Navigatsiya */
+.nav{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;z-index:200;background:rgba(15,22,41,.92);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:50px;padding:10px 22px}
+.nav-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.82rem;transition:all .2s}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.nav-btn:disabled{opacity:.25;cursor:not-allowed;pointer-events:none}
+.dots{display:flex;gap:7px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dim);cursor:pointer;transition:all .3s;border:none}
+.dot.active{background:var(--accent);width:26px;border-radius:4px}
+.s-counter{font-family:'Space Grotesk',sans-serif;font-size:.78rem;color:var(--dim);min-width:36px;text-align:center}
+.fs-btn{position:fixed;top:12px;right:12px;z-index:200;width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:rgba(15,22,41,.9);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.82rem;transition:all .2s}
+.fs-btn:hover{border-color:var(--accent);color:var(--accent)}
+.key-hint{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);font-size:.7rem;color:var(--dim);z-index:200;display:flex;align-items:center;gap:6px;opacity:.55}
+.key-hint kbd{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'Space Grotesk',sans-serif;font-size:.68rem}
+/* Animatsiyalar */
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes edgeDash{to{stroke-dashoffset:0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.anim-float{animation:float 4s ease-in-out infinite}
+.anim-float-d{animation:float 5s ease-in-out infinite .5s}
+.slide.active .anim-up{animation:fadeUp .6s ease both}
+.slide.active .anim-up:nth-child(1){animation-delay:.1s}
+.slide.active .anim-up:nth-child(2){animation-delay:.2s}
+.slide.active .anim-up:nth-child(3){animation-delay:.3s}
+.slide.active .anim-up:nth-child(4){animation-delay:.4s}
+.slide.active .anim-up:nth-child(5){animation-delay:.5s}
+.slide.active .anim-up:nth-child(6){animation-delay:.6s}
+.slide.active .vis-anim{animation:fadeUp .7s ease both .2s}
+.edge-anim{stroke-dasharray:400;stroke-dashoffset:400;animation:edgeDash 1.2s ease forwards}
+@media(max-width:960px){
+  .slide{padding:50px 24px}
+  .s-body{flex-direction:column;gap:20px}
+  .app-grid{grid-template-columns:repeat(2,1fr)}
+  .type-grid{grid-template-columns:1fr}
+  .gsvg{max-width:300px}
+}
+@media(prefers-reduced-motion:reduce){
+  .slide{transition:opacity .3s;transform:none!important}
+  .anim-float,.anim-float-d{animation:none}
+  .edge-anim{animation:none;stroke-dasharray:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Umumiy SVG gradientlar va markerlar -->
+<svg style="position:absolute;width:0;height:0" aria-hidden="true">
+<defs>
+  <radialGradient id="nG" cx="38%" cy="32%"><stop offset="0%" stop-color="#5dffd4"/><stop offset="100%" stop-color="#00a870"/></radialGradient>
+  <radialGradient id="nO" cx="38%" cy="32%"><stop offset="0%" stop-color="#ffab82"/><stop offset="100%" stop-color="#d45018"/></radialGradient>
+  <radialGradient id="nA" cx="38%" cy="32%"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="#c98a06"/></radialGradient>
+  <radialGradient id="nP" cx="38%" cy="32%"><stop offset="0%" stop-color="#f5b0fd"/><stop offset="100%" stop-color="#a020b8"/></radialGradient>
+  <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3e4f6a"/></marker>
+  <marker id="arrG" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="var(--accent)"/></marker>
+</defs>
+</svg>
+
+<canvas id="bgCanvas"></canvas>
+<div class="progress" id="prog"></div>
+<button class="fs-btn" id="fsBtn" aria-label="To'liq ekran"><i class="fas fa-expand"></i></button>
+
+<div class="pres" id="pres">
+
+<!-- ========== SLAYD 1: Graf nima? ========== -->
+<section class="slide active" data-idx="0">
+  <div class="decor" style="width:400px;height:400px;background:var(--accent);top:-100px;right:-100px"></div>
+  <div class="decor" style="width:300px;height:300px;background:var(--accent2);bottom:-80px;left:-60px"></div>
+  <div class="slide-inner">
+    <div class="s-title anim-up">Graf <span class="hl">nima?</span></div>
+    <div class="s-sub anim-up">Malumotlar tuzilmasi va algoritmlar</div>
+    <div class="s-body">
+      <div class="s-text">
+        <div class="card anim-up">
+          <div class="card-t"><i class="fas fa-circle-info"></i> Ta'rif</div>
+          <div class="card-p"><strong>Graf</strong> — bu tugunlar (vertices) va ularni bog'lab turuvchi qirralar (edges) dan tashkil topgan matematik ob'ekt. Graf turli ob'ektlar o'rtasidagi munosabatlarni ifodalash uchun ishlatiladi.</div>
+        </div>
+        <div class="formula anim-up">
+          <span class="v">G</span> <span class="o">=</span> <span class="o">(</span> <span class="v">V</span> <span class="o">,</span> <span class="v">E</span> <span class="o">)</span>
+        </div>
+        <div class="card anim-up">
+          <div class="card-t"><i class="fas fa-cubes"></i> Komponentlar</div>
+          <div class="card-p">
+            <span class="tag tag-g">V</span> — tugunlar to'plami (vertices)<br>
+            <span class="tag tag-o">E</span> — qirralar to'plami (edges)<br>
+            Har bir qirra ikki tugunni bog'laydi: <strong>e = (u, v)</strong>
+          </div>
+        </div>
+        <div class="card anim-up">
+          <div class="card-t"><i class="fas fa-lightbulb"></i> Muhim tushuncha</div>
+          <div class="card-p">Graflar <strong>nisbiy</strong> munosabatlarni ifodalaydi — massivlar va bog'langan ro'yxatlar esa <strong>ketma-ket</strong> ma'lumotlarni. Graf — eng moslashuvchan ma'lumotlar tuzilmasi hisoblanadi.</div>
+        </div>
+      </div>
+      <div class="s-visual vis-anim">
+        <svg class="gsvg" viewBox="0 0 400 320">
+          <!-- Qirralar -->
+          <line class="edge edge-anim" x1="200" y1="50" x2="70" y2="145"/>
+          <line class="edge edge-anim" style="animation-delay:.15s" x1="200" y1="50" x2="330" y2="145"/>
+          <line class="edge edge-anim" style="animation-delay:.3s" x1="70" y1="145" x2="330" y2="145"/>
+          <line class="edge edge-anim" style="animation-delay:.45s" x1="70" y1="145" x2="115" y2="270"/>
+          <line class="edge edge-anim" style="animation-delay:.6s" x1="330" y1="145" x2="285" y2="270"/>
+          <line class="edge edge-anim" style="animation-delay:.75s" x1="115" y1="270" x2="285" y2="270"/>
+          <!-- Tugunlar -->
+          <g class="anim-float"><circle cx="200" cy="50" r="24" class="nd nd-g"/><text x="200" y="50" class="nl">A</text></g>
+          <g class="anim-float-d"><circle cx="70" cy="145" r="24" class="nd nd-g"/><text x="70" y="145" class="nl">B</text></g>
+          <g class="anim-float"><circle cx="330" cy="145" r="24" class="nd nd-g"/><text x="330" y="145" class="nl">C</text></g>
+          <g class="anim-float-d"><circle cx="115" cy="270" r="24" class="nd nd-g"/><text x="115" y="270" class="nl">D</text></g>
+          <g class="anim-float"><circle cx="285" cy="270" r="24" class="nd nd-g"/><text x="285" y="270" class="nl">E</text></g>
+          <!-- Belgilar -->
+          <text x="132" y="85" fill="var(--accent)" font-family="Space Grotesk" font-size="10" font-weight="600" opacity=".7">e₁</text>
+          <text x="270" y="85" fill="var(--accent)" font-family="Space Grotesk" font-size="10" font-weight="600" opacity=".7">e₂</text>
+          <text x="200" y="138" fill="var(--accent)" font-family="Space Grotesk" font-size="10" font-weight="600" opacity=".7">e₃</text>
+          <text x="75" y="215" fill="var(--accent)" font-family="Space Grotesk" font-size="10" font-weight="600" opacity=".7">e₄</text>
+          <text x="320" y="215" fill="var(--accent)" font-family="Space Grotesk" font-size="10" font-weight="600" opacity=".7">e₅</text>
+          <text x="200" y="285" fill="var(--accent)" font-family="Space Grotesk" font-size="10" font-weight="600" opacity=".7">e₆</text>
+          <text x="200" y="310" text-anchor="middle" fill="var(--dim)" font-family="Space Grotesk" font-size="11">V = {A,B,C,D,E} &nbsp; E = {e₁,e₂,e₃,e₄,e₅,e₆}</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLAYD 2: Tarkibiy elementlar ========== -->
+<section class="slide" data-idx="1">
+  <div class="decor" style="width:350px;height:350px;background:var(--accent3);top:-50px;left:-80px"></div>
+  <div class="slide-inner">
+    <div class="s-title anim-up">Graf <span class="hl3">tarkibiy elementlari</span></div>
+    <div class="s-sub anim-up">Tugun, qirra, daraja va yo'naltirish tushunchalari</div>
+    <div class="s-body">
+      <div class="s-text">
+        <div class="card anim-up">
+          <div class="card-t" style="color:var(--accent)"><i class="fas fa-circle-dot"></i> Tugun (Vertex / Node)</div>
+          <div class="card-p">Grafning asosiy birligi. Ma'lumotni yoki ob'ektni ifodalaydi. <strong>V</strong> to'plamining har bir elementi — bitta tugun. Masalan, shaharlar grafigida har bir shahar — tugun.</div>
+        </div>
+        <div class="card anim-up">
+          <div class="card-t" style="color:var(--accent2)"><i class="fas fa-arrows-left-right"></i> Qirra (Edge)</div>
+          <div class="card-p">Ikki tugun o'rtasidagi bog'lanish. <strong>E</strong> to'plamining har bir elementi — bitta qirra. Yo'naltirilmagan grafda <strong>e = {u, v}</strong>, yo'naltirilganda <strong>e = (u, v)</strong>.</div>
+        </div>
+        <div class="card anim-up">
+          <div class="card-t" style="color:var(--accent3)"><i class="fas fa-asterisk"></i> Daraja (Degree)</div>
+          <div class="card-p">Tugunnga tutash qirralar soni. <strong>deg(v)</strong> bilan belgilanadi. Yo'naltirilgan grafda: <strong>in-degree</strong> (kirish) va <strong>out-degree</strong> (chiqish) farqlanadi. Barcha darajalar yig'indisi = <strong>2|E|</strong>.</div>
+        </div>
+      </div>
+      <div class="s-visual vis-anim">
+        <svg class="gsvg" viewBox="0 0 420 340">
+          <line class="edge" x1="210" y1="55" x2="75" y2="150"/>
+          <line class="edge" x1="210" y1="55" x2="345" y2="150"/>
+          <line class="edge" x1="75" y1="150" x2="345" y2="150"/>
+          <line class="edge" x1="75" y1="150" x2="120" y2="275"/>
+          <line class="edge" x1="345" y1="150" x2="300" y2="275"/>
+          <line class="edge" x1="120" y1="275" x2="300" y2="275"/>
+          <!-- Tugunlar -->
+          <circle cx="210" cy="55" r="24" class="nd nd-g"/><text x="210" y="55" class="nl">A</text>
+          <circle cx="75" cy="150" r="24" class="nd nd-g"/><text x="75" y="150" class="nl">B</text>
+          <circle cx="345" cy="150" r="24" class="nd nd-g"/><text x="345" y="150" class="nl">C</text>
+          <circle cx="120" cy="275" r="24" class="nd nd-g"/><text x="120" y="275" class="nl">D</text>
+          <circle cx="300" cy="275" r="24" class="nd nd-g"/><text x="300" y="275" class="nl">E</text>
+          <!-- Daraja ko'rsatkichlari -->
+          <rect x="235" y="28" width="52" height="22" rx="6" fill="var(--accent-dim)" stroke="rgba(0,229,160,.3)" stroke-width="1"/>
+          <text x="261" y="43" text-anchor="middle" fill="var(--accent)" font-family="Space Grotesk" font-size="11" font-weight="700">deg=2</text>
+          <rect x="2" y="133" width="52" height="22" rx="6" fill="var(--accent-dim)" stroke="rgba(0,229,160,.3)" stroke-width="1"/>
+          <text x="28" y="148" text-anchor="middle" fill="var(--accent)" font-family="Space Grotesk" font-size="11" font-weight="700">deg=3</text>
+          <rect x="365" y="133" width="52" height="22" rx="6" fill="var(--accent-dim)" stroke="rgba(0,229,160,.3)" stroke-width="1"/>
+          <text x="391" y="148" text-anchor="middle" fill="var(--accent)" font-family="Space Grotesk" font-size="11" font-weight="700">deg=3</text>
+          <rect x="46" y="258" width="52" height="22" rx="6" fill="var(--accent-dim)" stroke="rgba(0,229,160,.3)" stroke-width="1"/>
+          <text x="72" y="273" text-anchor="middle" fill="var(--accent)" font-family="Space Grotesk" font-size="11" font-weight="700">deg=2</text>
+          <rect x="310" y="258" width="52" height="22" rx="6" fill="var(--accent-dim)" stroke="rgba(0,229,160,.3)" stroke-width="1"/>
+          <text x="336" y="273" text-anchor="middle" fill="var(--accent)" font-family="Space Grotesk" font-size="11" font-weight="700">deg=2</text>
+          <!-- Formula -->
+          <text x="210" y="330" text-anchor="middle" fill="var(--muted)" font-family="Space Grotesk" font-size="11">Σ deg(v) = 2+3+3+2+2 = <tspan fill="var(--accent)" font-weight="700">12</tspan> = 2 × 6 = 2|E|</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLAYD 3: Graf turlari (Yo'naltirilmagan / Yo'naltirilgan) ========== -->
+<section class="slide" data-idx="2">
+  <div class="decor" style="width:300px;height:300px;background:var(--accent);bottom:-60px;right:10%"></div>
+  <div class="slide-inner">
+    <div class="s-title anim-up">Graf <span class="hl">turlari</span> — I</div>
+    <div class="s-sub anim-up">Yo'naltirilmagan va yo'naltirilgan graflar</div>
+    <div class="s-body">
+      <div class="type-grid" style="width:100%">
+        <!-- Yo'naltirilmagan -->
+        <div class="type-card anim-up">
+          <div class="tn" style="color:var(--accent)"><i class="fas fa-arrows-left-right" style="margin-right:6px;font-size:.85rem"></i>Yo'naltirilmagan graf</div>
+          <div class="ten">Undirected Graph</div>
+          <div class="card-p" style="margin-bottom:14px">Qirralar yo'nalishga ega emas. <strong>{u, v} = {v, u}</strong> — qirra ikkala tomonga ham yo'l beradi. Ikkala uchi teng huquqli.</div>
+          <svg viewBox="0 0 260 200">
+            <line class="edge" x1="130" y1="35" x2="45" y2="100"/>
+            <line class="edge" x1="130" y1="35" x2="215" y2="100"/>
+            <line class="edge" x1="45" y1="100" x2="215" y2="100"/>
+            <line class="edge" x1="45" y1="100" x2="90" y2="170"/>
+            <line class="edge" x1="215" y1="100" x2="170" y2="170"/>
+            <circle cx="130" cy="35" r="20" class="nd nd-g"/><text x="130" y="35" class="nl" font-size="12">1</text>
+            <circle cx="45" cy="100" r="20" class="nd nd-g"/><text x="45" y="100" class="nl" font-size="12">2</text>
+            <circle cx="215" cy="100" r="20" class="nd nd-g"/><text x="215" y="100" class="nl" font-size="12">3</text>
+            <circle cx="90" cy="170" r="20" class="nd nd-g"/><text x="90" y="170" class="nl" font-size="12">4</text>
+            <circle cx="170" cy="170" r="20" class="nd nd-g"/><text x="170" y="170" class="nl" font-size="12">5</text>
+            <text x="130" y="198" text-anchor="middle" fill="var(--dim)" font-family="Space Grotesk" font-size="10">1 — 2 = 2 — 1 (simmetrik)</text>
+          </svg>
+        </div>
+        <!-- Yo'naltirilgan -->
+        <div class="type-card anim-up">
+          <div class="tn" style="color:var(--accent2)"><i class="fas fa-arrow-right-long" style="margin-right:6px;font-size:.85rem"></i>Yo'naltirilgan graf</div>
+          <div class="ten">Directed Graph (Digraph)</div>
+          <div class="card-p" style="margin-bottom:14px">Har bir qirra yo'nalishga ega: <strong>(u, v) ≠ (v, u)</strong>. Ok shaklida ko'rsatiladi. <strong>in-degree</strong> va <strong>out-degree</strong> farqlanadi.</div>
+          <svg viewBox="0 0 260 200">
+            <line class="edge" x1="116" y1="46" x2="57" y2="89" marker-end="url(#arr)"/>
+            <line class="edge" x1="144" y1="46" x2="203" y2="89" marker-end="url(#arr)"/>
+            <line class="edge" x1="203" y1="105" x2="57" y2="105" marker-end="url(#arr)"/>
+            <line class="edge" x1="52" y1="116" x2="83" y2="155" marker-end="url(#arr)"/>
+            <line class="edge" x1="208" y1="116" x2="177" y2="155" marker-end="url(#arr)"/>
+            <circle cx="130" cy="35" r="20" class="nd nd-o"/><text x="130" y="35" class="nl" font-size="12">1</text>
+            <circle cx="45" cy="105" r="20" class="nd nd-o"/><text x="45" y="105" class="nl" font-size="12">2</text>
+            <circle cx="215" cy="105" r="20" class="nd nd-o"/><text x="215" y="105" class="nl" font-size="12">3</text>
+            <circle cx="90" cy="170" r="20" class="nd nd-o"/><text x="90" y="170" class="nl" font-size="12">4</text>
+            <circle cx="170" cy="170" r="20" class="nd nd-o"/><text x="170" y="170" class="nl" font-size="12">5</text>
+            <text x="130" y="198" text-anchor="middle" fill="var(--dim)" font-family="Space Grotesk" font-size="10">1→2 ≠ 2→1 (asimmetrik)</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLAYD 4: Graf turlari (Vaznli, Tsiklli, Daraxt) ========== -->
+<section class="slide" data-idx="3">
+  <div class="decor" style="width:350px;height:350px;background:var(--accent4);top:-80px;right:-60px"></div>
+  <div class="slide-inner">
+    <div class="s-title anim-up">Graf <span class="hl2">turlari</span> — II</div>
+    <div class="s-sub anim-up">Vaznli, tsiklli, daraxt va to'liq graf</div>
+    <div class="s-body">
+      <div class="type-grid" style="width:100%">
+        <!-- Vaznli -->
+        <div class="type-card anim-up">
+          <div class="tn" style="color:var(--accent3)"><i class="fas fa-weight-hanging" style="margin-right:6px;font-size:.85rem"></i>Vaznli graf</div>
+          <div class="ten">Weighted Graph</div>
+          <div class="card-p" style="margin-bottom:10px">Har bir qirra son qiymat — <strong>vazn</strong> ga ega. Masofa, narx, vaqt kabi. Dijkstra, Prim algoritmlari shu grafda ishlaydi.</div>
+          <svg viewBox="0 0 240 160">
+            <line class="edge" x1="120" y1="30" x2="40" y2="90"/>
+            <line class="edge" x1="120" y1="30" x2="200" y2="90"/>
+            <line class="edge" x1="40" y1="90" x2="200" y2="90"/>
+            <line class="edge" x1="40" y1="90" x2="80" y2="145"/>
+            <line class="edge" x1="200" y1="90" x2="160" y2="145"/>
+            <circle cx="120" cy="30" r="18" class="nd nd-a"/><text x="120" y="30" class="nl" font-size="11">A</text>
+            <circle cx="40" cy="90" r="18" class="nd nd-a"/><text x="40" y="90" class="nl" font-size="11">B</text>
+            <circle cx="200" cy="90" r="18" class="nd nd-a"/><text x="200" y="90" class="nl" font-size="11">C</text>
+            <circle cx="80" cy="145" r="18" class="nd nd-a"/><text x="80" y="145" class="nl" font-size="11">D</text>
+            <circle cx="160" cy="145" r="18" class="nd nd-a"/><text x="160" y="145" class="nl" font-size="11">E</text>
+            <text x="68" y="52" class="wl">4</text>
+            <text x="172" y="52" class="wl">2</text>
+            <text x="120" y="83" class="wl">7</text>
+            <text x="45" y="124" class="wl">5</text>
+            <text x="195" y="124" class="wl">3</text>
+          </svg>
+        </div>
+        <!-- Tsiklli -->
+        <div class="type-card anim-up">
+          <div class="tn" style="color:var(--accent4)"><i class="fas fa-rotate" style="margin-right:6px;font-size:.85rem"></i>Tsiklli / A_tsikllic</div>
+          <div class="ten">Cyclic / Acyclic</div>
+          <div class="card-p" style="margin-bottom:10px"><strong>Tsikl</strong> — boshlang'ich tugunga qaytadigan yo'l. Tsiklli grafda kamida 1 tsikl bor. <strong>DAG</strong> (Directed Acyclic Graph) — yo'naltirilgan a_tsikllic graf.</div>
+          <svg viewBox="0 0 240 160">
+            <!-- Tsiklli -->
+            <text x="60" y="12" text-anchor="middle" fill="var(--accent4)" font-family="Space Grotesk" font-size="10" font-weight="600">Tsiklli</text>
+            <line class="edge" x1="30" y1="35" x2="90" y2="35"/>
+            <line class="edge" x1="90" y1="35" x2="90" y2="80"/>
+            <line class="edge" x1="90" y1="80" x2="30" y2="80"/>
+            <line class="edge" x1="30" y1="80" x2="30" y2="35"/>
+            <circle cx="30" cy="35" r="14" class="nd nd-p"/><text x="30" y="35" class="nl" font-size="9">1</text>
+            <circle cx="90" cy="35" r="14" class="nd nd-p"/><text x="90" y="35" class="nl" font-size="9">2</text>
+            <circle cx="90" cy="80" r="14" class="nd nd-p"/><text x="90" y="80" class="nl" font-size="9">3</text>
+            <circle cx="30" cy="80" r="14" class="nd nd-p"/><text x="30" y="80" class="nl" font-size="9">4</text>
+            <!-- A_tsikllic -->
+            <text x="185" y="12" text-anchor="middle" fill="var(--accent)" font-family="Space Grotesk" font-size="10" font-weight="600">A_tsikllic (DAG)</text>
+            <line class="edge" x1="155" y1="30" x2="155" y2="65" marker-end="url(#arr)"/>
+            <line class="edge" x1="155" y1="30" x2="215" y2="65" marker-end="url(#arr)"/>
+            <line class="edge" x1="155" y1="65" x2="185" y2="115" marker-end="url(#arr)"/>
+            <line class="edge" x1="215" y1="65" x2="185" y2="115" marker-end="url(#arr)"/>
+            <circle cx="155" cy="30" r="14" class="nd nd-g"/><text x="155" y="30" class="nl" font-size="9">A</text>
+            <circle cx="155" cy="65" r="14" class="nd nd-g"/><text x="155" y="65" class="nl" font-size="9">B</text>
+            <circle cx="215" cy="65" r="14" class="nd nd-g"/><text x="215" y="65" class="nl" font-size="9">C</text>
+            <circle cx="185" cy="115" r="14" class="nd nd-g"/><text x="185" y="115" class="nl" font-size="9">D</text>
+            <text x="120" y="155" fill="var(--dim)" font-family="Space Grotesk" font-size="9">DAG — topologik saralash uchun asos</text>
+          </svg>
+        </div>
+        <!-- Daraxt -->
+        <div class="type-card anim-up">
+          <div class="tn" style="color:var(--accent)"><i class="fas fa-sitemap" style="margin-right:6px;font-size:.85rem"></i>Daraxt (Tree)</div>
+          <div class="ten">Tree Graph</div>
+          <div class="card-p" style="margin-bottom:10px"><strong>A_tsikllic ulangan graf.</strong> N ta tugunli daraxtda aniq <strong>N-1</strong> ta qirra bo'ladi. Ikkala tugun orasida yagona yo'l mavjud. Ierarxik tuzilmani ifodalaydi.</div>
+          <svg viewBox="0 0 240 160">
+            <line class="edge" x1="120" y1="30" x2="60" y2="80"/>
+            <line class="edge" x1="120" y1="30" x2="180" y2="80"/>
+            <line class="edge" x1="60" y1="80" x2="30" y2="135"/>
+            <line class="edge" x1="60" y1="80" x2="90" y2="135"/>
+            <line class="edge" x1="180" y1="80" x2="150" y2="135"/>
+            <line class="edge" x1="180" y1="80" x2="210" y2="135"/>
+            <circle cx="120" cy="30" r="16" class="nd nd-g"/><text x="120" y="30" class="nl" font-size="10">R</text>
+            <circle cx="60" cy="80" r="16" class="nd nd-g"/><text x="60" y="80" class="nl" font-size="10">L</text>
+            <circle cx="180" cy="80" r="16" class="nd nd-g"/><text x="180" y="80" class="nl" font-size="10">M</text>
+            <circle cx="30" cy="135" r="16" class="nd nd-g"/><text x="30" y="135" class="nl" font-size="10">a</text>
+            <circle cx="90" cy="135" r="16" class="nd nd-g"/><text x="90" y="135" class="nl" font-size="10">b</text>
+            <circle cx="150" cy="135" r="16" class="nd nd-g"/><text x="150" y="135" class="nl" font-size="10">c</text>
+            <circle cx="210" cy="135" r="16" class="nd nd-g"/><text x="210" y="135" class="nl" font-size="10">d</text>
+            <text x="120" y="158" text-anchor="middle" fill="var(--dim)" font-family="Space Grotesk" font-size="9">7 tugun, 6 qirra = N-1</text>
+          </svg>
+        </div>
+        <!-- To'liq graf -->
+        <div class="type-card anim-up">
+          <div class="tn" style="color:var(--accent2)"><i class="fas fa-circle-nodes" style="margin-right:6px;font-size:.85rem"></i>To'liq graf</div>
+          <div class="ten">Complete Graph (Kₙ)</div>
+          <div class="card-p" style="margin-bottom:10px">Har bir tugun boshqa barcha tugunlar bilan bog'langan. <strong>Kₙ</strong> grafda <strong>n(n-1)/2</strong> ta qirra bor. Eng ko'p qirrali oddiy graf.</div>
+          <svg viewBox="0 0 240 160">
+            <line class="edge" x1="120" y1="25" x2="40" y2="80"/>
+            <line class="edge" x1="120" y1="25" x2="200" y2="80"/>
+            <line class="edge" x1="120" y1="25" x2="120" y2="140"/>
+            <line class="edge" x1="40" y1="80" x2="200" y2="80"/>
+            <line class="edge" x1="40" y1="80" x2="120" y2="140"/>
+            <line class="edge" x1="200" y1="80" x2="120" y2="140"/>
+            <circle cx="120" cy="25" r="14" class="nd nd-o"/><text x="120" y="25" class="nl" font-size="9">1</text>
+            <circle cx="40" cy="80" r="14" class="nd nd-o"/><text x="40" y="80" class="nl" font-size="9">2</text>
+            <circle cx="200" cy="80" r="14" class="nd nd-o"/><text x="200" y="80" class="nl" font-size="9">3</text>
+            <circle cx="120" cy="140" r="14" class="nd nd-o"/><text x="120" y="140" class="nl" font-size="9">4</text>
+            <text x="120" y="158" text-anchor="middle" fill="var(--dim)" font-family="Space Grotesk" font-size="9">K₄: 4×3/2 = 6 qirra</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLAYD 5: Qo'shnilik matritsasi ========== -->
+<section class="slide" data-idx="4">
+  <div class="decor" style="width:300px;height:300px;background:var(--accent);bottom:-80px;left:-40px"></div>
+  <div class="slide-inner">
+    <div class="s-title anim-up">Grafni ifodalash: <span class="hl">Qo'shnilik matritsasi</span></div>
+    <div class="s-sub anim-up">Adjacency Matrix — 2D massiv yordamida</div>
+    <div class="s-body">
+      <div class="s-text">
+        <div class="card anim-up">
+          <div class="card-t"><i class="fas fa-table-cells"></i> Ta'rif</div>
+          <div class="card-p"><strong>N × N</strong> o'lchamli 2D massiv. <strong>A[i][j] = 1</strong> agar i va j orasida qirra bo'lsa, aks holda <strong>0</strong>. Yo'naltirilmagan grafda matritsa <strong>simmetrik</strong> bo'ladi.</div>
+        </div>
+        <div class="formula anim-up">
+          A<span class="o">[</span><span class="v">i</span><span class="o">][</span><span class="v">j</span><span class="o">]</span> <span class="o">=</span> <span class="v">1</span> <span class="o">,</span> <span class="v">agar</span> <span class="o">(</span><span class="v">i</span><span class="o">,</span><span class="v">j</span><span class="o">)</span> <span class="o">&isin;</span> <span class="v">E</span>
+        </div>
+        <div class="card anim-up">
+          <div class="card-t"><i class="fas fa-plus-circle"></i> Afzalliklari</div>
+          <div class="card-p">
+            <span class="tag tag-g">O(1)</span> qirra tekshirish<br>
+            Vaznli graf uchun qulay<br>
+            Amalga oshirish oson
+          </div>
+        </div>
+        <div class="card anim-up">
+          <div class="card-t" style="color:var(--accent2)"><i class="fas fa-minus-circle"></i> Kamchiliklari</div>
+          <div class="card-p">
+            <span class="tag tag-o">O(V²)</span> xotira sarfi<br>
+            Siyrak (sparse) grafda samarasiz<br>
+            Barcha qirralarni ko'rish: <strong>O(V²)</strong>
+          </div>
+        </div>
+      </div>
+      <div class="s-visual vis-anim">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:20px">
+          <!-- Kichik graf -->
+          <svg class="gsvg" viewBox="0 0 220 170" style="max-width:260px">
+            <line class="edge" x1="110" y1="35" x2="40" y2="100"/>
+            <line class="edge" x1="110" y1="35" x2="180" y2="100"/>
+            <line class="edge" x1="40" y1="100" x2="180" y2="100"/>
+            <line class="edge" x1="40" y1="100" x2="75" y2="155"/>
+            <line class="edge" x1="180" y1="100" x2="145" y2="155"/>
+            <circle cx="110" cy="35" r="18" class="nd nd-g"/><text x="110" y="35" class="nl" font-size="11">0</text>
+            <circle cx="40" cy="100" r="18" class="nd nd-g"/><text x="40" y="100" class="nl" font-size="11">1</text>
+            <circle cx="180" cy="100" r="18" class="nd nd-g"/><text x="180" y="100" class="nl" font-size="11">2</text>
+            <circle cx="75" cy="155" r="18" class="nd nd-g"/><text x="75" y="155" class="nl" font-size="11">3</text>
+            <circle cx="145" cy="155" r="18" class="nd nd-g"/><text x="145" y="155" class="nl" font-size="11">4</text>
+          </svg>
+          <!-- Matritsa -->
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px">
+            <table class="mtx">
+              <tr><th></th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+              <tr><th>0</th><td>0</td><td class="on">1</td><td class="on">1</td><td>0</td><td>0</td></tr>
+              <tr><th>1</th><td class="on">1</td><td>0</td><td class="on">1</td><td class="on">1</td><td>0</td></tr>
+              <tr><th>2</th><td class="on">1</td><td class="on">1</td><td>0</td><td>0</td><td class="on">1</td></tr>
+              <tr><th>3</th><td>0</td><td class="on">1</td><td>0</td><td>0</td><td class="on">1</td></tr>
+              <tr><th>4</th><td>0</td><td>0</td><td class="on">1</td><td class="on">1</td><td>0</td></tr>
+            </table>
+            <div style="text-align:center;margin-top:10px;font-size:.75rem;color:var(--dim);font-family:'Space Grotesk',sans-serif">
+              5×5 matritsa | <span style="color:var(--accent)">1</span> = bog'langan | <span style="color:var(--dim)">0</span> = bog'lanmagan
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLAYD 6: Qo'shnilik ro'yxati ========== -->
+<section class="slide" data-idx="5">
+  <div class="decor" style="width:320px;height:320px;background:var(--accent2);top:-60px;right:-40px"></div>
+  <div class="slide-inner">
+    <div class="s-title anim-up">Grafni ifodalash: <span class="hl2">Qo'shnilik ro'yxati</span></div>
+    <div class="s-sub anim-up">Adjacency List — massiv + bog'langan ro'yxat</div>
+    <div class="s-body">
+      <div class="s-text">
+        <div class="card anim-up">
+          <div class="card-t" style="color:var(--accent2)"><i class="fas fa-list"></i> Ta'rif</div>
+          <div class="card-p">Har bir tugun uchun uning <strong>qo'shnilari ro'yxati</strong> saqlanadi. Massivning har bir indeksi — tugun, qiymati — qo'shni tugunlar ro'yxati. Amaliyotda eng ko'p ishlatiladigan usul.</div>
+        </div>
+        <div class="card anim-up">
+          <div class="card-t" style="color:var(--accent)"><i class="fas fa-check-circle"></i> Afzalliklari</div>
+          <div class="card-p">
+            <span class="tag tag-g">O(V+E)</span> xotira sarfi<br>
+            Siyrak graflar uchun samarali<br>
+            Barcha qo'shnilarni ko'rish: <strong>O(deg(v))</strong>
+          </div>
+        </div>
+        <div class="card anim-up">
+          <div class="card-t" style="color:var(--accent2)"><i class="fas fa-times-circle"></i> Kamchiliklari</div>
+          <div class="card-p">
+            Ikki tugun bog'langanligini tekshirish: <strong>O(deg(v))</strong><br>
+            Vaznli grafda qo'shimcha struktura kerak<br>
+            Matritsaga nisbatan murakkabroq indekslash
+          </div>
+        </div>
+        <div class="anim-up" style="margin-top:6px;display:flex;gap:12px;flex-wrap:wrap">
+          <div class="complexity">Matritsa: O(V²) xotira</div>
+          <div class="complexity o">Ro'yxat: O(V+E) xotira</div>
+        </div>
+      </div>
+      <div class="s-visual vis-anim">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:20px">
+          <svg class="gsvg" viewBox="0 0 220 170" style="max-width:260px">
+            <line class="edge" x1="110" y1="35" x2="40" y2="100"/>
+            <line class="edge" x1="110" y1="35" x2="180" y2="100"/>
+            <line class="edge" x1="40" y1="100" x2="180" y2="100"/>
+            <line class="edge" x1="40" y1="100" x2="75" y2="155"/>
+            <line class="edge" x1="180" y1="100" x2="145" y2="155"/>
+            <circle cx="110" cy="35" r="18" class="nd nd-o"/><text x="110" y="35" class="nl" font-size="11">0</text>
+            <circle cx="40" cy="100" r="18" class="nd nd-o"/><text x="40" y="100" class="nl" font-size="11">1</text>
+            <circle cx="180" cy="100" r="18" class="nd nd-o"/><text x="180" y="100" class="nl" font-size="11">2</text>
+            <circle cx="75" cy="155" r="18" class="nd nd-o"/><text x="75" y="155" class="nl" font-size="11">3</text>
+            <circle cx="145" cy="155" r="18" class="nd nd-o"/><text x="145" y="155" class="nl" font-size="11">4</text>
+          </svg>
+          <!-- Qo'shnilik ro'yxati -->
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;width:280px">
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:.78rem;color:var(--accent2);font-weight:600;margin-bottom:12px"><i class="fas fa-code" style="margin-right:4px"></i> Qo'shnilik ro'yxati</div>
+            <div class="adjlist">
+              <div class="adj-item"><div class="adj-node" style="background:linear-gradient(135deg,var(--accent2),#d45018)">0</div><div class="adj-arr">→</div><div class="adj-nb"><div class="adj-n">1</div><div class="adj-n">2</div></div></div>
+              <div class="adj-item"><div class="adj-node" style="background:linear-gradient(135deg,var(--accent2),#d45018)">1</div><div class="adj-arr">→</div><div class="adj-nb"><div class="adj-n">0</div><div class="adj-n">2</div><div class="adj-n">3</div></div></div>
+              <div class="adj-item"><div class="adj-node" style="background:linear-gradient(135deg,var(--accent2),#d45018)">2</div><div class="adj-arr">→</div><div class="adj-nb"><div class="adj-n">0</div><div class="adj-n">1</div><div class="adj-n">4</div></div></div>
+              <div class="adj-item"><div class="adj-node" style="background:linear-gradient(135deg,var(--accent2),#d45018)">3</div><div class="adj-arr">→</div><div class="adj-nb"><div class="adj-n">1</div><div class="adj-n">4</div></div></div>
+              <div class="adj-item"><div class="adj-node" style="background:linear-gradient(135deg,var(--accent2),#d45018)">4</div><div class="adj-arr">→</div><div class="adj-nb"><div class="adj-n">2</div><div class="adj-n">3</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLAYD 7: BFS ========== -->
+<section class="slide" data-idx="6">
+  <div class="decor" style="width:280px;height:280px;background:var(--accent);bottom:-50px;right:5%"></div>
+  <div class="slide-inner">
+    <div class="s-title anim-up"><span class="hl">BFS</span> — Kenglik bo'yicha qidirish</div>
+    <div class="s-sub anim-up">Breadth-First Search — navbat (Queue) asosida</div>
+    <div class="s-body">
+      <div class="s-text">
+        <div class="card anim-up">
+          <div class="card-t"><i class="fas fa-layer-group"></i> Ishlash prinsipi</div>
+          <div class="card-p">Boshlang'ich tugundan boshlab, <strong>birinchi navbatdagi qo'shnilarni</strong> ziyorat qiladi, keyin ikkinchi navbatdagi, va hokazo. <strong>Navbat (Queue)</strong> ma'lumotlar tuzilmasi ishlatiladi. <strong>Darajalar bo'yicha</strong> tarqaladi — to'lqin kabi.</div>
+        </div>
+        <div class="pseudo anim-up">
+<span class="kw">function</span> <span class="fn">BFS</span>(G, start):
+  <span class="kw">Queue</span> Q ← <span class="kw">new</span> Queue()
+  <span class="kw">bool</span>[] visited ← <span class="st">false</span>
+  Q.<span class="fn">enqueue</span>(start)
+  visited[start] ← <span class="st">true</span>
+  <span class="kw">while</span> Q <span class="kw">is not</span> empty:
+    u ← Q.<span class="fn">dequeue</span>()
+    <span class="cm">// u ni qayta ishla</span>
+    <span class="kw">for each</span> v <span class="kw">in</span> G.<span class="fn">adj</span>(u):
+      <span class="kw">if not</span> visited[v]:
+        visited[v] ← <span class="st">true</span>
+        Q.<span class="fn">enqueue</span>(v)
+        </div>
+        <div class="anim-up" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+          <div class="complexity"><i class="fas fa-clock"></i> Vaqt: O(V+E)</div>
+          <div class="complexity o"><i class="fas fa-memory"></i> Xotira: O(V)</div>
+        </div>
+        <div class="card anim-up" style="margin-top:10px">
+          <div class="card-t"><i class="fas fa-bullseye"></i> Qo'llanilishi</div>
+          <div class="card-p">Eng qisqa yo'l topish (vaznsiz grafda), komponentlarni topish, ikki tugun orasidagi masofa, grafni bo'yaklash (Bipartite check), web crawler.</div>
+        </div>
+      </div>
+      <div class="s-visual vis-anim">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+          <svg class="gsvg" viewBox="0 0 400 300">
+            <!-- Qirralar (barchasi oddiy) -->
+            <line class="edge" x1="200" y1="50" x2="70" y2="140"/>
+            <line class="edge" x1="200" y1="50" x2="330" y2="140"/>
+            <line class="edge" x1="70" y1="140" x2="330" y2="140"/>
+            <line class="edge" x1="70" y1="140" x2="115" y2="265"/>
+            <line class="edge" x1="330" y1="140" x2="285" y2="265"/>
+            <line class="edge" x1="115" y1="265" x2="285" y2="265"/>
+            <!-- BFS yo'l qirralari -->
+            <line class="edge-hl" x1="200" y1="50" x2="70" y2="140"/>
+            <line class="edge-hl" x1="200" y1="50" x2="330" y2="140"/>
+            <line class="edge-hl" x1="70" y1="140" x2="115" y2="265"/>
+            <line class="edge-hl" x1="330" y1="140" x2="285" y2="265"/>
+            <!-- Level 0 -->
+            <circle cx="200" cy="50" r="24" class="nd nd-g"/>
+            <text x="200" y="50" class="nl">A</text>
+            <text x="200" y="50" class="vl">1</text>
+            <!-- Level 1 -->
+            <circle cx="70" cy="140" r="24" class="nd nd-o"/>
+            <text x="70" y="140" class="nl">B</text>
+            <text x="70" y="140" class="vl vl2">2</text>
+            <circle cx="330" cy="140" r="24" class="nd nd-o"/>
+            <text x="330" y="140" class="nl">C</text>
+            <text x="330" y="140" class="vl vl2">3</text>
+            <!-- Level 2 -->
+            <circle cx="115" cy="265" r="24" class="nd nd-a"/>
+            <text x="115" y="265" class="nl">D</text>
+            <text x="115" y="265" class="vl vl3">4</text>
+            <circle cx="285" cy="265" r="24" class="nd nd-a"/>
+            <text x="285" y="265" class="nl">E</text>
+            <text x="285" y="265" class="vl vl3">5</text>
+            <!-- Daraja belgilari -->
+            <text x="16" y="55" fill="var(--accent)" font-family="Space Grotesk" font-size="10" font-weight="600" opacity=".7">Level 0</text>
+            <text x="16" y="145" fill="var(--accent2)" font-family="Space Grotesk" font-size="10" font-weight="600" opacity=".7">Level 1</text>
+            <text x="16" y="270" fill="var(--accent3)" font-family="Space Grotesk" font-size="10" font-weight="600" opacity=".7">Level 2</text>
+            <!-- Chiziqlar -->
+            <line x1="10" y1="60" x2="10" y2="130" stroke="var(--accent)" stroke-width="1" opacity=".2" stroke-dasharray="3 3"/>
+            <line x1="10" y1="150" x2="10" y2="255" stroke="var(--accent2)" stroke-width="1" opacity=".2" stroke-dasharray="3 3"/>
+          </svg>
+          <!-- Traversal yo'l -->
+          <div class="tpath">
+            <div class="tp-node" style="background:var(--accent)">A</div>
+            <i class="fas fa-chevron-right tp-arr"></i>
+            <div class="tp-node" style="background:var(--accent2)">B</div>
+            <i class="fas fa-chevron-right tp-arr"></i>
+            <div class="tp-node" style="background:var(--accent2)">C</div>
+            <i class="fas fa-chevron-right tp-arr"></i>
+            <div class="tp-node" style="background:var(--accent3)">D</div>
+            <i class="fas fa-chevron-right tp-arr"></i>
+            <div class="tp-node" style="background:var(--accent3)">E</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <span class="tag tag-g">Level 0</span>
+            <span class="tag tag-o">Level 1</span>
+            <span class="tag tag-a">Level 2</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLAYD 8: DFS ========== -->
+<section class="slide" data-idx="7">
+  <div class="decor" style="width:300px;height:300px;background:var(--accent4);top:-60px;left:-50px"></div>
+  <div class="slide-inner">
+    <div class="s-title anim-up"><span class="hl2">DFS</span> — Chuqurlik bo'yicha qidirish</div>
+    <div class="s-sub anim-up">Depth-First Search — stek (Stack) yoki rekursiya asosida</div>
+    <div class="s-body">
+      <div class="s-text">
+        <div class="card anim-up">
+          <div class="card-t" style="color:var(--accent2)"><i class="fas fa-arrow-down-long"></i> Ishlash prinsipi</div>
+          <div class="card-p">Boshlang'ich tugundan boshlab, <strong>ilgari borilmagan qo'shniga</strong> chuqur kirib boradi. Yo'l tugasa — <strong>orqaga qaytadi (backtrack)</strong>. <strong>Stek (Stack)</strong> yoki rekursiya ishlatiladi. Bir yo'lni oxiriga yetib, keyin boshqa yo'lga o'tadi.</div>
+        </div>
+        <div class="pseudo anim-up">
+<span class="kw">function</span> <span class="fn">DFS</span>(G, u, visited):
+  visited[u] ← <span class="st">true</span>
+  <span class="cm">// u ni qayta ishla</span>
+  <span class="kw">for each</span> v <span class="kw">in</span> G.<span class="fn">adj</span>(u):
+    <span class="kw">if not</span> visited[v]:
+      <span class="fn">DFS</span>(G, v, visited)
+        </div>
+        <div class="anim-up" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+          <div class="complexity"><i class="fas fa-clock"></i> Vaqt: O(V+E)</div>
+          <div class="complexity o"><i class="fas fa-memory"></i> Xotira: O(V)</div>
+        </div>
+        <div class="card anim-up" style="margin-top:10px">
+          <div class="card-t"><i class="fas fa-bullseye"></i> Qo'llanilishi</div>
+          <div class="card-p">Tsikl borligini aniqlash, topologik saralash, kuchli bog'langan komponentlar (Tarjan), labirint yechish, susaytirilgan yo'l topish.</div>
+        </div>
+      </div>
+      <div class="s-visual vis-anim">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+          <svg class="gsvg" viewBox="0 0 400 300">
+            <!-- Barcha qirralar (kulrang) -->
+            <line class="edge" x1="200" y1="50" x2="70" y2="140"/>
+            <line class="edge" x1="200" y1="50" x2="330" y2="140"/>
+            <line class="edge" x1="70" y1="140" x2="330" y2="140"/>
+            <line class="edge" x1="70" y1="140" x2="115" y2="265"/>
+            <line class="edge" x1="330" y1="140" x2="285" y2="265"/>
+            <line class="edge" x1="115" y1="265" x2="285" y2="265"/>
+            <!-- DFS yo'l qirralari -->
+            <line class="edge-hl2" x1="200" y1="50" x2="70" y2="140"/>
+            <line class="edge-hl2" x1="70" y1="140" x2="115" y2="265"/>
+            <line class="edge-hl2" x1="115" y1="265" x2="285" y2="265"/>
+            <line class="edge-hl2" x1="285" y1="265" x2="330" y2="140"/>
+            <!-- Tugunlar -->
+            <circle cx="200" cy="50" r="24" class="nd nd-g"/>
+            <text x="200" y="50" class="nl">A</text>
+            <text x="200" y="50" class="vl">1</text>
+            <circle cx="70" cy="140" r="24" class="nd nd-o"/>
+            <text x="70" y="140" class="nl">B</text>
+            <text x="70" y="140" class="vl vl2">2</text>
+            <circle cx="330" cy="140" r="24" class="nd nd-p"/>
+            <text x="330" y="140" class="nl">C</text>
+            <text x="330" y="140" class="vl vl4">5</text>
+            <circle cx="115" cy="265" r="24" class="nd nd-a"/>
+            <text x="115" y="265" class="nl">D</text>
+            <text x="115" y="265" class="vl vl3">3</text>
+            <circle cx="285" cy="265" r="24" class="nd nd-a"/>
+            <text x="285" y="265" class="nl">E</text>
+            <text x="285" y="265" class="vl vl3">4</text>
+            <!-- Chuqurlik yo'l ko'rsatkichlari -->
+            <path d="M200 74 L200 95 L70 116 L70 241" stroke="var(--accent2)" stroke-width="1.5" fill="none" stroke-dasharray="5 4" opacity=".35"/>
+            <text x="145" y="85" fill="var(--accent2)" font-family="Space Grotesk" font-size="9" opacity=".6">chuqurlik ↓</text>
+          </svg>
+          <!-- Traversal yo'l -->
+          <div class="tpath">
+            <div class="tp-node" style="background:var(--accent)">A</div>
+            <i class="fas fa-chevron-right tp-arr"></i>
+            <div class="tp-node" style="background:var(--accent2)">B</div>
+            <i class="fas fa-chevron-right tp-arr"></i>
+            <div class="tp-node" style="background:var(--accent3)">D</div>
+            <i class="fas fa-chevron-right tp-arr"></i>
+            <div class="tp-node" style="background:var(--accent3)">E</div>
+            <i class="fas fa-chevron-right tp-arr"></i>
+            <div class="tp-node" style="background:var(--accent4)">C</div>
+          </div>
+          <div style="font-size:.78rem;color:var(--muted);text-align:center;max-width:340px;line-height:1.5">
+            DFS A dan boshlanadi → B ga chuqur kiradi → D ga → E ga → orqaga qaytib C ni ziyorat qiladi
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLAYD 9: Dijkstra algoritmi ========== -->
+<section class="slide" data-idx="8">
+  <div class="decor" style="width:350px;height:350px;background:var(--accent3);top:-80px;right:-60px"></div>
+  <div class="slide-inner">
+    <div class="s-title anim-up"><span class="hl3">Dijkstra</span> algoritmi</div>
+    <div class="s-sub anim-up">Eng qisqa yo'l — vaznli grafda manbadan barcha tugunlarga</div>
+    <div class="s-body">
+      <div class="s-text">
+        <div class="card anim-up">
+          <div class="card-t" style="color:var(--accent3)"><i class="fas fa-route"></i> Ta'rif</div>
+          <div class="card-p">Edsger Dijkstra tomonidan 1956-yilda yaratilgan. <strong>Vaznli graf</strong>da berilman tugundan boshqa barcha tugunlargacha bo'lgan <strong>eng qisqa yo'llarni</strong> topadi. Barcha vaznlar <strong>manfiy bo'lmasligi</strong> shart.</div>
+        </div>
+        <div class="pseudo anim-up">
+<span class="kw">function</span> <span class="fn">Dijkstra</span>(G, src):
+  dist[] ← <span class="st">∞</span>, dist[src] ← <span class="st">0</span>
+  Priority Queue PQ ← {(<span class="st">0</span>, src)}
+  <span class="kw">while</span> PQ <span class="kw">is not</span> empty:
+    (d, u) ← PQ.<span class="fn">extractMin</span>()
+    <span class="kw">if</span> d > dist[u]: <span class="kw">continue</span>
+    <span class="kw">for each</span> (v, w) <span class="kw">in</span> G.<span class="fn">adj</span>(u):
+      <span class="kw">if</span> dist[u]+w < dist[v]:
+        dist[v] ← dist[u]+w
+        PQ.<span class="fn">insert</span>((dist[v], v))
+  <span class="kw">return</span> dist[]
+        </div>
+        <div class="anim-up" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+          <div class="complexity a"><i class="fas fa-clock"></i> Binary Heap: O((V+E) log V)</div>
+          <div class="complexity o"><i class="fas fa-memory"></i> Xotira: O(V)</div>
+        </div>
+        <div class="card anim-up" style="margin-top:10px">
+          <div class="card-t"><i class="fas fa-exclamation-triangle" style="color:var(--accent2)"></i> Muhim cheklov</div>
+          <div class="card-p">Manfiy vaznli qirralar bo'lsa <strong>to'g'ri ishlamaydi</strong>. Bunday hollarda <strong>Bellman-Ford</strong> algoritmi ishlatiladi: O(V×E) murakkablikka ega.</div>
+        </div>
+      </div>
+      <div class="s-visual vis-anim">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+          <svg class="gsvg" viewBox="0 0 400 310">
+            <!-- Barcha qirralar (kulrang) -->
+            <line class="edge" x1="200" y1="40" x2="55" y2="110"/>
+            <line class="edge" x1="200" y1="40" x2="345" y2="110"/>
+            <line class="edge" x1="55" y1="110" x2="345" y2="110"/>
+            <line class="edge" x1="55" y1="110" x2="100" y2="230"/>
+            <line class="edge" x1="345" y1="110" x2="300" y2="230"/>
+            <line class="edge" x1="100" y1="230" x2="300" y2="230"/>
+            <!-- Eng qisqa yo'l qirralari -->
+            <line class="edge-hl" x1="200" y1="40" x2="345" y2="110"/>
+            <line class="edge-hl" x1="345" y1="110" x2="300" y2="230"/>
+            <!-- Vaznlar (barchasi) -->
+            <text x="108" y="65" class="wl">4</text>
+            <text x="292" y="65" class="wl" style="fill:var(--accent);font-weight:800">2</text>
+            <text x="200" y="103" class="wl">7</text>
+            <text x="58" y="178" class="wl">5</text>
+            <text x="342" y="178" class="wl" style="fill:var(--accent);font-weight:800">3</text>
+            <text x="200" y="247" class="wl">6</text>
+            <!-- Tugunlar -->
+            <circle cx="200" cy="40" r="22" class="nd nd-g"/>
+            <text x="200" y="40" class="nl">A</text>
+            <circle cx="55" cy="110" r="22" class="nd nd-dim"/>
+            <text x="55" y="110" class="nl">B</text>
+            <circle cx="345" cy="110" r="22" class="nd nd-g"/>
+            <text x="345" y="110" class="nl">C</text>
+            <circle cx="100" cy="230" r="22" class="nd nd-dim"/>
+            <text x="100" y="230" class="nl">D</text>
+            <circle cx="300" cy="230" r="22" class="nd nd-g"/>
+            <text x="300" y="230" class="nl">E</text>
+            <!-- dist[] natijalari -->
+            <text x="200" y="12" text-anchor="middle" fill="var(--muted)" font-family="Space Grotesk" font-size="10" font-weight="600">dist[] = {0, 4, 2, 5, 5}</text>
+            <!-- Eng qisqa yo'l ko'rsatma -->
+            <text x="390" y="70" text-anchor="end" fill="var(--accent)" font-family="Space Grotesk" font-size="9" opacity=".7">A→C: 2</text>
+            <text x="390" y="180" text-anchor="end" fill="var(--accent)" font-family="Space Grotesk" font-size="9" opacity=".7">C→E: 3</text>
+            <text x="200" y="300" text-anchor="middle" fill="var(--accent)" font-family="Space Grotesk" font-size="11" font-weight="600">
+              A → C → E : jami = 2 + 3 = <tspan font-size="14">5</tspan>
+            </text>
+          </svg>
+          <!-- Qadamlar jadvali -->
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;width:100%;max-width:380px">
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:.78rem;color:var(--accent3);font-weight:600;margin-bottom:10px"><i class="fas fa-list-ol" style="margin-right:4px"></i> Qadamlar (A dan boshlab)</div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:.78rem">
+              <div style="color:var(--dim)">Qadam</div>
+              <div style="color:var(--accent)">A</div>
+              <div style="color:var(--muted)">B</div>
+              <div style="color:var(--muted)">C</div>
+              <div style="color:var(--muted)">D</div>
+              <div style="color:var(--muted)">E</div>
+              <div style="color:var(--dim)">0</div><div style="color:var(--accent);font-weight:700">0</div><div>∞</div><div>∞</div><div>∞</div><div>∞</div>
+              <div style="color:var(--dim)">1</div><div style="color:var(--accent)">0</div><div style="color:var(--text)">4</div><div style="color:var(--accent);font-weight:700">2</div><div>∞</div><div>∞</div>
+              <div style="color:var(--dim)">2</div><div style="color:var(--accent)">0</div><div style="color:var(--text)">4</div><div style="color:var(--accent)">2</div><div>9</div><div style="color:var(--accent);font-weight:700">5</div>
+              <div style="color:var(--dim)">3</div><div style="color:var(--accent)">0</div><div style="color:var(--accent);font-weight:700">4</div><div style="color:var(--accent)">2</div><div style="color:var(--accent);font-weight:700">5</div><div style="color:var(--accent)">5</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SLAYD 10: Qo'llanilish sohalari ========== -->
+<section class="slide" data-idx="9">
+  <div class="decor" style="width:400px;height:400px;background:var(--accent);bottom:-120px;left:30%"></div>
+  <div class="decor" style="width:250px;height:250px;background:var(--accent2);top:-40px;right:10%"></div>
+  <div class="slide-inner">
+    <div class="s-title anim-up" style="text-align:center">Graf <span class="hl">qo'llanilish</span> sohalari</div>
+    <div class="s-sub anim-up" style="text-align:center">Graflar real hayotda va kompyuter fanida qayerlarda ishlatiladi?</div>
+    <div class="app-grid" style="margin-top:10px">
+      <!-- 1 -->
+      <div class="app-card anim-up">
+        <div class="app-icon" style="background:var(--accent-dim);color:var(--accent)"><i class="fas fa-map-location-dot"></i></div>
+        <div class="app-name">Yo'nalish va navigatsiya</div>
+        <div class="app-desc">Google Maps, Yandex Maps — shaharlar va yo'llar graf sifatida ifodalanadi. Dijkstra va A* algoritmlari eng qisqa yo'lni topadi.</div>
+      </div>
+      <!-- 2 -->
+      <div class="app-card anim-up">
+        <div class="app-icon" style="background:var(--accent2-dim);color:var(--accent2)"><i class="fas fa-network-wired"></i></div>
+        <div class="app-name">Ijtimoiy tarmoqlar</div>
+        <div class="app-desc">Facebook, Instagram — foydalanuvchilar tugun, do'stlik qirra. Do'stlaringiz do'stlari topish, guruhlar aniqlash graf algoritmlari bilan.</div>
+      </div>
+      <!-- 3 -->
+      <div class="app-card anim-up">
+        <div class="app-icon" style="background:var(--accent3-dim);color:var(--accent3)"><i class="fas fa-globe"></i></div>
+        <div class="app-name">Internet va Web</div>
+        <div class="app-desc">Web sahifalar — tugunlar, giperhavolalar — qirralar. Google PageRank algoritmi web-grafda sahifalarni reytinglaydi.</div>
+      </div>
+      <!-- 4 -->
+      <div class="app-card anim-up">
+        <div class="app-icon" style="background:var(--accent4-dim);color:var(--accent4)"><i class="fas fa-microchip"></i></div>
+        <div class="app-name">Kompyuter arxitekturasi</div>
+        <div class="app-desc">Zanjirlar grafi — topologik saralash. Mikrosxemalarda kontaktlarni joylashtirish (VLSI), paralel hisoblash — vazifalar grafi.</div>
+      </div>
+      <!-- 5 -->
+      <div class="app-card anim-up">
+        <div class="app-icon" style="background:var(--accent-dim);color:var(--accent)"><i class="fas fa-dna"></i></div>
+        <div class="app-name">Biologiya va kimyo</div>
+        <div class="app-desc">Oqsillar o'zaro ta'sir grafi, metabolik yo'llar, genetik panjaralar. Graph mining bilan kasalliklarni aniqlash.</div>
+      </div>
+      <!-- 6 -->
+      <div class="app-card anim-up">
+        <div class="app-icon" style="background:var(--accent2-dim);color:var(--accent2)"><i class="fas fa-gamepad"></i></div>
+        <div class="app-name">O'yinlar va AI</div>
+        <div class="app-desc">O'yin xaritasi — graf. NPC harakatlari BFS/DFS bilan. Minimax algoritmi — o'yin daraxti grafi. Pathfinding — A* algoritm.</div>
+      </div>
+      <!-- 7 -->
+      <div class="app-card anim-up">
+        <div class="app-icon" style="background:var(--accent3-dim);color:var(--accent3)"><i class="fas fa-plane"></i></div>
+        <div class="app-name">Transport tarmoqlari</div>
+        <div class="app-desc">Aviakompaniyalar — shaharlar tugun, reyslar qirra (vazn = narx/vaqt). Minimum spanning tree — eng arzon yo'l tarmog'i.</div>
+      </div>
+      <!-- 8 -->
+      <div class="app-card anim-up">
+        <div class="app-icon" style="background:var(--accent4-dim);color:var(--accent4)"><i class="fas fa-shield-halved"></i></div>
+        <div class="app-name">Cyberxavfsizlik</div>
+        <div class="app-desc">Tarmoq intrusion detection — graf tahlili. IP manzillar tugun, ulanishlar qirra. Anomaliya va hujumlarni aniqlash.</div>
+      </div>
+      <!-- 9 -->
+      <div class="app-card anim-up">
+        <div class="app-icon" style="background:var(--accent-dim);color:var(--accent)"><i class="fas fa-diagram-project"></i></div>
+        <div class="app-name">Loyiha boshqaruvi</div>
+        <div class="app-desc">Vazifalar grafi (DAG) — topologik saralash bilan vazifalarni tartiblash. Critical Path Method (CPM) — eng muhim yo'lni topish.</div>
+      </div>
+    </div>
+    <!-- Xulosa -->
+    <div class="anim-up" style="text-align:center;margin-top:20px">
+      <div class="formula" style="display:inline-block;border-left-color:var(--accent2);border-right:3px solid var(--accent2);border-radius:0">
+        Graf — <span class="v">umumiy</span> ma'lumotlar tuzilmasi. Murakkab <span class="o">munosabatlarni</span> ifodalashning eng <span class="v">kuchli</span> vositasi.
+      </div>
+      <a href="reja-2.html"> <button class="button">Reja - 2 </button> </a>
+    </div>
+  </div>
+</section>
+
+</div><!-- pres tugadi -->
+
+<!-- Navigatsiya -->
+<nav class="nav" aria-label="Slayd navigatsiyasi">
+  <button class="nav-btn" id="prevBtn" aria-label="Oldingi slayd" disabled><i class="fas fa-chevron-left"></i></button>
+  <div class="dots" id="dots"></div>
+  <div class="s-counter" id="counter">1 / 10</div>
+  <button class="nav-btn" id="nextBtn" aria-label="Keyingi slayd"><i class="fas fa-chevron-right"></i></button>
+</nav>
+<div class="key-hint"><kbd>←</kbd> <kbd>→</kbd> yoki <kbd>Space</kbd> bilan boshqaring</div>
+
+<script>
+/* === Fondagi animatsion grafigik chizish === */
+(function(){
+  const c = document.getElementById('bgCanvas');
+  const ctx = c.getContext('2d');
+  let W, H, nodes = [], edges = [];
+  const NODE_COUNT = 35;
+  const MAX_DIST = 180;
+
+  function resize(){
+    W = c.width = window.innerWidth;
+    H = c.height = window.innerHeight;
+  }
+
+  function init(){
+    resize();
+    nodes = [];
+    edges = [];
+    for(let i = 0; i < NODE_COUNT; i++){
+      nodes.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+        r: Math.random() * 1.8 + 0.8
+      });
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+    /* Qirralar */
+    for(let i = 0; i < nodes.length; i++){
+      for(let j = i + 1; j < nodes.length; j++){
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if(d < MAX_DIST){
+          const a = (1 - d / MAX_DIST) * 0.12;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = 'rgba(0,229,160,' + a + ')';
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+    }
+    /* Tugunlar */
+    for(const n of nodes){
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,229,160,0.25)';
+      ctx.fill();
+    }
+    /* Harakat */
+    for(const n of nodes){
+      n.x += n.vx;
+      n.y += n.vy;
+      if(n.x < 0 || n.x > W) n.vx *= -1;
+      if(n.y < 0 || n.y > H) n.vy *= -1;
+    }
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  init();
+  draw();
+})();
+
+/* === Slayd boshqaruv tizimi === */
+(function(){
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let cur = 0;
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const counter = document.getElementById('counter');
+  const prog = document.getElementById('prog');
+  const dotsEl = document.getElementById('dots');
+
+  /* Nuqtalarni yaratish */
+  for(let i = 0; i < total; i++){
+    const d = document.createElement('button');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', 'Slayd ' + (i + 1));
+    d.dataset.idx = i;
+    d.addEventListener('click', function(){ goTo(parseInt(this.dataset.idx)); });
+    dotsEl.appendChild(d);
+  }
+  const dots = dotsEl.querySelectorAll('.dot');
+
+  function goTo(idx){
+    if(idx < 0 || idx >= total || idx === cur) return;
+    const prev = slides[cur];
+    const next = slides[idx];
+    const dir = idx > cur ? 1 : -1;
+
+    prev.classList.remove('active');
+    prev.classList.add(dir > 0 ? 'exit' : '');
+    /* Chiqayotgan slaydning transform ni to'g'rilash */
+    if(dir < 0){
+      prev.style.transform = 'translateX(50px) scale(0.98)';
+    }
+
+    setTimeout(function(){
+      prev.classList.remove('exit');
+      prev.style.transform = '';
+      /* Kirayotgan slaydni tayyorlash */
+      next.style.transform = dir > 0 ? 'translateX(50px) scale(0.98)' : 'translateX(-50px) scale(0.98)';
+      next.style.opacity = '0';
+      /* Force reflow */
+      void next.offsetWidth;
+      next.style.transform = '';
+      next.style.opacity = '';
+      next.classList.add('active');
+    }, 50);
+
+    cur = idx;
+    update();
+  }
+
+  function update(){
+    counter.textContent = (cur + 1) + ' / ' + total;
+    prog.style.width = ((cur + 1) / total * 100) + '%';
+    prevBtn.disabled = cur === 0;
+    nextBtn.disabled = cur === total - 1;
+    dots.forEach(function(d, i){
+      d.classList.toggle('active', i === cur);
+    });
+  }
+
+  prevBtn.addEventListener('click', function(){ goTo(cur - 1); });
+  nextBtn.addEventListener('click', function(){ goTo(cur + 1); });
+
+  /* Klaviatura boshqaruvi */
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight' || e.key === ' '){
+      e.preventDefault();
+      goTo(cur + 1);
+    } else if(e.key === 'ArrowLeft'){
+      e.preventDefault();
+      goTo(cur - 1);
+    } else if(e.key === 'Home'){
+      e.preventDefault();
+      goTo(0);
+    } else if(e.key === 'End'){
+      e.preventDefault();
+      goTo(total - 1);
+    }
+  });
+
+  /* To'liq ekran */
+  const fsBtn = document.getElementById('fsBtn');
+  fsBtn.addEventListener('click', function(){
+    if(!document.fullscreenElement){
+      document.documentElement.requestFullscreen().catch(function(){});
+      fsBtn.innerHTML = '<i class="fas fa-compress"></i>';
+    } else {
+      document.exitFullscreen();
+      fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
+    }
+  });
+  document.addEventListener('fullscreenchange', function(){
+    if(!document.fullscreenElement){
+      fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
+    }
+  });
+
+  /* Touch swipe qo'llab-quvvatlash */
+  let touchStartX = 0;
+  document.addEventListener('touchstart', function(e){
+    touchStartX = e.changedTouches[0].screenX;
+  }, {passive: true});
+  document.addEventListener('touchend', function(e){
+    const diff = touchStartX - e.changedTouches[0].screenX;
+    if(Math.abs(diff) > 60){
+      if(diff > 0) goTo(cur + 1);
+      else goTo(cur - 1);
+    }
+  }, {passive: true});
+
+  update();
+})();
+</script>
+</body>
+</html>

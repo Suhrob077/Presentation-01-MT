@@ -31,6 +31,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text)
 .s-title .hl3{color:var(--accent3)}
 .s-sub{font-size:1rem;color:var(--muted);margin-bottom:24px}
 .s-body{display:flex;gap:36px;flex:1;align-items:center;min-height:0}
+.s-body2{display:flex;gap:36px;flex:1;align-items:center;min-height:0; flex-direction: column;}
 .s-text{flex:1;min-width:0}
 .s-visual{flex:1;display:flex;justify-content:center;align-items:center;min-width:0}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:14px;transition:border-color .3s,box-shadow .3s}
@@ -115,6 +116,10 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text)
 .app-name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.92rem;margin-bottom:5px}
 .app-desc{font-size:.78rem;color:var(--muted);line-height:1.55}
 /* Dekorativ */
+.NSD{
+  width: 900px  ;
+  height: auto;
+}
 .decor{position:absolute;border-radius:50%;filter:blur(100px);opacity:.12;pointer-events:none;z-index:0}
 /* Navigatsiya */
 .nav{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;z-index:200;background:rgba(15,22,41,.92);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:50px;padding:10px 22px}
@@ -291,158 +296,170 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text)
   </div>
 </section>
 
-<!-- ========== SLAYD 3: Graf turlari (Yo'naltirilmagan / Yo'naltirilgan) ========== -->
+<!-- ========== SLAYD 3: Graf qidiruv usullari (BFS vs DFS) ========== -->
 <section class="slide" data-idx="2">
-  <div class="decor" style="width:300px;height:300px;background:var(--accent);bottom:-60px;right:10%"></div>
+  <div class="decor" style="width:400px;height:400px;background:var(--accent);top:-100px;right:-100px;opacity:0.05;border-radius:50%;"></div>
+  
   <div class="slide-inner">
-    <div class="s-title anim-up">Graf <span class="hl">turlari</span> — I</div>
-    <div class="s-sub anim-up">Yo'naltirilmagan va yo'naltirilgan graflar</div>
-    <div class="s-body">
-      <div class="type-grid" style="width:100%">
-        <!-- Yo'naltirilmagan -->
-        <div class="type-card anim-up">
-          <div class="tn" style="color:var(--accent)"><i class="fas fa-arrows-left-right" style="margin-right:6px;font-size:.85rem"></i>Yo'naltirilmagan graf</div>
-          <div class="ten">Undirected Graph</div>
-          <div class="card-p" style="margin-bottom:14px">Qirralar yo'nalishga ega emas. <strong>{u, v} = {v, u}</strong> — qirra ikkala tomonga ham yo'l beradi. Ikkala uchi teng huquqli.</div>
-          <svg viewBox="0 0 260 200">
-            <line class="edge" x1="130" y1="35" x2="45" y2="100"/>
-            <line class="edge" x1="130" y1="35" x2="215" y2="100"/>
-            <line class="edge" x1="45" y1="100" x2="215" y2="100"/>
-            <line class="edge" x1="45" y1="100" x2="90" y2="170"/>
-            <line class="edge" x1="215" y1="100" x2="170" y2="170"/>
-            <circle cx="130" cy="35" r="20" class="nd nd-g"/><text x="130" y="35" class="nl" font-size="12">1</text>
-            <circle cx="45" cy="100" r="20" class="nd nd-g"/><text x="45" y="100" class="nl" font-size="12">2</text>
-            <circle cx="215" cy="100" r="20" class="nd nd-g"/><text x="215" y="100" class="nl" font-size="12">3</text>
-            <circle cx="90" cy="170" r="20" class="nd nd-g"/><text x="90" y="170" class="nl" font-size="12">4</text>
-            <circle cx="170" cy="170" r="20" class="nd nd-g"/><text x="170" y="170" class="nl" font-size="12">5</text>
-            <text x="130" y="198" text-anchor="middle" fill="var(--dim)" font-family="Space Grotesk" font-size="10">1 — 2 = 2 — 1 (simmetrik)</text>
+    <div class="s-title anim-up" style="font-size: 2.2rem; text-align: center; margin-bottom: 25px;">
+      Grafda <span class="hl">Qidiruv</span> Strategiyalari
+    </div>
+    <br>
+    <br>
+    
+    <div class="s-body2">
+      <div class="type-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; width: 100%;">
+        
+        <!-- BFS SECTION -->
+        <div class="type-card anim-up" style="padding: 20px; background: rgba(255,255,255,0.02); border: 1px solid rgba(0,229,160,0.2); border-radius: 12px; position: relative;">
+          <div style="position: absolute; top: -12px; right: 15px; background: var(--accent); color: #000; padding: 2px 10px; border-radius: 20px; font-size: 10px; font-weight: 800;">NAVBAT (QUEUE)</div>
+          
+          <div class="tn" style="color:var(--accent); font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-layer-group"></i> ENIGA QIDIRISH (BFS)
+          </div>
+          
+          <div style="font-size: 13px; color: #c9d1d9; margin-top: 15px; line-height: 1.6;">
+            <p><strong>Mohiyati:</strong> Bu usul grafni qatlam-qatlam bo'ylab o'rganadi. Markazdan boshlab barcha qo'shnilarni bir vaqtda qamrab oladi.</p>
+            <ul style="list-style: none; padding: 0; margin-top: 10px;">
+              <li><i class="fas fa-check-circle" style="color:var(--accent); margin-right: 5px;"></i> <b>FIFO:</b> Birinchi kelgan birinchi ko'riladi.</li>
+              <li><i class="fas fa-check-circle" style="color:var(--accent); margin-right: 5px;"></i> <b>Optimallik:</b> Eng qisqa yo'lni kafolatlaydi.</li>
+              <li><i class="fas fa-check-circle" style="color:var(--accent); margin-right: 5px;"></i> <b>Xotira:</b> Keng graflarda xotirani ko'p sarflaydi.</li>
+            </ul>
+          </div>
+
+          <!-- BFS Vizual -->
+          <svg viewBox="0 0 260 80" style="margin-top: 15px;">
+            <rect x="30" y="25" width="200" height="35" rx="5" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4"/>
+            <rect x="185" y="30" width="25" height="25" rx="3" fill="var(--accent)"/>
+            <rect x="150" y="30" width="25" height="25" rx="3" fill="var(--accent)" opacity="0.6"/>
+            <rect x="115" y="30" width="25" height="25" rx="3" fill="var(--accent)" opacity="0.3"/>
+            <text x="35" y="20" fill="var(--accent)" font-size="9" font-weight="bold">KIRISH (IN)</text>
+            <text x="185" y="20" fill="var(--accent)" font-size="9" font-weight="bold">CHIQISH (OUT)</text>
           </svg>
         </div>
-        <!-- Yo'naltirilgan -->
-        <div class="type-card anim-up">
-          <div class="tn" style="color:var(--accent2)"><i class="fas fa-arrow-right-long" style="margin-right:6px;font-size:.85rem"></i>Yo'naltirilgan graf</div>
-          <div class="ten">Directed Graph (Digraph)</div>
-          <div class="card-p" style="margin-bottom:14px">Har bir qirra yo'nalishga ega: <strong>(u, v) ≠ (v, u)</strong>. Ok shaklida ko'rsatiladi. <strong>in-degree</strong> va <strong>out-degree</strong> farqlanadi.</div>
-          <svg viewBox="0 0 260 200">
-            <line class="edge" x1="116" y1="46" x2="57" y2="89" marker-end="url(#arr)"/>
-            <line class="edge" x1="144" y1="46" x2="203" y2="89" marker-end="url(#arr)"/>
-            <line class="edge" x1="203" y1="105" x2="57" y2="105" marker-end="url(#arr)"/>
-            <line class="edge" x1="52" y1="116" x2="83" y2="155" marker-end="url(#arr)"/>
-            <line class="edge" x1="208" y1="116" x2="177" y2="155" marker-end="url(#arr)"/>
-            <circle cx="130" cy="35" r="20" class="nd nd-o"/><text x="130" y="35" class="nl" font-size="12">1</text>
-            <circle cx="45" cy="105" r="20" class="nd nd-o"/><text x="45" y="105" class="nl" font-size="12">2</text>
-            <circle cx="215" cy="105" r="20" class="nd nd-o"/><text x="215" y="105" class="nl" font-size="12">3</text>
-            <circle cx="90" cy="170" r="20" class="nd nd-o"/><text x="90" y="170" class="nl" font-size="12">4</text>
-            <circle cx="170" cy="170" r="20" class="nd nd-o"/><text x="170" y="170" class="nl" font-size="12">5</text>
-            <text x="130" y="198" text-anchor="middle" fill="var(--dim)" font-family="Space Grotesk" font-size="10">1→2 ≠ 2→1 (asimmetrik)</text>
+
+        <!-- DFS SECTION -->
+        <div class="type-card anim-up" style="padding: 20px; background: rgba(255,255,255,0.02); border: 1px solid rgba(210,168,255,0.2); border-radius: 12px; position: relative;">
+          <div style="position: absolute; top: -12px; right: 15px; background: var(--accent2); color: #000; padding: 2px 10px; border-radius: 20px; font-size: 10px; font-weight: 800;">STEK (STACK)</div>
+
+          <div class="tn" style="color:var(--accent2); font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-stream"></i> BO'YIGA QIDIRISH (DFS)
+          </div>
+
+          <div style="font-size: 13px; color: #c9d1d9; margin-top: 15px; line-height: 1.6;">
+            <p><strong>Mohiyati:</strong> Algoritm bitta yo'nalishni tanlaydi va u oxirigacha yetmaguncha to'xtamaydi. Keyin orqaga qaytadi.</p>
+            <ul style="list-style: none; padding: 0; margin-top: 10px;">
+              <li><i class="fas fa-check-circle" style="color:var(--accent2); margin-right: 5px;"></i> <b>LIFO:</b> Oxirgi kelgan birinchi chiqadi.</li>
+              <li><i class="fas fa-check-circle" style="color:var(--accent2); margin-right: 5px;"></i> <b>Rekursiya:</b> O'z-o'zini chaqirish orqali ishlaydi.</li>
+              <li><i class="fas fa-check-circle" style="color:var(--accent2); margin-right: 5px;"></i> <b>Sikl:</b> Grafda aylana borligini aniqlashda zo'r.</li>
+            </ul>
+          </div>
+
+          <!-- DFS Vizual -->
+          <svg viewBox="0 0 260 80" style="margin-top: 10px;">
+            <path d="M100 5 V75 H160 V5" fill="none" stroke="var(--accent2)" stroke-width="2"/>
+            <rect x="108" y="50" width="44" height="20" rx="3" fill="var(--accent2)" opacity="0.3"/>
+            <rect x="108" y="27" width="44" height="20" rx="3" fill="var(--accent2)" opacity="0.6"/>
+            <rect x="108" y="4" width="44" height="20" rx="3" fill="var(--accent2)"/>
+            <text x="170" y="20" fill="var(--accent2)" font-size="9" font-weight="bold">KIRISH/CHIQISH</text>
           </svg>
+        </div>
+      </div>
+
+      <!-- Pastki Qo'shimcha Ma'lumot -->
+      <div class="anim-up" style="margin-top: 25px; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <h4 style="color: #ffd23f; font-size: 14px; margin-bottom: 5px;"><i class="fas fa-map-marker-alt"></i> BFS Qachon kerak?</h4>
+            <p style="font-size: 12px; color: var(--muted);">Eng yaqin do'stlar, eng qisqa marshrut va bir xil og'irlikdagi yo'llarni qidirishda foydalaniladi.</p>
+          </div>
+          <div>
+            <h4 style="color: #ffd23f; font-size: 14px; margin-bottom: 5px;"><i class="fas fa-project-diagram"></i> DFS Qachon kerak?</h4>
+            <p style="font-size: 12px; color: var(--muted);">Murakkab labirintlar, o'yinlardagi ehtimollar daraxti va graf tugunlarini to'liq saralashda foydalaniladi.</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ========== SLAYD 4: Graf turlari (Vaznli, Tsiklli, Daraxt) ========== -->
+<!-- ========== SLAYD 4: Grafda Ma'lumot Tuzilmalari (Navbat, Stek, Dek) ========== -->
 <section class="slide" data-idx="3">
-  <div class="decor" style="width:350px;height:350px;background:var(--accent4);top:-80px;right:-60px"></div>
+  <div class="decor" style="width:350px;height:350px;background:var(--accent2);top:-80px;right:-60px"></div>
   <div class="slide-inner">
-    <div class="s-title anim-up">Graf <span class="hl2">turlari</span> — II</div>
-    <div class="s-sub anim-up">Vaznli, tsiklli, daraxt va to'liq graf</div>
+    <div class="s-title anim-up">Graflarni <span class="hl2">qidirish</span> asoslari</div>
+    <div class="s-sub anim-up">Navbat (Queue), Stek (Stack) va Dek (Deque) tushunchalari</div>
+    <h1 class="NSD">Graflarda qidiruv algoritmlari (BFS, DFS) shunchaki tugunlarni aylanish emas, balki ma'lumotlarni qaysi tartibda qayta ishlashni boshqarishdir. Navbat, stek va dek bu jarayonda "xotira" vazifasini bajaradi va algoritmdagi "strategiya"ni belgilaydi.</h1>
     <div class="s-body">
-      <div class="type-grid" style="width:100%">
-        <!-- Vaznli -->
+      <div class="type-grid" style="width:100%; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+        
+        <!-- NAVBAT (Queue) -->
         <div class="type-card anim-up">
-          <div class="tn" style="color:var(--accent3)"><i class="fas fa-weight-hanging" style="margin-right:6px;font-size:.85rem"></i>Vaznli graf</div>
-          <div class="ten">Weighted Graph</div>
-          <div class="card-p" style="margin-bottom:10px">Har bir qirra son qiymat — <strong>vazn</strong> ga ega. Masofa, narx, vaqt kabi. Dijkstra, Prim algoritmlari shu grafda ishlaydi.</div>
-          <svg viewBox="0 0 240 160">
-            <line class="edge" x1="120" y1="30" x2="40" y2="90"/>
-            <line class="edge" x1="120" y1="30" x2="200" y2="90"/>
-            <line class="edge" x1="40" y1="90" x2="200" y2="90"/>
-            <line class="edge" x1="40" y1="90" x2="80" y2="145"/>
-            <line class="edge" x1="200" y1="90" x2="160" y2="145"/>
-            <circle cx="120" cy="30" r="18" class="nd nd-a"/><text x="120" y="30" class="nl" font-size="11">A</text>
-            <circle cx="40" cy="90" r="18" class="nd nd-a"/><text x="40" y="90" class="nl" font-size="11">B</text>
-            <circle cx="200" cy="90" r="18" class="nd nd-a"/><text x="200" y="90" class="nl" font-size="11">C</text>
-            <circle cx="80" cy="145" r="18" class="nd nd-a"/><text x="80" y="145" class="nl" font-size="11">D</text>
-            <circle cx="160" cy="145" r="18" class="nd nd-a"/><text x="160" y="145" class="nl" font-size="11">E</text>
-            <text x="68" y="52" class="wl">4</text>
-            <text x="172" y="52" class="wl">2</text>
-            <text x="120" y="83" class="wl">7</text>
-            <text x="45" y="124" class="wl">5</text>
-            <text x="195" y="124" class="wl">3</text>
+          <div class="tn" style="color:var(--accent3)"><i class="fas fa-stream" style="margin-right:6px;font-size:.85rem"></i>Navbat (Queue)</div>
+          <div class="ten">BFS — Kenglik bo'yicha qidiruv</div>
+          <div class="card-p" style="margin-bottom:10px">
+            <strong>FIFO (First In, First Out)</strong> tamoyili. Birinchi kirgan birinchi chiqadi. 
+            Grafda eng qisqa yo'lni topish (BFS) uchun ishlatiladi.
+          </div>
+          <svg viewBox="0 0 240 120">
+            <!-- Navbat chizmasi -->
+            <rect x="40" y="40" width="160" height="40" rx="4" fill="none" stroke="var(--accent3)" stroke-width="2" stroke-dasharray="4 2"/>
+            <rect x="45" y="45" width="30" height="30" rx="3" class="nd nd-a" style="fill:var(--accent3)"/>
+            <rect x="80" y="45" width="30" height="30" rx="3" class="nd nd-a"/>
+            <rect x="115" y="45" width="30" height="30" rx="3" class="nd nd-a"/>
+            <!-- Arrows -->
+            <path d="M10 60 L35 60" stroke="var(--dim)" stroke-width="2" marker-end="url(#arr)"/>
+            <path d="M205 60 L230 60" stroke="var(--dim)" stroke-width="2" marker-end="url(#arr)"/>
+            <text x="22" y="55" class="nl" font-size="8" fill="var(--dim)">IN</text>
+            <text x="218" y="55" class="nl" font-size="8" fill="var(--dim)">OUT</text>
+            <text x="120" y="105" text-anchor="middle" fill="var(--dim)" font-size="9">BFS uchun asosiy struktura</text>
           </svg>
         </div>
-        <!-- Tsiklli -->
+
+        <!-- STEK (Stack) -->
         <div class="type-card anim-up">
-          <div class="tn" style="color:var(--accent4)"><i class="fas fa-rotate" style="margin-right:6px;font-size:.85rem"></i>Tsiklli / A_tsikllic</div>
-          <div class="ten">Cyclic / Acyclic</div>
-          <div class="card-p" style="margin-bottom:10px"><strong>Tsikl</strong> — boshlang'ich tugunga qaytadigan yo'l. Tsiklli grafda kamida 1 tsikl bor. <strong>DAG</strong> (Directed Acyclic Graph) — yo'naltirilgan a_tsikllic graf.</div>
-          <svg viewBox="0 0 240 160">
-            <!-- Tsiklli -->
-            <text x="60" y="12" text-anchor="middle" fill="var(--accent4)" font-family="Space Grotesk" font-size="10" font-weight="600">Tsiklli</text>
-            <line class="edge" x1="30" y1="35" x2="90" y2="35"/>
-            <line class="edge" x1="90" y1="35" x2="90" y2="80"/>
-            <line class="edge" x1="90" y1="80" x2="30" y2="80"/>
-            <line class="edge" x1="30" y1="80" x2="30" y2="35"/>
-            <circle cx="30" cy="35" r="14" class="nd nd-p"/><text x="30" y="35" class="nl" font-size="9">1</text>
-            <circle cx="90" cy="35" r="14" class="nd nd-p"/><text x="90" y="35" class="nl" font-size="9">2</text>
-            <circle cx="90" cy="80" r="14" class="nd nd-p"/><text x="90" y="80" class="nl" font-size="9">3</text>
-            <circle cx="30" cy="80" r="14" class="nd nd-p"/><text x="30" y="80" class="nl" font-size="9">4</text>
-            <!-- A_tsikllic -->
-            <text x="185" y="12" text-anchor="middle" fill="var(--accent)" font-family="Space Grotesk" font-size="10" font-weight="600">A_tsikllic (DAG)</text>
-            <line class="edge" x1="155" y1="30" x2="155" y2="65" marker-end="url(#arr)"/>
-            <line class="edge" x1="155" y1="30" x2="215" y2="65" marker-end="url(#arr)"/>
-            <line class="edge" x1="155" y1="65" x2="185" y2="115" marker-end="url(#arr)"/>
-            <line class="edge" x1="215" y1="65" x2="185" y2="115" marker-end="url(#arr)"/>
-            <circle cx="155" cy="30" r="14" class="nd nd-g"/><text x="155" y="30" class="nl" font-size="9">A</text>
-            <circle cx="155" cy="65" r="14" class="nd nd-g"/><text x="155" y="65" class="nl" font-size="9">B</text>
-            <circle cx="215" cy="65" r="14" class="nd nd-g"/><text x="215" y="65" class="nl" font-size="9">C</text>
-            <circle cx="185" cy="115" r="14" class="nd nd-g"/><text x="185" y="115" class="nl" font-size="9">D</text>
-            <text x="120" y="155" fill="var(--dim)" font-family="Space Grotesk" font-size="9">DAG — topologik saralash uchun asos</text>
+          <div class="tn" style="color:var(--accent4)"><i class="fas fa-layer-group" style="margin-right:6px;font-size:.85rem"></i>Stek (Stack)</div>
+          <div class="ten">DFS — Chuqurlik bo'yicha qidiruv</div>
+          <div class="card-p" style="margin-bottom:10px">
+            <strong>LIFO (Last In, First Out)</strong> tamoyili. Oxirgi kirgan birinchi chiqadi. 
+            Rekursiya yoki DFS algoritmlarida grafning tubiga tushish uchun qo'llaniladi.
+          </div>
+          <svg viewBox="0 0 240 120">
+            <!-- Stek chizmasi -->
+            <path d="M90 20 L90 100 L150 100 L150 20" fill="none" stroke="var(--accent4)" stroke-width="2"/>
+            <rect x="95" y="75" width="50" height="20" rx="2" class="nd nd-p"/>
+            <rect x="95" y="50" width="50" height="20" rx="2" class="nd nd-p"/>
+            <rect x="95" y="25" width="50" height="20" rx="2" class="nd nd-p" style="fill:var(--accent4)"/>
+            <!-- In/Out Arrow -->
+            <path d="M120 5 C 130 5, 170 10, 140 30" fill="none" stroke="var(--dim)" stroke-width="2" marker-end="url(#arr)"/>
+            <text x="170" y="20" class="nl" font-size="8" fill="var(--dim)">IN / OUT</text>
+            <text x="120" y="115" text-anchor="middle" fill="var(--dim)" font-size="9">DFS va Rekursiya</text>
           </svg>
         </div>
-        <!-- Daraxt -->
+
+        <!-- DEK (Deque) -->
         <div class="type-card anim-up">
-          <div class="tn" style="color:var(--accent)"><i class="fas fa-sitemap" style="margin-right:6px;font-size:.85rem"></i>Daraxt (Tree)</div>
-          <div class="ten">Tree Graph</div>
-          <div class="card-p" style="margin-bottom:10px"><strong>A_tsikllic ulangan graf.</strong> N ta tugunli daraxtda aniq <strong>N-1</strong> ta qirra bo'ladi. Ikkala tugun orasida yagona yo'l mavjud. Ierarxik tuzilmani ifodalaydi.</div>
-          <svg viewBox="0 0 240 160">
-            <line class="edge" x1="120" y1="30" x2="60" y2="80"/>
-            <line class="edge" x1="120" y1="30" x2="180" y2="80"/>
-            <line class="edge" x1="60" y1="80" x2="30" y2="135"/>
-            <line class="edge" x1="60" y1="80" x2="90" y2="135"/>
-            <line class="edge" x1="180" y1="80" x2="150" y2="135"/>
-            <line class="edge" x1="180" y1="80" x2="210" y2="135"/>
-            <circle cx="120" cy="30" r="16" class="nd nd-g"/><text x="120" y="30" class="nl" font-size="10">R</text>
-            <circle cx="60" cy="80" r="16" class="nd nd-g"/><text x="60" y="80" class="nl" font-size="10">L</text>
-            <circle cx="180" cy="80" r="16" class="nd nd-g"/><text x="180" y="80" class="nl" font-size="10">M</text>
-            <circle cx="30" cy="135" r="16" class="nd nd-g"/><text x="30" y="135" class="nl" font-size="10">a</text>
-            <circle cx="90" cy="135" r="16" class="nd nd-g"/><text x="90" y="135" class="nl" font-size="10">b</text>
-            <circle cx="150" cy="135" r="16" class="nd nd-g"/><text x="150" y="135" class="nl" font-size="10">c</text>
-            <circle cx="210" cy="135" r="16" class="nd nd-g"/><text x="210" y="135" class="nl" font-size="10">d</text>
-            <text x="120" y="158" text-anchor="middle" fill="var(--dim)" font-family="Space Grotesk" font-size="9">7 tugun, 6 qirra = N-1</text>
+          <div class="tn" style="color:var(--accent)"><i class="fas fa-arrows-left-right" style="margin-right:6px;font-size:.85rem"></i>Dek (Deque)</div>
+          <div class="ten">Double-Ended Queue</div>
+          <div class="card-p" style="margin-bottom:10px">
+            Elementlarni **ikki tomondan** ham qo'shish va olish mumkin. 
+            Dijkstra (0-1 BFS) kabi maxsus algoritmlarda optimallashtirish uchun ishlatiladi.
+          </div>
+          <svg viewBox="0 0 240 120">
+            <!-- Dek chizmasi -->
+            <rect x="40" y="40" width="160" height="40" rx="4" fill="none" stroke="var(--accent)" stroke-width="2"/>
+            <rect x="50" y="45" width="30" height="30" rx="3" class="nd nd-g"/>
+            <rect x="105" y="45" width="30" height="30" rx="3" class="nd nd-g"/>
+            <rect x="160" y="45" width="30" height="30" rx="3" class="nd nd-g"/>
+            <!-- Double arrows -->
+            <path d="M10 50 L35 50" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr)"/>
+            <path d="M35 70 L10 70" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr)"/>
+            <path d="M230 50 L205 50" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr)"/>
+            <path d="M205 70 L230 70" stroke="var(--accent)" stroke-width="1.5" marker-end="url(#arr)"/>
+            <text x="120" y="105" text-anchor="middle" fill="var(--dim)" font-size="9">Ikki tomonlama navbat</text>
           </svg>
         </div>
-        <!-- To'liq graf -->
-        <div class="type-card anim-up">
-          <div class="tn" style="color:var(--accent2)"><i class="fas fa-circle-nodes" style="margin-right:6px;font-size:.85rem"></i>To'liq graf</div>
-          <div class="ten">Complete Graph (Kₙ)</div>
-          <div class="card-p" style="margin-bottom:10px">Har bir tugun boshqa barcha tugunlar bilan bog'langan. <strong>Kₙ</strong> grafda <strong>n(n-1)/2</strong> ta qirra bor. Eng ko'p qirrali oddiy graf.</div>
-          <svg viewBox="0 0 240 160">
-            <line class="edge" x1="120" y1="25" x2="40" y2="80"/>
-            <line class="edge" x1="120" y1="25" x2="200" y2="80"/>
-            <line class="edge" x1="120" y1="25" x2="120" y2="140"/>
-            <line class="edge" x1="40" y1="80" x2="200" y2="80"/>
-            <line class="edge" x1="40" y1="80" x2="120" y2="140"/>
-            <line class="edge" x1="200" y1="80" x2="120" y2="140"/>
-            <circle cx="120" cy="25" r="14" class="nd nd-o"/><text x="120" y="25" class="nl" font-size="9">1</text>
-            <circle cx="40" cy="80" r="14" class="nd nd-o"/><text x="40" y="80" class="nl" font-size="9">2</text>
-            <circle cx="200" cy="80" r="14" class="nd nd-o"/><text x="200" y="80" class="nl" font-size="9">3</text>
-            <circle cx="120" cy="140" r="14" class="nd nd-o"/><text x="120" y="140" class="nl" font-size="9">4</text>
-            <text x="120" y="158" text-anchor="middle" fill="var(--dim)" font-family="Space Grotesk" font-size="9">K₄: 4×3/2 = 6 qirra</text>
-          </svg>
-        </div>
+
       </div>
     </div>
   </div>

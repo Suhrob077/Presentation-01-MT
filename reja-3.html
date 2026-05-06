@@ -1042,71 +1042,119 @@
             </div>
         </div>
 
-        <!-- Slide 9: Code Example -->
+        <!-- Slide 9: Code Example (C++ Version) -->
         <div class="slide" data-slide="9">
             <div class="slide-number">09 / 10</div>
-            <h2 class="slide-title">Dijkstra Algoritmi - Kod Misoli</h2>
+            <h6 class="none">Dijkstra Algoritmi - C++ Kod Misoli</h6>
             
-            <div class="grid-2" style="flex: 1;">
-                <div class="card" style="height: 100%; overflow: auto;">
-                    <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">Python Implementatsiyasi</h4>
-                    <div class="code-block" style="font-size: 0.8rem; line-height: 1.6;">
-<span class="code-keyword">import</span> heapq
+            <div class="grid-2" style="flex: 1; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 15px;">
+                <div class="card" style="height: 100%; overflow: auto; background: #1e1e1e;">
+                    <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">C++ Implementatsiyasi</h4>
+                    <div class="code-block" style="font-size: 0.7rem; line-height: 1.4; font-family: 'Fira Code', monospace;">
+                        <pre style="margin: 0; color: #d4d4d4;">
+        <span style="color: #c586c0;">#include</span> <span style="color: #ce9178;">&lt;vector&gt;</span>
+        <span style="color: #c586c0;">#include</span> <span style="color: #ce9178;">&lt;queue&gt;</span>
+        <span style="color: #569cd6;">using namespace</span> std;
 
-<span class="code-keyword">def</span> <span class="code-function">dijkstra</span>(graph, start):
-    <span class="code-comment"># Masofalarni cheksiz qilib boshlash</span>
-    distances = {node: <span class="code-string">float('inf')</span> <span class="code-keyword">for</span> node <span class="code-keyword">in</span> graph}
-    distances[start] = <span class="code-number">0</span>
-    
-    <span class="code-comment"># Priority queue: (masofa, uzel)</span>
-    pq = [(<span class="code-number">0</span>, start)]
-    
-    <span class="code-keyword">while</span> pq:
-        current_dist, current = heapq.<span class="code-function">heappop</span>(pq)
-        
-        <span class="code-comment"># Agar katta masofa bo'lsa, o'tkazib yuborish</span>
-        <span class="code-keyword">if</span> current_dist > distances[current]:
-            <span class="code-keyword">continue</span>
-        
-        <span class="code-comment"># Qo'shnilarni tekshirish</span>
-        <span class="code-keyword">for</span> neighbor, weight <span class="code-keyword">in</span> graph[current].<span class="code-function">items</span>():
-            distance = current_dist + weight
-            
-            <span class="code-comment"># Yangi qisqa yo'l topilsa</span>
-            <span class="code-keyword">if</span> distance < distances[neighbor]:
-                distances[neighbor] = distance
-                heapq.<span class="code-function">heappush</span>(pq, (distance, neighbor))
-    
-    <span class="code-keyword">return</span> distances
+        <span style="color: #569cd6;">void</span> <span style="color: #dcdcaa;">dijkstra</span>(<span style="color: #569cd6;">int</span> s, vector&lt;pair&lt;<span style="color: #569cd6;">int</span>, <span style="color: #569cd6;">int</span>&gt;&gt; adj[], <span style="color: #569cd6;">int</span> d[], <span style="color: #569cd6;">int</span> n) {
+            priority_queue&lt;pair&lt;<span style="color: #569cd6;">int</span>, <span style="color: #569cd6;">int</span>&gt;, vector&lt;pair&lt;<span style="color: #569cd6;">int</span>, <span style="color: #569cd6;">int</span>&gt;&gt;, greater&lt;pair&lt;<span style="color: #569cd6;">int</span>, <span style="color: #569cd6;">int</span>&gt;&gt;&gt; pq;
+            <span style="color: #dcdcaa;">fill</span>(d, d + n, <span style="color: #b5cea8;">1e9</span>);
+            d[s] = <span style="color: #b5cea8;">0</span>; pq.<span style="color: #dcdcaa;">push</span>({<span style="color: #b5cea8;">0</span>, s});
+
+            <span style="color: #c586c0;">while</span> (!pq.<span style="color: #dcdcaa;">empty</span>()) {
+                <span style="color: #569cd6;">int</span> dist = pq.<span style="color: #dcdcaa;">top</span>().first, u = pq.<span style="color: #dcdcaa;">top</span>().second;
+                pq.<span style="color: #dcdcaa;">pop</span>();
+                <span style="color: #c586c0;">if</span> (dist &gt; d[u]) <span style="color: #c586c0;">continue</span>;
+
+                <span style="color: #c586c0;">for</span> (<span style="color: #569cd6;">auto</span>& edge : adj[u]) {
+                    <span style="color: #569cd6;">int</span> v = edge.first, w = edge.second;
+                    <span style="color: #c586c0;">if</span> (d[u] + w &lt; d[v]) {
+                        d[v] = d[u] + w;
+                        pq.<span style="color: #dcdcaa;">push</span>({d[v], v});
+                    }
+                }
+            }
+        }</pre>
                     </div>
+                    <svg id="dijkstraGraph" width="700" height="350" viewBox="0 0 700 350">
+                        <!-- Edges with weights -->
+                        <line x1="100" y1="175" x2="220" y2="100" class="graph-edge"/>
+                        <text x="150" y="125" class="graph-weight">7</text>
+                        
+                        <line x1="100" y1="175" x2="220" y2="250" class="graph-edge"/>
+                        <text x="150" y="230" class="graph-weight">3</text>
+                        
+                        <line x1="220" y1="100" x2="350" y2="100" class="graph-edge"/>
+                        <text x="285" y="85" class="graph-weight">2</text>
+                        
+                        <line x1="220" y1="100" x2="220" y2="250" class="graph-edge"/>
+                        <text x="230" y="175" class="graph-weight">1</text>
+                        
+                        <line x1="220" y1="250" x2="350" y2="250" class="graph-edge"/>
+                        <text x="285" y="270" class="graph-weight">4</text>
+                        
+                        <line x1="350" y1="100" x2="350" y2="250" class="graph-edge"/>
+                        <text x="360" y="175" class="graph-weight">5</text>
+                        
+                        <line x1="350" y1="100" x2="480" y2="175" class="graph-edge"/>
+                        <text x="415" y="125" class="graph-weight">3</text>
+                        
+                        <line x1="350" y1="250" x2="480" y2="175" class="graph-edge"/>
+                        <text x="415" y="230" class="graph-weight">6</text>
+                        
+                        <line x1="480" y1="175" x2="600" y2="175" class="graph-edge"/>
+                        <text x="540" y="160" class="graph-weight">2</text>
+                        
+                        <!-- Animated shortest path -->
+                        <line x1="100" y1="175" x2="220" y2="250" class="graph-edge-highlight edge-animate" style="animation-delay: 0s;"/>
+                        <line x1="220" y1="250" x2="220" y2="100" class="graph-edge-highlight edge-animate" style="animation-delay: 0.5s;"/>
+                        <line x1="220" y1="100" x2="350" y2="100" class="graph-edge-highlight edge-animate" style="animation-delay: 1s;"/>
+                        <line x1="350" y1="100" x2="480" y2="175" class="graph-edge-highlight edge-animate" style="animation-delay: 1.5s;"/>
+                        <line x1="480" y1="175" x2="600" y2="175" class="graph-edge-highlight edge-animate" style="animation-delay: 2s;"/>
+                        
+                        <!-- Nodes -->
+                        <circle cx="100" cy="175" r="25" class="graph-node"/>
+                        <text x="100" y="180" text-anchor="middle" class="graph-label" style="font-size: 16px;">A</text>
+                        
+                        <circle cx="220" cy="100" r="25" class="graph-node-orange"/>
+                        <text x="220" y="105" text-anchor="middle" class="graph-label" style="font-size: 16px;">B</text>
+                        
+                        <circle cx="220" cy="250" r="25" class="graph-node-blue"/>
+                        <text x="220" y="255" text-anchor="middle" class="graph-label" style="font-size: 16px;">C</text>
+                        
+                        <circle cx="350" cy="100" r="25" class="graph-node-orange"/>
+                        <text x="350" y="105" text-anchor="middle" class="graph-label" style="font-size: 16px;">D</text>
+                        
+                        <circle cx="350" cy="250" r="25" class="graph-node"/>
+                        <text x="350" y="255" text-anchor="middle" class="graph-label" style="font-size: 16px;">E</text>
+                        
+                        <circle cx="480" cy="175" r="25" class="graph-node-blue"/>
+                        <text x="480" y="180" text-anchor="middle" class="graph-label" style="font-size: 16px;">F</text>
+                        
+                        <circle cx="600" cy="175" r="25" class="graph-node"/>
+                        <text x="600" y="180" text-anchor="middle" class="graph-label" style="font-size: 16px;">G</text>
+                    </svg>
                 </div>
-                
-                <div>
-                    <div class="card" style="margin-bottom: 1rem;">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">Foydalanish Misoli</h4>
-                        <div class="code-block" style="font-size: 0.8rem; line-height: 1.6;">
-<span class="code-comment"># Graf yaratish</span>
-graph = {
-    <span class="code-string">'A'</span>: {<span class="code-string">'B'</span>: <span class="code-number">4</span>, <span class="code-string">'C'</span>: <span class="code-number">2</span>},
-    <span class="code-string">'B'</span>: {<span class="code-string">'C'</span>: <span class="code-number">1</span>, <span class="code-string">'D'</span>: <span class="code-number">5</span>},
-    <span class="code-string">'C'</span>: {<span class="code-string">'D'</span>: <span class="code-number">8</span>},
-    <span class="code-string">'D'</span>: {}
-}
 
-<span class="code-comment"># Algoritmni ishlatish</span>
-result = <span class="code-function">dijkstra</span>(graph, <span class="code-string">'A'</span>)
-<span class="code-function">print</span>(result)
-<span class="code-comment"># {'A': 0, 'B': 3, 'C': 2, 'D': 8}</span>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px; justify-content: center; gap: 50px;">
+                    <div class="card" style="background: #1e1e1e;">
+                        <h4 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">Foydalanish</h4>
+                        <div class="code-block" style="font-size: 0.75rem; color: #d4d4d4;">
+                            <pre style="margin: 0;">
+        <span style="color: #6a9955;">// A(0), B(1), C(2) tugunlar</span>
+        adj[<span style="color: #b5cea8;">0</span>] = {{<span style="color: #b5cea8;">1</span>, <span style="color: #b5cea8;">4</span>}, {<span style="color: #b5cea8;">2</span>, <span style="color: #b5cea8;">2</span>}};
+        <span style="color: #dcdcaa;">dijkstra</span>(<span style="color: #b5cea8;">0</span>, adj, d, <span style="color: #b5cea8;">3</span>);</pre>
                         </div>
                     </div>
                     
-                    <div class="card card-highlight">
-                        <h4 style="color: var(--accent-orange); margin-bottom: 0.75rem;">Kod Tushuntirish</h4>
-                        <ul class="feature-list" style="font-size: 0.9rem;">
-                            <li><strong style="color: var(--text-primary);">heapq</strong> - Min-heap sifatida priority queue</li>
-                            <li><strong style="color: var(--text-primary);">distances</strong> - Har bir uzegacha bo'lgan masofa</li>
-                            <li><strong style="color: var(--text-primary);">pq</strong> - Tekshiriladigan uzel navbati</li>
-                            <li><strong style="color: var(--text-primary);">O(E log V)</strong> - Vaqt murakkabligi</li>
+                    <div class="card card-highlight" style="border-left: 4px solid var(--accent-orange); padding: 15px;">
+                        <h4 style="color: var(--accent-orange); margin-bottom: 0.75rem;">Texnik Tahlil</h4>
+                        <ul class="feature-list" style="font-size: 0.85rem; list-style: none; padding: 0;">
+                            <li>📌 <strong>priority_queue</strong> - Min-heap (eng qisqa masofa)</li>
+                            <li>📌 <strong>1e9</strong> - Cheksizlik (Infinity) qiymati</li>
+                            <li>📌 <strong>fill()</strong> - Massivni tezkor to'ldirish</li>
+                            <li>🚀 <strong>O(E log V)</strong> - Algoritm murakkabligi</li>
                         </ul>
                     </div>
                 </div>
@@ -1156,8 +1204,7 @@ result = <span class="code-function">dijkstra</span>(graph, <span class="code-st
                         <span style="color: var(--accent-orange);">internet tarmoqlari</span> gacha bo'lgan sohalarda 
                         keng qo'llaniladi. To'g'ri algoritmni tanlash vazifa shartlariga bog'liq: 
                         <span style="color: var(--accent-cyan);">Dijkstra</span> - tezkor va samarali, 
-                        <span style="color: var(--accent-orange);">Bellman-Ford</span> - manfiy qirralar uchun, 
-                        <span style="color: var(--accent-blue);">Floyd-Warshall</span> - barcha juftliklar uchun.
+                        <span style="color: var(--accent-orange);">Bellman-Ford</span> - manfiy qirralar uchun , 
                     </p>
                     <a href="reja-4.html"> <button class="button">Reja - 4 </button> </a>
                 </div>

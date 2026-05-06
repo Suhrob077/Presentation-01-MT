@@ -3,1310 +3,1190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graflarda Eng Qisqa Yo'l Algoritmlari</title>
+    <title>Graflarda Eng Qisqa Yo'l - Xulosa</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0f1a;
-            --bg-secondary: #111827;
-            --accent-cyan: #06d6a0;
-            --accent-orange: #ff6b35;
-            --accent-blue: #3a86ff;
-            --text-primary: #f8fafc;
-            --text-muted: #94a3b8;
-            --card-bg: rgba(17, 24, 39, 0.8);
-            --border-color: rgba(6, 214, 160, 0.3);
+            --bg: #0a0e1a;
+            --bg2: #111827;
+            --card: #141a2e;
+            --fg: #e8ecf4;
+            --muted: #7a8599;
+            --accent: #00e5a0;
+            --accent2: #ff6347;
+            --accent3: #ffd23f;
+            --border: #1e2a45;
+            --glow: rgba(0,229,160,0.15);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Space Grotesk', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: var(--bg);
+            color: var(--fg);
             overflow: hidden;
-            min-height: 100vh;
-        }
-
-        .presentation-container {
-            position: relative;
-            width: 100vw;
             height: 100vh;
-            overflow: hidden;
+            width: 100vw;
+        }
+        h1,h2,h3,.title-font { font-family: 'Orbitron', sans-serif; }
+
+        /* Partikul fon */
+        #particles {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            z-index: 0; pointer-events: none;
         }
 
+        /* Slayd konteyner */
+        .slideshow {
+            position: relative; z-index: 1;
+            width: 100%; height: 100vh;
+        }
         .slide {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            padding: 2rem 4rem;
+            position: absolute; top:0; left:0;
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 40px 60px 100px;
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+            pointer-events: none;
+            visibility: hidden;
+        }
+        .slide.active {
+            opacity: 1; transform: translateX(0);
+            pointer-events: auto; visibility: visible;
+        }
+        .slide.exit-left {
+            opacity: 0; transform: translateX(-60px);
+        }
+
+        /* Sahifa raqami ko'rsatkichi */
+        .slide-number {
+            position: absolute; top: 24px; right: 36px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px; color: var(--muted);
+            letter-spacing: 2px;
+        }
+        .slide-number span { color: var(--accent); font-size: 22px; font-weight: 700; }
+
+        /* Navigatsiya tugmalari */
+        .nav-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px; padding: 14px 20px;
+            background: linear-gradient(to top, rgba(10,14,26,0.98) 60%, transparent);
+        }
+        .nav-btn {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--muted);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px; font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        .nav-btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: var(--accent);
+            opacity: 0; transition: opacity 0.3s;
+            border-radius: 8px;
+        }
+        .nav-btn:hover {
+            border-color: var(--accent);
+            color: var(--fg);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--glow);
+        }
+        .nav-btn.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: var(--bg);
+            box-shadow: 0 0 24px var(--glow), 0 0 60px rgba(0,229,160,0.1);
+            transform: scale(1.1);
+        }
+        .nav-btn.active::before { opacity: 0; }
+        .nav-arrow {
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 1.5px solid var(--border);
+            background: var(--card); color: var(--muted);
+            font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease; margin: 0 8px;
+        }
+        .nav-arrow:hover {
+            border-color: var(--accent); color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        /* SVG uslublar */
+        .node-circle {
+            fill: url(#nodeGrad);
+            stroke: var(--accent);
+            stroke-width: 2.5;
+            filter: drop-shadow(0 0 8px rgba(0,229,160,0.4));
+        }
+        .node-label {
+            fill: var(--bg); font-family: 'Orbitron', sans-serif;
+            font-size: 14px; font-weight: 700;
+            text-anchor: middle; dominant-baseline: central;
+        }
+        .edge-line {
+            stroke: rgba(232,236,244,0.25);
+            stroke-width: 2;
+        }
+        .edge-line-highlight {
+            stroke: var(--accent2);
+            stroke-width: 3;
+            filter: drop-shadow(0 0 6px rgba(255,99,71,0.5));
+        }
+        .weight-label {
+            fill: var(--accent3);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px; font-weight: 700;
+            text-anchor: middle; dominant-baseline: central;
+        }
+        .weight-bg {
+            fill: rgba(255,210,63,0.12);
+            rx: 6; ry: 6;
+        }
+        .anno-line {
+            stroke: var(--accent); stroke-width: 1.2;
+            stroke-dasharray: 5 4;
+            opacity: 0.6;
+        }
+        .anno-text {
+            fill: var(--fg); font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+        }
+        .anno-text strong { fill: var(--accent); }
+        .anno-box {
+            fill: rgba(0,229,160,0.06);
+            stroke: rgba(0,229,160,0.2);
+            stroke-width: 1; rx: 10; ry: 10;
+        }
+
+        /* Pulsatsiya animatsiyasi */
+        @keyframes pulse-node {
+            0%, 100% { r: 22; opacity: 0.3; }
+            50% { r: 30; opacity: 0; }
+        }
+        .pulse-ring {
+            fill: none; stroke: var(--accent); stroke-width: 1.5;
+            animation: pulse-node 2.5s ease-in-out infinite;
+        }
+        @keyframes pulse-ring-delay {
+            0%, 100% { r: 22; opacity: 0.2; }
+            50% { r: 28; opacity: 0; }
+        }
+        .pulse-ring-d {
+            fill: none; stroke: var(--accent3); stroke-width: 1;
+            animation: pulse-ring-delay 3s ease-in-out infinite;
+            animation-delay: 0.8s;
+        }
+
+        /* Oqim animatsiyasi (qirralarda) */
+        @keyframes flow {
+            to { stroke-dashoffset: -20; }
+        }
+        .edge-flow {
+            stroke: rgba(0,229,160,0.35);
+            stroke-width: 2;
+            stroke-dasharray: 6 14;
+            animation: flow 1.5s linear infinite;
+        }
+
+        /* Ko'rinish animatsiyalari */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(-40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.7); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+        @keyframes rotate-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .anim-fade-up { animation: fadeUp 0.7s ease both; }
+        .anim-fade-in { animation: fadeIn 0.6s ease both; }
+        .anim-slide-right { animation: slideRight 0.6s ease both; }
+        .anim-scale-in { animation: scaleIn 0.5s ease both; }
+        .anim-float { animation: float 4s ease-in-out infinite; }
+        .anim-rotate { animation: rotate-slow 20s linear infinite; }
+        .d1 { animation-delay: 0.1s; }
+        .d2 { animation-delay: 0.2s; }
+        .d3 { animation-delay: 0.35s; }
+        .d4 { animation-delay: 0.5s; }
+        .d5 { animation-delay: 0.65s; }
+        .d6 { animation-delay: 0.8s; }
+        .d7 { animation-delay: 0.95s; }
+        .d8 { animation-delay: 1.1s; }
+
+        /* Kod blok */
+        .code-block {
+    
             display: flex;
             flex-direction: column;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateX(100%);
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            line-height: 1.7;
+            overflow-x: auto;
+            max-width: 720px;
+            width: 100%;
+            box-shadow: 0 0 40px rgba(0,229,160,0.05);
+        }
+        .code-block .kw { color: #ff7b72; }
+        .code-block .tp { color: #79c0ff; }
+        .code-block .fn { color: #d2a8ff; }
+        .code-block .str { color: #a5d6ff; }
+        .code-block .cm { color: #6b7b8d; font-style: italic; }
+        .code-block .num { color: #ffd23f; }
+        .code-block .op { color: #ff7b72; }
+        .code-block .inc { color: #7ee787; }
+
+        /* Kartochkalar */
+        .info-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        .info-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--glow);
+            transform: translateY(-4px);
         }
 
-        .slide.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(0);
-        }
+        /* O'q belgisi (SVG uchun) */
+        .arrow-head { fill: var(--accent2); }
 
-        .slide.prev {
-            transform: translateX(-100%);
+        /* Harakatlanuvchi dekor elementlar */
+        .deco-circle {
+            position: absolute; border-radius: 50%;
+            border: 1px solid rgba(0,229,160,0.1);
+            pointer-events: none;
         }
-
-        /* Background patterns */
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            background-image: 
-                linear-gradient(rgba(6, 214, 160, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(6, 214, 160, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
+        .deco-triangle {
+            position: absolute; width:0; height:0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 20px solid rgba(255,210,63,0.1);
             pointer-events: none;
         }
 
-        .bg-glow {
-            position: fixed;
-            width: 600px;
-            height: 600px;
+        /* Scrollbar yashirish */
+        ::-webkit-scrollbar { display: none; }
+
+        /* Bosilish belgisi animatsiyasi */
+        @keyframes clickMark {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+        .click-mark {
+            position: absolute; width: 20px; height: 20px;
+            border: 2px solid var(--accent);
             border-radius: 50%;
-            filter: blur(150px);
+            animation: clickMark 0.6s ease forwards;
             pointer-events: none;
-            opacity: 0.4;
         }
 
-        .glow-1 {
-            top: -200px;
-            right: -200px;
-            background: var(--accent-cyan);
+        /* Tag chiziq */
+        .accent-line {
+            width: 60px; height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent3));
+            border-radius: 2px;
         }
 
-        .glow-2 {
-            bottom: -200px;
-            left: -200px;
-            background: var(--accent-blue);
+        /* SVG konteyner */
+        .svg-container {
+            display: flex; justify-content: center; align-items: center;
+            width: 100%; max-width: 800px;
         }
+        .svg-container svg { width: 100%; height: auto; }
 
-        /* Typography */
-        .slide-number {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.875rem;
-            color: var(--accent-cyan);
-            margin-bottom: 1rem;
+        /* Ikonka aylantiruvchi */
+        @keyframes icon-bounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-6px) rotate(-5deg); }
+            75% { transform: translateY(-3px) rotate(5deg); }
         }
+        .icon-bounce { animation: icon-bounce 3s ease-in-out infinite; }
 
-        .slide-title {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 700;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-cyan) 100%);
+        /* Rangli gradient matn */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent), var(--accent3));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .slide-subtitle {
-            font-size: 1.25rem;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
+        /* GPS animatsiya */
+        @keyframes gps-ping {
+            0% { r: 8; opacity: 0.6; }
+            100% { r: 35; opacity: 0; }
         }
-
-        /* Cards */
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .card-highlight {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 30px rgba(6, 214, 160, 0.1);
-        }
-
-        /* Code blocks */
-        .code-block {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            overflow-x: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .code-keyword { color: var(--accent-orange); }
-        .code-function { color: var(--accent-cyan); }
-        .code-string { color: #fbbf24; }
-        .code-number { color: var(--accent-blue); }
-        .code-comment { color: var(--text-muted); }
-
-        /* Navigation */
-        .nav-controls {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 1rem;
-            z-index: 100;
-        }
-
-        .nav-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .nav-btn:hover {
-            background: var(--accent-cyan);
-            color: var(--bg-primary);
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(6, 214, 160, 0.4);
-        }
-
-        .nav-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .slide-indicators {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .indicator.active {
-            width: 24px;
-            border-radius: 4px;
-            background: var(--accent-cyan);
-        }
-
-        /* Graph SVG styles */
-        .graph-node {
-            fill: var(--accent-cyan);
-            filter: drop-shadow(0 0 10px rgba(6, 214, 160, 0.5));
-        }
-
-        .graph-node-orange {
-            fill: var(--accent-orange);
-            filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.5));
-        }
-
-        .graph-node-blue {
-            fill: var(--accent-blue);
-            filter: drop-shadow(0 0 10px rgba(58, 134, 255, 0.5));
-        }
-
-        .graph-edge {
-            stroke: var(--text-muted);
+        .gps-ping {
+            fill: none; stroke: var(--accent2);
             stroke-width: 2;
-            fill: none;
+            animation: gps-ping 2s ease-out infinite;
         }
-
-        .graph-edge-highlight {
-            stroke: var(--accent-cyan);
-            stroke-width: 3;
-            filter: drop-shadow(0 0 5px rgba(6, 214, 160, 0.5));
-        }
-
-        .graph-label {
-            fill: var(--text-primary);
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .graph-weight {
-            fill: var(--accent-orange);
-            font-size: 11px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        @keyframes draw {
-            to { stroke-dashoffset: 0; }
-        }
-
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .animate-pulse-slow {
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .edge-animate {
-            stroke-dasharray: 100;
-            stroke-dashoffset: 100;
-            animation: draw 2s ease forwards;
-        }
-
-        /* List styles */
-        .feature-list {
-            list-style: none;
-        }
-
-        .feature-list li {
-            position: relative;
-            padding-left: 2rem;
-            margin-bottom: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .feature-list li::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0.5rem;
-            width: 8px;
-            height: 8px;
-            background: var(--accent-cyan);
-            border-radius: 50%;
-        }
-
-        /* Stats */
-        .stat-box {
-            text-align: center;
-            padding: 1rem;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--accent-cyan);
-        }
-
-        .stat-label {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
-
-        /* Table */
-        .algo-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        .algo-table th {
-            background: rgba(6, 214, 160, 0.1);
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--accent-cyan);
-        }
-
-        .algo-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
-        }
-
-        .algo-table tr:hover td {
-            background: rgba(6, 214, 160, 0.05);
-        }
-
-        /* Progress bar */
-        .progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: var(--accent-cyan);
-            transition: width 0.3s ease;
-            z-index: 100;
-        }
-
-        /* Icon styles */
-        .icon-box {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .icon-cyan { background: rgba(6, 214, 160, 0.15); color: var(--accent-cyan); }
-        .icon-orange { background: rgba(255, 107, 53, 0.15); color: var(--accent-orange); }
-        .icon-blue { background: rgba(58, 134, 255, 0.15); color: var(--accent-blue); }
-
-        /* Flex utilities */
-        .flex-center { display: flex; align-items: center; justify-content: center; }
-        .flex-between { display: flex; align-items: center; justify-content: space-between; }
-        .gap-1 { gap: 0.5rem; }
-        .gap-2 { gap: 1rem; }
-        .gap-3 { gap: 1.5rem; }
-
-        /* Grid */
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-
-        @media (max-width: 768px) {
-            .slide { padding: 1rem 1.5rem; }
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
-            .nav-controls { bottom: 1rem; }
-        }
-
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
+        .gps-ping-d {
+            animation-delay: 0.7s;
         }
     </style>
 </head>
 <body>
-    <div class="bg-grid"></div>
-    <div class="bg-glow glow-1"></div>
-    <div class="bg-glow glow-2"></div>
-    <div class="progress-bar" id="progressBar"></div>
 
-    <div class="presentation-container" id="presentation">
-        
-        <!-- Slide 1: Title -->
-        <div class="slide active" data-slide="1">
-            <div class="flex-center" style="height: 100%; flex-direction: column;">
-                <div style="text-align: center; max-width: 900px;">
-                    <div class="slide-number">01 / 10</div>
-                    <svg width="120" height="120" viewBox="0 0 120 120" style="margin: 0 auto 2rem;" class="animate-float">
-                        <circle cx="30" cy="30" r="12" class="graph-node"/>
-                        <circle cx="90" cy="30" r="12" class="graph-node-orange"/>
-                        <circle cx="60" cy="90" r="12" class="graph-node-blue"/>
-                        <line x1="42" y1="30" x2="78" y2="30" class="graph-edge"/>
-                        <line x1="30" y1="42" x2="55" y2="78" class="graph-edge"/>
-                        <line x1="90" y1="42" x2="65" y2="78" class="graph-edge"/>
-                    </svg>
-                    <h1 class="slide-title" style="font-size: clamp(2.5rem, 7vw, 4.5rem);">
-                        Xulosa
-                    </h1>
-                    <p class="slide-subtitle" style="font-size: 1.5rem; margin-top: 1rem;">
-                        ...
-                    </p>
-                    <div style="margin-top: 3rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
-                        <div class="card" style="padding: 1rem 2rem;">
-                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <div class="icon-box icon-cyan">
-                                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <path d="M12 6v6l4 2"/>
-                                    </svg>
-                                </div>
-                                <span style="color: var(--text-muted);">Vafr murakkabligi: O(V²)</span>
-                            </div>
-                        </div>
-                        <div class="card" style="padding: 1rem 2rem;">
-                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <div class="icon-box icon-orange">
-                                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                                    </svg>
-                                </div>
-                                <span style="color: var(--text-muted);">3 ta asosiy algoritm</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- Partikul fon -->
+<canvas id="particles"></canvas>
+
+<!-- Slaydlar -->
+<div class="slideshow" id="slideshow">
+
+    <!-- ====== 1-SLAID: Graflar haqida ====== -->
+    <div class="slide active" id="s1">
+        <div class="slide-number"><span>01</span> / 10</div>
+        <div style="position:absolute;top:30px;left:40px;" class="anim-fade-in d1">
+            <div class="accent-line" style="width:40px;height:2px;margin-bottom:8px;"></div>
+            <span style="font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;">Xulosa</span>
         </div>
 
-        <!-- Slide 2: Introduction -->
-        <div class="slide" data-slide="2">
-            <div class="slide-number">02 / 10</div>
-            <h2 class="slide-title">Eng Qisqa Yo'l Nima?</h2>
-            
-            <div class="grid-2" style="flex: 1; align-items: center;">
-                <div>
-                    <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.8; margin-bottom: 2rem;">
-                        <span style="color: var(--accent-cyan); font-weight: 600;">Eng qisqa yo'l</span> — grafdagi ikki uzel orasidagi 
-                        eng kam yo'nalish qiymatiga ega bo'lgan marshrut. Bu qiymat masofa, vaqt yoki xarajat bo'lishi mumkin.
-                    </p>
-                    
-                    <div class="card card-highlight" style="margin-bottom: 1.5rem;">
-                        <h3 style="color: var(--accent-cyan); margin-bottom: 1rem; font-size: 1.2rem;">
-                            Nima Uchun Muhim?
-                        </h3>
-                        <ul class="feature-list">
-                            <li>GPS navigatsiya tizimlarida yo'nalish tanlash</li>
-                            <li>Internet tarmoqlarida ma'lumot uzatish</li>
-                            <li>Logistikada yetkazib berish marshrutlarini optimallashtirish</li>
-                            <li>Ijtimoiy tarmoqlarda aloqa masofasini hisoblash</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div style="display: flex; justify-content: center;">
-                    <svg width="350" height="300" viewBox="0 0 350 300">
-                        <!-- Edges -->
-                        <line x1="60" y1="150" x2="150" y2="80" class="graph-edge"/>
-                        <text x="90" y="105" class="graph-weight">4</text>
-                        
-                        <line x1="60" y1="150" x2="150" y2="220" class="graph-edge"/>
-                        <text x="90" y="200" class="graph-weight">2</text>
-                        
-                        <line x1="150" y1="80" x2="250" y2="80" class="graph-edge"/>
-                        <text x="200" y="65" class="graph-weight">3</text>
-                        
-                        <line x1="150" y1="80" x2="150" y2="220" class="graph-edge"/>
-                        <text x="160" y="150" class="graph-weight">1</text>
-                        
-                        <line x1="150" y1="220" x2="250" y2="150" class="graph-edge"/>
-                        <text x="210" y="195" class="graph-weight">5</text>
-                        
-                        <line x1="250" y1="80" x2="250" y2="150" class="graph-edge"/>
-                        <text x="260" y="120" class="graph-weight">2</text>
-                        
-                        <!-- Shortest path highlight -->
-                        <line x1="60" y1="150" x2="150" y2="220" class="graph-edge-highlight"/>
-                        <line x1="150" y1="220" x2="150" y2="80" class="graph-edge-highlight"/>
-                        <line x1="150" y1="80" x2="250" y2="80" class="graph-edge-highlight"/>
-                        
-                        <!-- Nodes -->
-                        <circle cx="60" cy="150" r="20" class="graph-node"/>
-                        <text x="60" y="155" text-anchor="middle" class="graph-label">A</text>
-                        
-                        <circle cx="150" cy="80" r="20" class="graph-node-orange"/>
-                        <text x="150" y="85" text-anchor="middle" class="graph-label">B</text>
-                        
-                        <circle cx="150" cy="220" r="20" class="graph-node"/>
-                        <text x="150" y="225" text-anchor="middle" class="graph-label">C</text>
-                        
-                        <circle cx="250" cy="80" r="20" class="graph-node-blue"/>
-                        <text x="250" y="85" text-anchor="middle" class="graph-label">D</text>
-                        
-                        <circle cx="250" cy="150" r="20" class="graph-node"/>
-                        <text x="250" y="155" text-anchor="middle" class="graph-label">E</text>
-                        
-                        <!-- Legend -->
-                        <text x="175" y="280" text-anchor="middle" fill="var(--text-muted)" font-size="12">
-                            Eng qisqa yo'l: A → C → B → D (qiymat: 6)
-                        </text>
-                    </svg>
-                </div>
-            </div>
+        <h1 class="title-font anim-fade-up d2" style="font-size:clamp(28px,4vw,52px);font-weight:900;text-align:center;line-height:1.15;margin-bottom:8px;">
+            🔎 <span class="gradient-text">Yakuniy - Xulosa </span> ...
+        </h1>
+        <p class="anim-fade-up d3" style="color:var(--muted);font-size:clamp(13px,1.4vw,17px);text-align:center;max-width:600px;margin-bottom:36px;">
+            Graf — bu <strong style="color:var(--fg);">tugunlar</strong> (nuqtalar) va ularni bog'laydigan <strong style="color:var(--fg);">qirralar</strong> (chiziqlar) dan tashkil topgan matematik strukturadir.
+        </p>
+
+        <div class="svg-container anim-scale-in d4">
+            <svg viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00e5a0"/>
+                        <stop offset="100%" style="stop-color:#00b8d4"/>
+                    </linearGradient>
+                </defs>
+                <!-- Qirralar -->
+                <line x1="120" y1="60" x2="380" y2="60" class="edge-line"/>
+                <line x1="120" y1="60" x2="60" y2="190" class="edge-line"/>
+                <line x1="120" y1="60" x2="250" y2="190" class="edge-line"/>
+                <line x1="380" y1="60" x2="440" y2="190" class="edge-line"/>
+                <line x1="380" y1="60" x2="250" y2="190" class="edge-line"/>
+                <line x1="60" y1="190" x2="250" y2="190" class="edge-line"/>
+                <line x1="250" y1="190" x2="440" y2="190" class="edge-line"/>
+                <!-- Oqim effekti -->
+                <line x1="120" y1="60" x2="380" y2="60" class="edge-flow"/>
+                <line x1="120" y1="60" x2="250" y2="190" class="edge-flow"/>
+                <line x1="380" y1="60" x2="250" y2="190" class="edge-flow"/>
+                <!-- Tugunlar -->
+                <circle cx="120" cy="60" r="22" class="pulse-ring"/>
+                <circle cx="120" cy="60" r="22" class="node-circle"/>
+                <text x="120" y="60" class="node-label">A</text>
+                <circle cx="380" cy="60" r="22" class="pulse-ring-d"/>
+                <circle cx="380" cy="60" r="22" class="node-circle"/>
+                <text x="380" y="60" class="node-label">B</text>
+                <circle cx="60" cy="190" r="22" class="pulse-ring"/>
+                <circle cx="60" cy="190" r="22" class="node-circle"/>
+                <text x="60" y="190" class="node-label">C</text>
+                <circle cx="250" cy="190" r="22" class="pulse-ring-d"/>
+                <circle cx="250" cy="190" r="22" class="node-circle"/>
+                <text x="250" y="190" class="node-label">D</text>
+                <circle cx="440" cy="190" r="22" class="pulse-ring"/>
+                <circle cx="440" cy="190" r="22" class="node-circle"/>
+                <text x="440" y="190" class="node-label">E</text>
+            </svg>
         </div>
 
-        <!-- Slide 3: Dijkstra Introduction -->
-        <div class="slide" data-slide="3">
-            <div class="slide-number">03 / 10</div>
-            <h2 class="slide-title">Dijkstra Algoritmi</h2>
-            <p class="slide-subtitle">Eng mashhur va samarali algoritm</p>
-            
-            <div class="grid-2" style="flex: 1;">
-                <div>
-                    <div class="card" style="margin-bottom: 1.5rem;">
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                            <div class="icon-box icon-cyan">
-                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                </svg>
-                            </div>
-                            <h3 style="font-size: 1.3rem;">Edsger W. Dijkstra, 1956</h3>
-                        </div>
-                        <p style="color: var(--text-muted); line-height: 1.7;">
-                            Gollandiyalik olim tomonidan yaratilgan. Bu algoritm faqat <span style="color: var(--accent-orange);">musbat og'irlikli</span> 
-                            qirralar uchun ishlaydi va bir manbadan boshqa barcha uzelgacha bo'lgan eng qisqa yo'lni topadi.
-                        </p>
-                    </div>
-                    
-                    <div class="card card-highlight">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">Vaqt Murakkabligi</h4>
-                        <div class="grid-3" style="text-align: center;">
-                            <div class="stat-box">
-                                <div class="stat-value">O(V²)</div>
-                                <div class="stat-label">Oddiy massiv</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-value">O(E log V)</div>
-                                <div class="stat-label">Min-Heap</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-value">O(E + V log V)</div>
-                                <div class="stat-label">Fibonacci Heap</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="card" style="height: 100%;">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">Ishlash Printsipi</h4>
-                        <ol style="color: var(--text-muted); line-height: 2; padding-left: 1.5rem;">
-                            <li style="margin-bottom: 0.5rem;">
-                                <span style="color: var(--accent-orange); font-weight: 600;">Boshlang'ich</span> uzelgacha bo'lgan masofa = 0, 
-                                qolganlari = cheksiz
-                            </li>
-                            <li style="margin-bottom: 0.5rem;">
-                                <span style="color: var(--accent-orange); font-weight: 600;">Tashrif buyurilmagan</span> uzel ichida eng kichik 
-                                masofaga egasini tanlash
-                            </li>
-                            <li style="margin-bottom: 0.5rem;">
-                                Tanlangan uzelning <span style="color: var(--accent-orange); font-weight: 600;">qo'shnilari</span> uchun 
-                                masofani yangilash
-                            </li>
-                            <li>
-                                Barcha uzel tashrif buyurilguncha <span style="color: var(--accent-cyan); font-weight: 600;">2-3 qadamlarni</span> 
-                                takrorlash
-                            </li>
-                        </ol>
-                        
-                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 107, 53, 0.1); border-radius: 8px; border-left: 3px solid var(--accent-orange);">
-                            <p style="color: var(--text-muted); font-size: 0.9rem;">
-                                <strong style="color: var(--accent-orange);">Muhim:</strong> Dijkstra algoritmi manfiy og'irlikli qirralar bilan 
-                                ishlamaydi!
-                            </p>
-                        </div>
-                    </div>
-                </div>
+        <div class="anim-fade-up d6" style="display:flex;gap:32px;margin-top:28px;flex-wrap:wrap;justify-content:center;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <i class="fa-solid fa-circle" style="color:var(--accent);font-size:10px;"></i>
+                <span style="font-size:13px;color:var(--muted);">Tugun = <strong style="color:var(--fg);">Ob'ekt / Nuqta</strong></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <i class="fa-solid fa-minus" style="color:var(--accent);font-size:14px;"></i>
+                <span style="font-size:13px;color:var(--muted);">Qirra = <strong style="color:var(--fg);">Bog'liqlik</strong></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <i class="fa-solid fa-hashtag" style="color:var(--accent3);font-size:12px;"></i>
+                <span style="font-size:13px;color:var(--muted);">Og'irlik = <strong style="color:var(--fg);">Masofa / Narx</strong></span>
             </div>
         </div>
+    </div>
 
-        <!-- Slide 4: Dijkstra Visualization -->
-        <div class="slide" data-slide="4">
-            <div class="slide-number">04 / 10</div>
-            <h2 class="slide-title">Dijkstra Algoritmi - Vizualizatsiya</h2>
-            
-            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <svg id="dijkstraGraph" width="700" height="350" viewBox="0 0 700 350">
-                    <!-- Edges with weights -->
-                    <line x1="100" y1="175" x2="220" y2="100" class="graph-edge"/>
-                    <text x="150" y="125" class="graph-weight">7</text>
-                    
-                    <line x1="100" y1="175" x2="220" y2="250" class="graph-edge"/>
-                    <text x="150" y="230" class="graph-weight">3</text>
-                    
-                    <line x1="220" y1="100" x2="350" y2="100" class="graph-edge"/>
-                    <text x="285" y="85" class="graph-weight">2</text>
-                    
-                    <line x1="220" y1="100" x2="220" y2="250" class="graph-edge"/>
-                    <text x="230" y="175" class="graph-weight">1</text>
-                    
-                    <line x1="220" y1="250" x2="350" y2="250" class="graph-edge"/>
-                    <text x="285" y="270" class="graph-weight">4</text>
-                    
-                    <line x1="350" y1="100" x2="350" y2="250" class="graph-edge"/>
-                    <text x="360" y="175" class="graph-weight">5</text>
-                    
-                    <line x1="350" y1="100" x2="480" y2="175" class="graph-edge"/>
-                    <text x="415" y="125" class="graph-weight">3</text>
-                    
-                    <line x1="350" y1="250" x2="480" y2="175" class="graph-edge"/>
-                    <text x="415" y="230" class="graph-weight">6</text>
-                    
-                    <line x1="480" y1="175" x2="600" y2="175" class="graph-edge"/>
-                    <text x="540" y="160" class="graph-weight">2</text>
-                    
-                    <!-- Animated shortest path -->
-                    <line x1="100" y1="175" x2="220" y2="250" class="graph-edge-highlight edge-animate" style="animation-delay: 0s;"/>
-                    <line x1="220" y1="250" x2="220" y2="100" class="graph-edge-highlight edge-animate" style="animation-delay: 0.5s;"/>
-                    <line x1="220" y1="100" x2="350" y2="100" class="graph-edge-highlight edge-animate" style="animation-delay: 1s;"/>
-                    <line x1="350" y1="100" x2="480" y2="175" class="graph-edge-highlight edge-animate" style="animation-delay: 1.5s;"/>
-                    <line x1="480" y1="175" x2="600" y2="175" class="graph-edge-highlight edge-animate" style="animation-delay: 2s;"/>
-                    
-                    <!-- Nodes -->
-                    <circle cx="100" cy="175" r="25" class="graph-node"/>
-                    <text x="100" y="180" text-anchor="middle" class="graph-label" style="font-size: 16px;">A</text>
-                    
-                    <circle cx="220" cy="100" r="25" class="graph-node-orange"/>
-                    <text x="220" y="105" text-anchor="middle" class="graph-label" style="font-size: 16px;">B</text>
-                    
-                    <circle cx="220" cy="250" r="25" class="graph-node-blue"/>
-                    <text x="220" y="255" text-anchor="middle" class="graph-label" style="font-size: 16px;">C</text>
-                    
-                    <circle cx="350" cy="100" r="25" class="graph-node-orange"/>
-                    <text x="350" y="105" text-anchor="middle" class="graph-label" style="font-size: 16px;">D</text>
-                    
-                    <circle cx="350" cy="250" r="25" class="graph-node"/>
-                    <text x="350" y="255" text-anchor="middle" class="graph-label" style="font-size: 16px;">E</text>
-                    
-                    <circle cx="480" cy="175" r="25" class="graph-node-blue"/>
-                    <text x="480" y="180" text-anchor="middle" class="graph-label" style="font-size: 16px;">F</text>
-                    
-                    <circle cx="600" cy="175" r="25" class="graph-node"/>
-                    <text x="600" y="180" text-anchor="middle" class="graph-label" style="font-size: 16px;">G</text>
+    <!-- ====== 2-SLAID: Graf kurinishi tushuntirish ====== -->
+    <div class="slide" id="s2">
+        <div class="slide-number"><span>02</span> / 10</div>
+        <h2 class="title-font anim-fade-up d1" style="font-size:clamp(22px,3vw,38px);font-weight:700;text-align:center;margin-bottom:10px;">
+            Graf <span class="gradient-text">Kurinishi</span>
+        </h2>
+        <p class="anim-fade-up d2" style="color:var(--muted);font-size:14px;text-align:center;margin-bottom:20px;">
+            Markazdagi grafning har bir elementi nima ekanligini chiziqlar orqali tushuntirish
+        </p>
+
+        <div class="svg-container anim-scale-in d3" style="position:relative;">
+            <svg viewBox="0 0 760 380" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="nodeGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00e5a0"/>
+                        <stop offset="100%" style="stop-color:#00b8d4"/>
+                    </linearGradient>
+                    <linearGradient id="nodeGradHL" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff6347"/>
+                        <stop offset="100%" style="stop-color:#ff8c00"/>
+                    </linearGradient>
+                </defs>
+
+                <!-- Qirralar -->
+                <line x1="300" y1="80" x2="460" y2="80" class="edge-line"/>
+                <line x1="300" y1="80" x2="240" y2="220" class="edge-line"/>
+                <line x1="300" y1="80" x2="380" y2="220" class="edge-line"/>
+                <line x1="460" y1="80" x2="380" y2="220" class="edge-line"/>
+                <line x1="240" y1="220" x2="380" y2="220" class="edge-line"/>
+                <line x1="240" y1="220" x2="310" y2="330" class="edge-line"/>
+                <line x1="380" y1="220" x2="310" y2="330" class="edge-line"/>
+
+                <!-- Oqim -->
+                <line x1="300" y1="80" x2="460" y2="80" class="edge-flow"/>
+                <line x1="300" y1="80" x2="380" y2="220" class="edge-flow"/>
+
+                <!-- Tugun: A (ajratilgan, yuqorida) -->
+                <circle cx="300" cy="80" r="24" class="pulse-ring"/>
+                <circle cx="300" cy="80" r="24" class="node-circle"/>
+                <text x="300" y="80" class="node-label" style="font-size:15px;">A</text>
+
+                <!-- Tugun: B -->
+                <circle cx="460" cy="80" r="24" class="pulse-ring-d"/>
+                <circle cx="460" cy="80" r="24" class="node-circle"/>
+                <text x="460" y="80" class="node-label" style="font-size:15px;">B</text>
+
+                <!-- Tugun: C -->
+                <circle cx="240" cy="220" r="24" class="pulse-ring"/>
+                <circle cx="240" cy="220" r="24" class="node-circle"/>
+                <text x="240" y="220" class="node-label" style="font-size:15px;">C</text>
+
+                <!-- Tugun: D -->
+                <circle cx="380" cy="220" r="24" class="pulse-ring-d"/>
+                <circle cx="380" cy="220" r="24" class="node-circle"/>
+                <text x="380" y="220" class="node-label" style="font-size:15px;">D</text>
+
+                <!-- Tugun: E -->
+                <circle cx="310" cy="330" r="24" class="pulse-ring"/>
+                <circle cx="310" cy="330" r="24" class="node-circle"/>
+                <text x="310" y="330" class="node-label" style="font-size:15px;">E</text>
+
+                <!-- Og'irliklar -->
+                <rect x="368" y="62" width="24" height="18" class="weight-bg"/>
+                <text x="380" y="72" class="weight-label" style="font-size:10px;">4</text>
+                <rect x="325" y="138" width="24" height="18" class="weight-bg"/>
+                <text x="337" y="148" class="weight-label" style="font-size:10px;">7</text>
+                <rect x="405" y="138" width="24" height="18" class="weight-bg"/>
+                <text x="417" y="148" class="weight-label" style="font-size:10px;">3</text>
+                <rect x="298" y="210" width="24" height="18" class="weight-bg"/>
+                <text x="310" y="220" class="weight-label" style="font-size:10px;">5</text>
+
+                <!-- ===== ANNOTATSIYA: TUGUN ===== -->
+                <line x1="276" y1="80" x2="120" y2="80" class="anno-line"/>
+                <line x1="120" y1="80" x2="40" y2="80" class="anno-line"/>
+                <rect x="10" y="52" width="145" height="56" class="anno-box"/>
+                <circle cx="30" cy="72" r="8" fill="url(#nodeGrad2)" opacity="0.7"/>
+                <text x="46" y="72" class="anno-text" style="font-size:12px;"><tspan strong>TUGUN</tspan></text>
+                <text x="30" y="94" class="anno-text" style="font-size:10.5px;color:var(--muted);">Vertex / Node — ob'ekt</text>
+
+                <!-- ===== ANNOTATSIYA: QIRRA ===== -->
+                <line x1="380" y1="56" x2="560" y2="30" class="anno-line"/>
+                <rect x="555" y="10" width="190" height="56" class="anno-box"/>
+                <line x1="575" y1="38" x2="610" y2="38" stroke="var(--fg)" stroke-width="2" opacity="0.5"/>
+                <text x="620" y="34" class="anno-text" style="font-size:12px;"><tspan strong>QIRRA</tspan></text>
+                <text x="575" y="52" class="anno-text" style="font-size:10.5px;color:var(--muted);">Edge — bog'liqlik chizig'i</text>
+
+                <!-- ===== ANNOTATSIYA: OG'IRLIK ===== -->
+                <line x1="417" y1="148" x2="570" y2="160" class="anno-line"/>
+                <rect x="565" y="136" width="185" height="56" class="anno-box" style="stroke:rgba(255,210,63,0.25);fill:rgba(255,210,63,0.04);"/>
+                <rect x="580" y="152" width="18" height="14" fill="rgba(255,210,63,0.2)" rx="3"/>
+                <text x="589" y="162" class="weight-label" style="font-size:8px;">N</text>
+                <text x="608" y="160" class="anno-text" style="font-size:12px;"><tspan style="fill:var(--accent3);">OG'IRLIK</tspan></text>
+                <text x="580" y="180" class="anno-text" style="font-size:10.5px;color:var(--muted);">Weight — masofa / narx</text>
+            </svg>
+        </div>
+    </div>
+
+    <!-- ====== 3-SLAID: Graf turlari ====== -->
+    <div class="slide" id="s3">
+        <div class="slide-number"><span>03</span> / 10</div>
+        <h2 class="title-font anim-fade-up d1" style="font-size:clamp(22px,3vw,36px);font-weight:700;text-align:center;margin-bottom:28px;">
+            Grafning <span class="gradient-text">2 Ta Turi</span>
+        </h2>
+
+        <div style="display:flex;gap:40px;flex-wrap:wrap;justify-content:center;width:100%;max-width:850px;">
+            <!-- Yo'naltirilmagan -->
+            <div class="info-card anim-slide-right d2" style="flex:1;min-width:300px;max-width:400px;text-align:center;">
+                <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;">
+                    <i class="fa-solid fa-arrows-left-right" style="color:var(--accent);font-size:20px;"></i>
+                    <h3 class="title-font" style="font-size:16px;font-weight:700;color:var(--accent);">Yo'naltirilmagan Graf</h3>
+                </div>
+                <svg viewBox="0 0 280 180" style="width:100%;max-width:280px;margin:0 auto;">
+                    <line x1="60" y1="50" x2="220" y2="50" class="edge-line" stroke-width="2.5"/>
+                    <line x1="60" y1="50" x2="140" y2="150" class="edge-line" stroke-width="2.5"/>
+                    <line x1="220" y1="50" x2="140" y2="150" class="edge-line" stroke-width="2.5"/>
+                    <line x1="60" y1="50" x2="220" y2="50" class="edge-flow"/>
+                    <circle cx="60" cy="50" r="20" class="node-circle"/>
+                    <text x="60" y="50" class="node-label" style="font-size:13px;">1</text>
+                    <circle cx="220" cy="50" r="20" class="node-circle"/>
+                    <text x="220" y="50" class="node-label" style="font-size:13px;">2</text>
+                    <circle cx="140" cy="150" r="20" class="node-circle"/>
+                    <text x="140" y="150" class="node-label" style="font-size:13px;">3</text>
                 </svg>
-                
-                <div class="card" style="margin-top: 1.5rem; width: 100%; max-width: 700px;">
-                    <div style="display: flex; justify-content: space-around; text-align: center;">
-                        <div>
-                            <div style="color: var(--accent-cyan); font-weight: 600;">Manba</div>
-                            <div style="color: var(--text-muted);">A (yashil)</div>
-                        </div>
-                        <div>
-                            <div style="color: var(--accent-cyan); font-weight: 600;">Maqsad</div>
-                            <div style="color: var(--text-muted);">G (yashil)</div>
-                        </div>
-                        <div>
-                            <div style="color: var(--accent-cyan); font-weight: 600;">Eng qisqa yo'l</div>
-                            <div style="color: var(--text-muted);">A → C → B → D → F → G</div>
-                        </div>
-                        <div>
-                            <div style="color: var(--accent-orange); font-weight: 600;">Umumiy masofa</div>
-                            <div style="color: var(--text-muted);">11 birlik</div>
-                        </div>
-                    </div>
+                <p style="color:var(--muted);font-size:12.5px;margin-top:12px;line-height:1.6;">
+                    Qirralar <strong style="color:var(--fg);">yo'nalishga ega emas</strong>.<br>
+                    A ↔ B: ikkala tomon ham o'tish mumkin.
+                </p>
+            </div>
+
+            <!-- Yo'naltirilgan -->
+            <div class="info-card anim-slide-right d4" style="flex:1;min-width:300px;max-width:400px;text-align:center;">
+                <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;">
+                    <i class="fa-solid fa-arrow-right-long" style="color:var(--accent2);font-size:20px;"></i>
+                    <h3 class="title-font" style="font-size:16px;font-weight:700;color:var(--accent2);">Yo'naltirilgan Graf</h3>
                 </div>
+                <svg viewBox="0 0 280 180" style="width:100%;max-width:280px;margin:0 auto;">
+                    <defs>
+                        <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                            <polygon points="0 0, 8 3, 0 6" class="arrow-head"/>
+                        </marker>
+                    </defs>
+                    <line x1="80" y1="50" x2="200" y2="50" stroke="var(--accent2)" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+                    <line x1="60" y1="50" x2="140" y2="150" stroke="var(--accent2)" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+                    <line x1="220" y1="50" x2="140" y2="150" stroke="var(--accent2)" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+                    <circle cx="60" cy="50" r="20" class="node-circle"/>
+                    <text x="60" y="50" class="node-label" style="font-size:13px;">1</text>
+                    <circle cx="220" cy="50" r="20" class="node-circle"/>
+                    <text x="220" y="50" class="node-label" style="font-size:13px;">2</text>
+                    <circle cx="140" cy="150" r="20" class="node-circle"/>
+                    <text x="140" y="150" class="node-label" style="font-size:13px;">3</text>
+                </svg>
+                <p style="color:var(--muted);font-size:12.5px;margin-top:12px;line-height:1.6;">
+                    Qirralar <strong style="color:var(--fg);">yo'nalishga ega</strong> (o'q).<br>
+                    A → B: faqat A dan B ga o'tish mumkin.
+                </p>
             </div>
         </div>
+    </div>
 
-        <!-- Slide 5: Bellman-Ford -->
-        <div class="slide" data-slide="5">
-            <div class="slide-number">05 / 10</div>
-            <h2 class="slide-title">Bellman-Ford Algoritmi</h2>
-            <p class="slide-subtitle">Manfiy qirralarni qo'llab-quvvatlaydi</p>
-            
-            <div class="grid-2" style="flex: 1; align-items: start;">
-                <div>
-                    <div class="card" style="margin-bottom: 1.5rem;">
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                            <div class="icon-box icon-orange">
-                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 2v20M2 12h20"/>
-                                </svg>
-                            </div>
-                            <h3 style="font-size: 1.3rem;">Richard Bellman & Lester Ford, 1958</h3>
-                        </div>
-                        <p style="color: var(--text-muted); line-height: 1.7;">
-                            Dijkstra algoritmidan farqli ravishda, Bellman-Ford <span style="color: var(--accent-orange);">manfiy og'irlikli</span> 
-                            qirralar bilan ishlay oladi. Bu algoritm <span style="color: var(--accent-cyan);">Dynamic Programming</span> 
-                            yondashuviga asoslangan.
-                        </p>
-                    </div>
-                    
-                    <div class="card">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">Vaqt Murakkabligi</h4>
-                        <div class="grid-2">
-                            <div class="stat-box">
-                                <div class="stat-value" style="color: var(--accent-orange);">O(V·E)</div>
-                                <div class="stat-label">Umumiy holat</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-value" style="color: var(--accent-orange);">O(V)</div>
-                                <div class="stat-label">Xotira</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="card card-highlight" style="margin-bottom: 1.5rem;">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">Ishlash Printsipi</h4>
-                        <ol style="color: var(--text-muted); line-height: 2; padding-left: 1.5rem;">
-                            <li style="margin-bottom: 0.5rem;">Barcha uzelgacha masofa = cheksiz (manbadan tashqari)</li>
-                            <li style="margin-bottom: 0.5rem;">
-                                <span style="color: var(--accent-orange);">V-1 marta</span> barcha qirralarni tekshirish va masofalarni yangilash
-                            </li>
-                            <li style="margin-bottom: 0.5rem;">
-                                <span style="color: var(--accent-cyan);">Negativ tsikl</span> borligini tekshirish uchun yana bir marta tekshirish
-                            </li>
-                        </ol>
-                    </div>
-                    
-                    <div style="padding: 1rem; background: rgba(6, 214, 160, 0.1); border-radius: 8px; border-left: 3px solid var(--accent-cyan);">
-                        <h5 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">Afzalliklari</h5>
-                        <ul class="feature-list" style="margin-bottom: 1rem;">
-                            <li>Manfiy qirralarni qo'llab-quvvatlaydi</li>
-                            <li>Negativ tsiklni aniqlay oladi</li>
-                        </ul>
-                        <h5 style="color: var(--accent-orange); margin-bottom: 0.5rem;">Kamchiliklari</h5>
-                        <ul class="feature-list">
-                            <li>Dijkstra'dan sekinroq (O(V·E) vs O(E log V))</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+    <!-- ====== 4-SLAID: C++ kutubxonalar ====== -->
+    <div class="slide" id="s4">
+        <div class="slide-number"><span>04</span> / 10</div>
+        <h2 class="title-font anim-fade-up d1" style="font-size:clamp(22px,3vw,36px);font-weight:700;text-align:center;margin-bottom:24px;">
+            C++ da Graf Uchun <span class="gradient-text">Kutubxonalar</span>
+        </h2>
+
+        <div class="code-block anim-fade-up d2" style="margin:0 auto 28px;">
+<span class="inc">#include<span class="str">&lt;vector&gt;</span></span>    <span class="cm">// Qo'shni ro'yxat (adjacency list) uchun</span>
+<span class="inc">#include <span class="str">&lt;queue&gt;</span> </span>     <span class="cm">// Priority queue (ustunlik navbati)</span>
+<span class="inc">#include<span class="str">&lt;climits&gt;</span></span>     <span class="cm">// INT_MAX (cheksiz qiymat) uchun</span>
+<span class="inc">#include <span class="str">&lt;utility&gt;</span> </span>     <span class="cm">// pair&lt;int,int&gt; — (masofa, tugun)</span>
+<span class="inc">#include <span class="str">&lt;iostream&gt;</span></span>    <span class="cm">// Natijani chiqarish uchun</span>
+<span class="kw">using namespace std ;</span> 
         </div>
 
-        <!-- Slide 6: Floyd-Warshall -->
-        <div class="slide" data-slide="6">
-            <div class="slide-number">06 / 10</div>
-            <h2 class="slide-title">Floyd-Warshall Algoritmi</h2>
-            <p class="slide-subtitle">Barcha juftliklar uchun eng qisqa yo'l</p>
-            
-            <div class="grid-2" style="flex: 1; align-items: start;">
-                <div>
-                    <div class="card" style="margin-bottom: 1.5rem;">
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                            <div class="icon-box icon-blue">
-                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                                    <path d="M3 9h18M9 21V9"/>
-                                </svg>
-                            </div>
-                            <h3 style="font-size: 1.3rem;">Robert Floyd, 1962</h3>
-                        </div>
-                        <p style="color: var(--text-muted); line-height: 1.7;">
-                            Bu algoritm <span style="color: var(--accent-blue);">har bir uzel juftligi</span> uchun eng qisqa yo'lni 
-                            hisoblaydi. <span style="color: var(--accent-cyan);">Dynamic Programming</span> yondashuvi qo'llaniladi.
-                        </p>
-                    </div>
-                    
-                    <div class="card card-highlight">
-                        <h4 style="color: var(--accent-blue); margin-bottom: 1rem;">Vaqt Murakkabligi</h4>
-                        <div class="grid-2">
-                            <div class="stat-box">
-                                <div class="stat-value" style="color: var(--accent-blue);">O(V³)</div>
-                                <div class="stat-label">Vaqt</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-value" style="color: var(--accent-blue);">O(V²)</div>
-                                <div class="stat-label">Xotira</div>
-                            </div>
-                        </div>
-                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 1rem; text-align: center;">
-                            Kichik va o'rta o'lchamli graflar uchun samarali
-                        </p>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="card" style="margin-bottom: 1rem;">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">Algoritm Formulasi</h4>
-                        <div class="code-block">
-                            <span style="color: var(--text-muted);">// dist[i][j] - i dan j gacha masofa</span><br>
-                            <span class="code-keyword">for</span> k <span class="code-keyword">in</span> <span class="code-number">1</span>..V:<br>
-                            &nbsp;&nbsp;<span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-number">1</span>..V:<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">for</span> j <span class="code-keyword">in</span> <span class="code-number">1</span>..V:<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist[i][j] = <span class="code-function">min</span>(<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist[i][j],<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist[i][k] + dist[k][j]<br>
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
-                        </div>
-                    </div>
-                    
-                    <div style="padding: 1rem; background: rgba(58, 134, 255, 0.1); border-radius: 8px; border-left: 3px solid var(--accent-blue);">
-                        <h5 style="color: var(--accent-blue); margin-bottom: 0.5rem;">Qo'llash sohalari</h5>
-                        <ul class="feature-list">
-                            <li>Transitiv ochip o'tish matritsasini topish</li>
-                            <li>Grafning diametrini aniqlash</li>
-                            <li>Ijtimoiy tarmoqlarda "Six Degrees of Separation"</li>
-                        </ul>
-                    </div>
-                </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:750px;">
+            <div class="info-card anim-scale-in d3" style="flex:1;min-width:160px;max-width:170px;text-align:center;padding:18px 14px;">
+                <i class="fa-solid fa-layer-group icon-bounce" style="color:var(--accent);font-size:24px;margin-bottom:10px;display:block;"></i>
+                <h4 style="font-size:13px;font-weight:600;margin-bottom:6px;">vector</h4>
+                <p style="font-size:11px;color:var(--muted);line-height:1.5;">Grafni qo'shni ro'yxat shaklida saqlash</p>
+            </div>
+            <div class="info-card anim-scale-in d4" style="flex:1;min-width:160px;max-width:170px;text-align:center;padding:18px 14px;">
+                <i class="fa-solid fa-sort-amount-up icon-bounce d1" style="color:var(--accent2);font-size:24px;margin-bottom:10px;display:block;"></i>
+                <h4 style="font-size:13px;font-weight:600;margin-bottom:6px;">priority_queue</h4>
+                <p style="font-size:11px;color:var(--muted);line-height:1.5;">Eng kichik masofani tez topish</p>
+            </div>
+            <div class="info-card anim-scale-in d5" style="flex:1;min-width:160px;max-width:170px;text-align:center;padding:18px 14px;">
+                <i class="fa-solid fa-infinity icon-bounce d2" style="color:var(--accent3);font-size:24px;margin-bottom:10px;display:block;"></i>
+                <h4 style="font-size:13px;font-weight:600;margin-bottom:6px;">climits</h4>
+                <p style="font-size:11px;color:var(--muted);line-height:1.5;">INF = cheksizlik belgisi</p>
+            </div>
+            <div class="info-card anim-scale-in d6" style="flex:1;min-width:160px;max-width:170px;text-align:center;padding:18px 14px;">
+                <i class="fa-solid fa-link icon-bounce d3" style="color:#a78bfa;font-size:24px;margin-bottom:10px;display:block;"></i>
+                <h4 style="font-size:13px;font-weight:600;margin-bottom:6px;">utility</h4>
+                <p style="font-size:11px;color:var(--muted);line-height:1.5;">pair — masofa+tugun juftligi</p>
             </div>
         </div>
-
-        <!-- Slide 7: Comparison -->
-        <div class="slide" data-slide="7">
-            <div class="slide-number">07 / 10</div>
-            <h2 class="slide-title">Algoritmlarni Qiyosiy Tahlili</h2>
-            
-            <div style="flex: 1; overflow: auto;">
-                <div class="card">
-                    <table class="algo-table">
-                        <thead>
-                            <tr>
-                                <th>Mezon</th>
-                                <th>Dijkstra</th>
-                                <th>Bellman-Ford</th>
-                                <th>Floyd-Warshall</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="color: var(--text-primary); font-weight: 500;">Vaft murakkabligi</td>
-                                <td>O(E log V)</td>
-                                <td>O(V · E)</td>
-                                <td>O(V³)</td>
-                            </tr>
-                            <tr>
-                                <td style="color: var(--text-primary); font-weight: 500;">Xotira</td>
-                                <td>O(V)</td>
-                                <td>O(V)</td>
-                                <td>O(V²)</td>
-                            </tr>
-                            <tr>
-                                <td style="color: var(--text-primary); font-weight: 500;">Manfiy qirralar</td>
-                                <td style="color: #ef4444;">Yo'q</td>
-                                <td style="color: var(--accent-cyan);">Ha</td>
-                                <td style="color: var(--accent-cyan);">Ha</td>
-                            </tr>
-                            <tr>
-                                <td style="color: var(--text-primary); font-weight: 500;">Negativ tsikl aniqlash</td>
-                                <td style="color: #ef4444;">Yo'q</td>
-                                <td style="color: var(--accent-cyan);">Ha</td>
-                                <td style="color: var(--accent-cyan);">Ha</td>
-                            </tr>
-                            <tr>
-                                <td style="color: var(--text-primary); font-weight: 500;">Natija turi</td>
-                                <td>Bitta manbadan</td>
-                                <td>Bitta manbadan</td>
-                                <td>Barcha juftliklar</td>
-                            </tr>
-                            <tr>
-                                <td style="color: var(--text-primary); font-weight: 500;">Maqsad</td>
-                                <td>GPS, navigatsiya</td>
-                                <td>Valyuta ayirboshlash</td>
-                                <td>Tarmoq tahlili</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="grid-3" style="margin-top: 1.5rem;">
-                    <div class="card" style="text-align: center; border-color: var(--accent-cyan);">
-                        <div class="icon-box icon-cyan" style="margin: 0 auto 1rem;">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                            </svg>
-                        </div>
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">Dijkstra</h4>
-                        <p style="color: var(--text-muted); font-size: 0.9rem;">Eng tez, faqat musbat qirralar uchun</p>
-                    </div>
-                    <div class="card" style="text-align: center; border-color: var(--accent-orange);">
-                        <div class="icon-box icon-orange" style="margin: 0 auto 1rem;">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 2v20M2 12h20"/>
-                            </svg>
-                        </div>
-                        <h4 style="color: var(--accent-orange); margin-bottom: 0.5rem;">Bellman-Ford</h4>
-                        <p style="color: var(--text-muted); font-size: 0.9rem;">Manfiy qirralar uchun eng yaxshi</p>
-                    </div>
-                    <div class="card" style="text-align: center; border-color: var(--accent-blue);">
-                        <div class="icon-box icon-blue" style="margin: 0 auto 1rem;">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            </svg>
-                        </div>
-                        <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">Floyd-Warshall</h4>
-                        <p style="color: var(--text-muted); font-size: 0.9rem;">Barcha juftliklar uchun yagona yechim</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 8: Applications -->
-        <div class="slide" data-slide="8">
-            <div class="slide-number">08 / 10</div>
-            <h2 class="slide-title">Yo'nalishlarda Ishlatilishi</h2>
-            
-            <div class="grid-2" style="flex: 1;">
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <div class="card" style="display: flex; gap: 1rem; align-items: start;">
-                        <div class="icon-box icon-cyan">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">GPS Navigatsiya</h4>
-                            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-                                Google Maps, Yandex Maps va boshqa navigatsiya ilovalarida eng qisqa va eng tezkor 
-                                marshrutlarni hisoblash uchun Dijkstra algoritmi ishlatiladi.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="card" style="display: flex; gap: 1rem; align-items: start;">
-                        <div class="icon-box icon-orange">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 style="color: var(--accent-orange); margin-bottom: 0.5rem;">Internet Tarmoqlari</h4>
-                            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-                                Routerlar orasidagi ma'lumot paketlarini eng optimal yo'l bilan uzatish uchun 
-                                OSPF protokoli Dijkstra algoritmini qo'llaydi.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="card" style="display: flex; gap: 1rem; align-items: start;">
-                        <div class="icon-box icon-blue">
-                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="1" y="3" width="15" height="13"/>
-                                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                                <circle cx="5.5" cy="18.5" r="2.5"/>
-                                <circle cx="18.5" cy="18.5" r="2.5"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">Logistika</h4>
-                            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-                                Yetkazib berish kompaniyalari (Amazon, DHL) tovarlarni yetkazish uchun eng 
-                                optimal marshrutlarni hisoblashda foydalanadi.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <div class="card card-highlight">
-                        <div style="display: flex; gap: 1rem; align-items: start;">
-                            <div class="icon-box icon-cyan">
-                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <line x1="2" y1="12" x2="22" y2="12"/>
-                                    <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h4 style="color: var(--accent-cyan); margin-bottom: 0.5rem;">Ijtimoiy Tarmoqlar</h4>
-                                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-                                    Facebook, LinkedIn da "do'stlik masofasi" yoki "Connections" ni hisoblash 
-                                    uchun BFS va eng qisqa yo'l algoritmlari ishlatiladi.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div style="display: flex; gap: 1rem; align-items: start;">
-                            <div class="icon-box icon-orange">
-                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h4 style="color: var(--accent-orange); margin-bottom: 0.5rem;">Valyuta Ayirboshlash</h4>
-                                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-                                    Arbitraj imkoniyatlarini topish uchun Bellman-Ford algoritmi ishlatiladi. 
-                                    Negativ tsikl - foyda imkoniyatini bildiradi.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div style="display: flex; gap: 1rem; align-items: start;">
-                            <div class="icon-box icon-blue">
-                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h4 style="color: var(--accent-blue); margin-bottom: 0.5rem;">Robototexnika</h4>
-                                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-                                    Avtonom robotlar va dronlar uchun to'siqsiz eng xavfsiz va eng qisqa 
-                                    yo'lni rejalashtirishda ishlatiladi.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 9: Code Example -->
-        <div class="slide" data-slide="9">
-            <div class="slide-number">09 / 10</div>
-            <h2 class="slide-title">Dijkstra Algoritmi - Kod Misoli</h2>
-            
-            <div class="grid-2" style="flex: 1;">
-                <div class="card" style="height: 100%; overflow: auto;">
-                    <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">Python Implementatsiyasi</h4>
-                    <div class="code-block" style="font-size: 0.8rem; line-height: 1.6;">
-<span class="code-keyword">import</span> heapq
-
-<span class="code-keyword">def</span> <span class="code-function">dijkstra</span>(graph, start):
-    <span class="code-comment"># Masofalarni cheksiz qilib boshlash</span>
-    distances = {node: <span class="code-string">float('inf')</span> <span class="code-keyword">for</span> node <span class="code-keyword">in</span> graph}
-    distances[start] = <span class="code-number">0</span>
+    </div>
     
-    <span class="code-comment"># Priority queue: (masofa, uzel)</span>
-    pq = [(<span class="code-number">0</span>, start)]
-    
-    <span class="code-keyword">while</span> pq:
-        current_dist, current = heapq.<span class="code-function">heappop</span>(pq)
-        
-        <span class="code-comment"># Agar katta masofa bo'lsa, o'tkazib yuborish</span>
-        <span class="code-keyword">if</span> current_dist > distances[current]:
-            <span class="code-keyword">continue</span>
-        
-        <span class="code-comment"># Qo'shnilarni tekshirish</span>
-        <span class="code-keyword">for</span> neighbor, weight <span class="code-keyword">in</span> graph[current].<span class="code-function">items</span>():
-            distance = current_dist + weight
-            
-            <span class="code-comment"># Yangi qisqa yo'l topilsa</span>
-            <span class="code-keyword">if</span> distance < distances[neighbor]:
-                distances[neighbor] = distance
-                heapq.<span class="code-function">heappush</span>(pq, (distance, neighbor))
-    
-    <span class="code-keyword">return</span> distances
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="card" style="margin-bottom: 1rem;">
-                        <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">Foydalanish Misoli</h4>
-                        <div class="code-block" style="font-size: 0.8rem; line-height: 1.6;">
-<span class="code-comment"># Graf yaratish</span>
-graph = {
-    <span class="code-string">'A'</span>: {<span class="code-string">'B'</span>: <span class="code-number">4</span>, <span class="code-string">'C'</span>: <span class="code-number">2</span>},
-    <span class="code-string">'B'</span>: {<span class="code-string">'C'</span>: <span class="code-number">1</span>, <span class="code-string">'D'</span>: <span class="code-number">5</span>},
-    <span class="code-string">'C'</span>: {<span class="code-string">'D'</span>: <span class="code-number">8</span>},
-    <span class="code-string">'D'</span>: {}
-}
 
-<span class="code-comment"># Algoritmni ishlatish</span>
-result = <span class="code-function">dijkstra</span>(graph, <span class="code-string">'A'</span>)
-<span class="code-function">print</span>(result)
-<span class="code-comment"># {'A': 0, 'B': 3, 'C': 2, 'D': 8}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="card card-highlight">
-                        <h4 style="color: var(--accent-orange); margin-bottom: 0.75rem;">Kod Tushuntirish</h4>
-                        <ul class="feature-list" style="font-size: 0.9rem;">
-                            <li><strong style="color: var(--text-primary);">heapq</strong> - Min-heap sifatida priority queue</li>
-                            <li><strong style="color: var(--text-primary);">distances</strong> - Har bir uzegacha bo'lgan masofa</li>
-                            <li><strong style="color: var(--text-primary);">pq</strong> - Tekshiriladigan uzel navbati</li>
-                            <li><strong style="color: var(--text-primary);">O(E log V)</strong> - Vaqt murakkabligi</li>
-                        </ul>
-                    </div>
-                </div>
+    <!-- ====== 5-SLAID: Dijkstra algoritmi ====== -->
+    <div class="slide" id="s5">
+        <div class="slide-number"><span>05</span> / 10</div>
+        <h2 class="title-font anim-fade-up d1" style="font-size:clamp(20px,2.8vw,34px);font-weight:700;text-align:center;margin-bottom:6px;">
+            Eng Qisqa Yo'l — <span style="color:var(--accent2);">Dijkstra</span> Algoritmi
+        </h2>
+        <p class="anim-fade-up d2" style="color:var(--muted);font-size:13px;text-align:center;margin-bottom:24px;">
+            1956-yil Edsger Dijkstra tomonidan yaratilgan. <strong style="color:var(--fg);">Yakka manbali eng qisqa yo'l</strong> topish algoritmi.
+        </p>
+
+        <div style="display:flex;gap:30px;align-items:center;flex-wrap:wrap;justify-content:center;">
+            <div class="svg-container anim-scale-in d3" style="max-width:480px;">
+                <svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="nodeGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ff6347"/>
+                            <stop offset="100%" style="stop-color:#ff8c00"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Qirralar -->
+                    <line x1="80" y1="50" x2="240" y2="50" class="edge-line"/>
+                    <line x1="80" y1="50" x2="240" y2="160" class="edge-line"/>
+                    <line x1="400" y1="50" x2="240" y2="160" class="edge-line"/>
+                    <line x1="240" y1="160" x2="80" y2="250" class="edge-line"/>
+                    <line x1="240" y1="160" x2="400" y2="250" class="edge-line"/>
+                    <line x1="80" y1="250" x2="400" y2="250" class="edge-line"/>
+                    <line x1="80" y1="50" x2="240" y2="50" class="edge-flow"/>
+                    <line x1="240" y1="160" x2="400" y2="250" class="edge-flow"/>
+                    <!-- Tugun: 0 (boshlang'ich) -->
+                    <circle cx="80" cy="50" r="22" fill="none" stroke="var(--accent2)" stroke-width="1.5" opacity="0.4" style="animation:pulse-node 2s infinite;"/>
+                    <circle cx="80" cy="50" r="22" style="fill:url(#nodeGrad3);stroke:var(--accent2);stroke-width:2.5;filter:drop-shadow(0 0 8px rgba(255,99,71,0.5));"/>
+                    <text x="80" y="50" class="node-label" style="font-size:13px;">0</text>
+                    <!-- Tugun: 1 -->
+                    <circle cx="240" cy="50" r="22" class="node-circle"/>
+                    <text x="240" y="50" class="node-label">1</text>
+                    <!-- Tugun: 2 -->
+                    <circle cx="400" cy="50" r="22" class="node-circle"/>
+                    <text x="400" y="50" class="node-label">2</text>
+                    <!-- Tugun: 3 -->
+                    <circle cx="240" cy="160" r="22" class="node-circle"/>
+                    <text x="240" y="160" class="node-label">3</text>
+                    <!-- Tugun: 4 -->
+                    <circle cx="80" cy="250" r="22" class="node-circle"/>
+                    <text x="80" y="250" class="node-label">4</text>
+                    <!-- Tugun: 5 (target) -->
+                    <circle cx="400" cy="250" r="22" fill="none" stroke="var(--accent3)" stroke-width="1.5" opacity="0.4" style="animation:pulse-ring-delay 2.5s infinite;"/>
+                    <circle cx="400" cy="250" r="22" style="fill:url(#nodeGrad3);stroke:var(--accent3);stroke-width:2.5;filter:drop-shadow(0 0 8px rgba(255,210,63,0.5));"/>
+                    <text x="400" y="250" class="node-label" style="font-size:13px;">5</text>
+                    <!-- Og'irliklar -->
+                    <rect x="148" y="32" width="22" height="16" class="weight-bg"/>
+                    <text x="159" y="41" class="weight-label" style="font-size:9px;">4</text>
+                    <rect x="140" y="90" width="22" height="16" class="weight-bg"/>
+                    <text x="151" y="99" class="weight-label" style="font-size:9px;">2</text>
+                    <rect x="310" y="90" width="22" height="16" class="weight-bg"/>
+                    <text x="321" y="99" class="weight-label" style="font-size:9px;">5</text>
+                    <rect x="140" y="195" width="22" height="16" class="weight-bg"/>
+                    <text x="151" y="204" class="weight-label" style="font-size:9px;">3</text>
+                    <rect x="310" y="195" width="22" height="16" class="weight-bg"/>
+                    <text x="321" y="204" class="weight-label" style="font-size:9px;">1</text>
+                    <rect x="228" y="242" width="22" height="16" class="weight-bg"/>
+                    <text x="239" y="251" class="weight-label" style="font-size:9px;">6</text>
+                    <!-- Belgilar -->
+                    <text x="80" y="20" style="fill:var(--accent2);font-size:9px;font-family:'Orbitron';text-anchor:middle;">START</text>
+                    <text x="400" y="285" style="fill:var(--accent3);font-size:9px;font-family:'Orbitron';text-anchor:middle;">TARGET</text>
+                </svg>
             </div>
-        </div>
 
-        <!-- Slide 10: Conclusion -->
-        <div class="slide" data-slide="10">
-            <div class="slide-number">10 / 10</div>
-            <h2 class="slide-title">Xulosa</h2>
-            
-            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                <div class="grid-3" style="margin-bottom: 2rem;">
-                    <div class="card" style="text-align: center; padding: 2rem 1.5rem; border-color: var(--accent-cyan);">
-                        <svg width="48" height="48" viewBox="0 0 48 48" style="margin: 0 auto 1rem;">
-                            <circle cx="24" cy="24" r="20" fill="none" stroke="var(--accent-cyan)" stroke-width="2"/>
-                            <path d="M24 14v10l7 4" fill="none" stroke="var(--accent-cyan)" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <h3 style="color: var(--accent-cyan); font-size: 1.5rem; margin-bottom: 0.5rem;">O(V²)</h3>
-                        <p style="color: var(--text-muted);">Dijkstra murakkabligi</p>
-                    </div>
-                    
-                    <div class="card" style="text-align: center; padding: 2rem 1.5rem; border-color: var(--accent-orange);">
-                        <svg width="48" height="48" viewBox="0 0 48 48" style="margin: 0 auto 1rem;">
-                            <circle cx="24" cy="24" r="20" fill="none" stroke="var(--accent-orange)" stroke-width="2"/>
-                            <path d="M16 24h16M24 16v16" fill="none" stroke="var(--accent-orange)" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <h3 style="color: var(--accent-orange); font-size: 1.5rem; margin-bottom: 0.5rem;">O(V·E)</h3>
-                        <p style="color: var(--text-muted);">Bellman-Ford murakkabligi</p>
-                    </div>
-                    
-                    <div class="card" style="text-align: center; padding: 2rem 1.5rem; border-color: var(--accent-blue);">
-                        <svg width="48" height="48" viewBox="0 0 48 48" style="margin: 0 auto 1rem;">
-                            <rect x="8" y="8" width="32" height="32" rx="4" fill="none" stroke="var(--accent-blue)" stroke-width="2"/>
-                            <line x1="8" y1="20" x2="40" y2="20" stroke="var(--accent-blue)" stroke-width="2"/>
-                            <line x1="20" y1="8" x2="20" y2="40" stroke="var(--accent-blue)" stroke-width="2"/>
-                        </svg>
-                        <h3 style="color: var(--accent-blue); font-size: 1.5rem; margin-bottom: 0.5rem;">O(V³)</h3>
-                        <p style="color: var(--text-muted);">Floyd-Warshall murakkabligi</p>
-                    </div>
-                </div>
-                
-                <div class="card card-highlight" style="text-align: center; padding: 2rem;">
-                    <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.8; max-width: 800px; margin: 0 auto;">
-                        Eng qisqa yo'l algoritmlari zamonaviy texnologiyalarning asosidir. 
-                        <span style="color: var(--accent-cyan);">GPS navigatsiya</span> dan tortib, 
-                        <span style="color: var(--accent-orange);">internet tarmoqlari</span> gacha bo'lgan sohalarda 
-                        keng qo'llaniladi. To'g'ri algoritmni tanlash vazifa shartlariga bog'liq: 
-                        <span style="color: var(--accent-cyan);">Dijkstra</span> - tezkor va samarali, 
-                        <span style="color: var(--accent-orange);">Bellman-Ford</span> - manfiy qirralar uchun, 
-                        <span style="color: var(--accent-blue);">Floyd-Warshall</span> - barcha juftliklar uchun.
+            <div class="anim-slide-right d5" style="max-width:280px;">
+                <div class="info-card" style="border-color:rgba(255,99,71,0.25);margin-bottom:14px;">
+                    <h4 style="font-size:13px;color:var(--accent2);margin-bottom:8px;"><i class="fa-solid fa-lightbulb" style="margin-right:6px;"></i>G'oya</h4>
+                    <p style="font-size:12px;color:var(--muted);line-height:1.7;">
+                        <strong style="color:var(--fg);">Tamomli (greedy)</strong> yondashuv: har qadamda eng kichik masofadagi tugunni tanlaydi.
                     </p>
                 </div>
-                
-                <div style="text-align: center; margin-top: 2rem;">
-                    <svg width="100" height="60" viewBox="0 0 100 60" class="animate-float">
-                        <circle cx="20" cy="30" r="8" class="graph-node"/>
-                        <circle cx="50" cy="15" r="8" class="graph-node-orange"/>
-                        <circle cx="50" cy="45" r="8" class="graph-node-blue"/>
-                        <circle cx="80" cy="30" r="8" class="graph-node"/>
-                        <line x1="28" y1="30" x2="42" y2="18" class="graph-edge-highlight"/>
-                        <line x1="58" y1="18" x2="72" y2="30" class="graph-edge-highlight"/>
-                    </svg>
-                    <p style="color: var(--text-muted); margin-top: 1rem; font-size: 0.9rem;">
-                        Ma'lumotlar Tuzilmasi va Algoritmlar
+                <div class="info-card" style="border-color:rgba(0,229,160,0.2);">
+                    <h4 style="font-size:13px;color:var(--accent);margin-bottom:8px;"><i class="fa-solid fa-check-double" style="margin-right:6px;"></i>Shart</h4>
+                    <p style="font-size:12px;color:var(--muted);line-height:1.7;">
+                        Barcha qirralar og'irligi <strong style="color:var(--fg);">manfiy bo'lmasligi</strong> kerak.
                     </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Navigation -->
-    <div class="nav-controls">
-        <button class="nav-btn" id="prevBtn" disabled>
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 18l-6-6 6-6"/>
-            </svg>
-        </button>
-        
-        <div class="slide-indicators" id="indicators"></div>
-        
-        <button class="nav-btn" id="nextBtn">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 18l6-6-6-6"/>
-            </svg>
-        </button>
+    <!-- ====== 6-SLAID: Dijkstra qadamlari ====== -->
+    <div class="slide" id="s6">
+        <div class="slide-number"><span>06</span> / 10</div>
+        <h2 class="title-font anim-fade-up d1" style="font-size:clamp(20px,2.6vw,32px);font-weight:700;text-align:center;margin-bottom:20px;">
+            Dijkstra — <span class="gradient-text">Qadamlar</span>
+        </h2>
+
+        <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;justify-content:center;width:100%;max-width:880px;">
+            <div class="svg-container anim-scale-in d2" style="max-width:420px;flex-shrink:0;">
+                <svg viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Qirralar (oddiy) -->
+                    <line x1="60" y1="40" x2="210" y2="40" class="edge-line"/>
+                    <line x1="60" y1="40" x2="210" y2="140" class="edge-line"/>
+                    <line x1="360" y1="40" x2="210" y2="140" class="edge-line"/>
+                    <line x1="210" y1="140" x2="60" y2="240" class="edge-line"/>
+                    <line x1="210" y1="140" x2="360" y2="240" class="edge-line"/>
+                    <line x1="60" y1="240" x2="360" y2="240" class="edge-line"/>
+                    <!-- Eng qisqa yo'l (ajratilgan) -->
+                    <line x1="60" y1="40" x2="210" y2="140" class="edge-line-highlight"/>
+                    <line x1="210" y1="140" x2="360" y2="240" class="edge-line-highlight"/>
+                    <!-- Tugunlar -->
+                    <circle cx="60" cy="40" r="20" style="fill:url(#nodeGrad3);stroke:var(--accent2);stroke-width:2;"/>
+                    <text x="60" y="40" class="node-label" style="font-size:12px;">0</text>
+                    <circle cx="210" cy="40" r="20" class="node-circle" style="opacity:0.45;"/>
+                    <text x="210" y="40" class="node-label" style="font-size:12px;opacity:0.5;">1</text>
+                    <circle cx="360" cy="40" r="20" class="node-circle" style="opacity:0.45;"/>
+                    <text x="360" y="40" class="node-label" style="font-size:12px;opacity:0.5;">2</text>
+                    <circle cx="210" cy="140" r="20" style="fill:url(#nodeGrad3);stroke:var(--accent2);stroke-width:2;"/>
+                    <text x="210" y="140" class="node-label" style="font-size:12px;">3</text>
+                    <circle cx="60" cy="240" r="20" class="node-circle" style="opacity:0.45;"/>
+                    <text x="60" y="240" class="node-label" style="font-size:12px;opacity:0.5;">4</text>
+                    <circle cx="360" cy="240" r="20" style="fill:url(#nodeGrad3);stroke:var(--accent3);stroke-width:2;"/>
+                    <text x="360" y="240" class="node-label" style="font-size:12px;">5</text>
+                    <!-- Og'irliklar -->
+                    <rect x="122" y="22" width="20" height="15" class="weight-bg"/>
+                    <text x="132" y="30" class="weight-label" style="font-size:8px;">4</text>
+                    <rect x="112" y="78" width="20" height="15" class="weight-bg" style="fill:rgba(255,99,71,0.15);"/>
+                    <text x="122" y="86" class="weight-label" style="font-size:8px;">2</text>
+                    <rect x="278" y="78" width="20" height="15" class="weight-bg"/>
+                    <text x="288" y="86" class="weight-label" style="font-size:8px;">5</text>
+                    <rect x="112" y="180" width="20" height="15" class="weight-bg"/>
+                    <text x="122" y="188" class="weight-label" style="font-size:8px;">3</text>
+                    <rect x="278" y="180" width="20" height="15" class="weight-bg" style="fill:rgba(255,99,71,0.15);"/>
+                    <text x="288" y="188" class="weight-label" style="font-size:8px;">1</text>
+                    <rect x="198" y="228" width="20" height="15" class="weight-bg"/>
+                    <text x="208" y="236" class="weight-label" style="font-size:8px;">6</text>
+                    <!-- Natija -->
+                    <text x="210" y="270" style="fill:var(--accent2);font-size:10px;font-family:'Orbitron';text-anchor:middle;">0 → 3 → 5 = 3</text>
+                </svg>
+            </div>
+
+            <div style="flex:1;min-width:280px;max-width:400px;">
+                <div class="anim-fade-up d2" style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
+                    <div style="min-width:28px;height:28px;border-radius:8px;background:var(--accent2);display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-size:12px;font-weight:700;color:var(--bg);">1</div>
+                    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;">Boshlang'ich tugunni <strong style="color:var(--fg);">0</strong>, boshqa tugunlarni <strong style="color:var(--accent3);">INF</strong> qilib belgilash.</p>
+                </div>
+                <div class="anim-fade-up d3" style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
+                    <div style="min-width:28px;height:28px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-size:12px;font-weight:700;color:var(--bg);">2</div>
+                    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;">Joriy tugunning <strong style="color:var(--fg);">qo'shnilari</strong> orqali masofalarni yangilash.</p>
+                </div>
+                <div class="anim-fade-up d4" style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
+                    <div style="min-width:28px;height:28px;border-radius:8px;background:var(--accent3);display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-size:12px;font-weight:700;color:var(--bg);">3</div>
+                    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;">Navbatdan <strong style="color:var(--fg);">eng kichik masofali</strong> tugunni olish.</p>
+                </div>
+                <div class="anim-fade-up d5" style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
+                    <div style="min-width:28px;height:28px;border-radius:8px;background:#a78bfa;display:flex;align-items:center;justify-content:center;font-family:'Orbitron';font-size:12px;font-weight:700;color:var(--bg);">4</div>
+                    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;">Barcha tugunlar <strong style="color:var(--fg);">tekshirilgunga qadar</strong> 2-3 qadamlarni takrorlash.</p>
+                </div>
+                <div class="anim-fade-up d6 info-card" style="border-color:rgba(255,99,71,0.3);padding:14px 16px;">
+                    <p style="font-size:12px;color:var(--fg);line-height:1.6;">
+                        <i class="fa-solid fa-route" style="color:var(--accent2);margin-right:6px;"></i>
+                        <strong>Natija:</strong> 0 → 3 → 5 = <span style="color:var(--accent3);font-weight:700;">2 + 1 = 3</span> (eng qisqa!)
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Initialize variables first
-        const totalSlides = 10;
-        let currentSlide = 1;
+   <!-- ====== 7-SLAID: Dijkstra C++ kodi ====== -->
+    <div class="slide" id="s7">
+        <div class="slide-number"><span>07</span> / 10</div>
         
-        // DOM elements
-        const presentation = document.getElementById('presentation');
-        const slides = presentation.querySelectorAll('.slide');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const indicatorsContainer = document.getElementById('indicators');
-        const progressBar = document.getElementById('progressBar');
-        
-        // Create indicators
-        function createIndicators() {
-            indicatorsContainer.innerHTML = '';
-            for (let i = 1; i <= totalSlides; i++) {
-                const indicator = document.createElement('div');
-                indicator.className = 'indicator' + (i === currentSlide ? ' active' : '');
-                indicator.addEventListener('click', () => goToSlide(i));
-                indicatorsContainer.appendChild(indicator);
-            }
+        <h2 class="title-font anim-fade-up d1" style="font-size:clamp(20px,2.6vw,32px); font-weight:700; text-align:center; margin-bottom:25px; color: #e6edf3;">
+            Dijkstra — <span style="color:#79c0ff;">C++</span> Kod Misol
+        </h2>
+
+        <!-- Yangi, toza va tartibli kod konteyneri -->
+        <div class="anim-fade-up d2" style="
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 0 auto;
+            max-width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        ">
+            <div style="font-family: 'Fira Code', 'Cascadia Code', Consolas, monospace; font-size: 13px; line-height: 1.7; color: #c9d1d9; white-space: pre; text-align: left;">
+    <span style="color:#79c0ff">vector</span>&lt;<span style="color:#79c0ff">int</span>&gt; <span style="color:#d2a8ff">dijkstra</span>(<span style="color:#79c0ff">int</span> n, <span style="color:#79c0ff">int</span> src, <span style="color:#79c0ff">vector</span>&lt;<span style="color:#79c0ff">pair</span>&lt;<span style="color:#79c0ff">int</span>,<span style="color:#79c0ff">int</span>&gt;&gt; adj[]) {
+    <span style="color:#79c0ff">vector</span>&lt;<span style="color:#79c0ff">int</span>&gt; <span style="color:#d2a8ff">dist</span>(n, INT_MAX);
+    <span style="color:#79c0ff">priority_queue</span>&lt;<span style="color:#79c0ff">pair</span>&lt;<span style="color:#79c0ff">int</span>,<span style="color:#79c0ff">int</span>&gt;, <span style="color:#79c0ff">vector</span>&lt;<span style="color:#79c0ff">pair</span>&lt;<span style="color:#79c0ff">int</span>,<span style="color:#79c0ff">int</span>&gt;&gt;, <span style="color:#79c0ff">greater</span>&lt;<span style="color:#79c0ff">pair</span>&lt;<span style="color:#79c0ff">int</span>,<span style="color:#79c0ff">int</span>&gt;&gt;&gt; pq;
+
+    dist[src] = <span style="color:#ffd23f">0</span>;
+    pq.<span style="color:#d2a8ff">push</span>({<span style="color:#ffd23f">0</span>, src});
+
+    <span style="color:#ff7b72">while</span> (!pq.<span style="color:#d2a8ff">empty</span>()) {
+        <span style="color:#79c0ff">int</span> d = pq.<span style="color:#d2a8ff">top</span>().first;
+        <span style="color:#79c0ff">int</span> u = pq.<span style="color:#d2a8ff">top</span>().second;
+        pq.<span style="color:#d2a8ff">pop</span>();
+
+        <span style="color:#ff7b72">if</span> (d > dist[u]) <span style="color:#ff7b72">continue</span>;
+
+        <span style="color:#ff7b72">for</span> (<span style="color:#ff7b72">auto</span> &edge : adj[u]) {
+        <span style="color:#79c0ff">int</span> v = edge.first;
+        <span style="color:#79c0ff">int</span> w = edge.second;
+        <span style="color:#ff7b72">if</span> (dist[u] + w < dist[v]) {
+            dist[v] = dist[u] + w;
+            pq.<span style="color:#d2a8ff">push</span>({dist[v], v});
         }
-        
-        // Update slide display
-        function updateSlides() {
-            slides.forEach((slide, index) => {
-                slide.classList.remove('active', 'prev');
-                if (index + 1 === currentSlide) {
-                    slide.classList.add('active');
-                } else if (index + 1 < currentSlide) {
-                    slide.classList.add('prev');
-                }
-            });
-            
-            // Update indicators
-            const indicators = indicatorsContainer.querySelectorAll('.indicator');
-            indicators.forEach((ind, index) => {
-                ind.classList.toggle('active', index + 1 === currentSlide);
-            });
-            
-            // Update navigation buttons
-            prevBtn.disabled = currentSlide === 1;
-            nextBtn.disabled = currentSlide === totalSlides;
-            
-            // Update progress bar
-            const progress = (currentSlide / totalSlides) * 100;
-            progressBar.style.width = progress + '%';
         }
-        
-        // Go to specific slide
-        function goToSlide(slideNum) {
-            if (slideNum >= 1 && slideNum <= totalSlides) {
-                currentSlide = slideNum;
-                updateSlides();
-            }
-        }
-        
-        // Navigation handlers
-        function nextSlide() {
-            if (currentSlide < totalSlides) {
-                currentSlide++;
-                updateSlides();
-            }
-        }
-        
-        function prevSlide() {
-            if (currentSlide > 1) {
-                currentSlide--;
-                updateSlides();
-            }
-        }
-        
-        // Event listeners
-        prevBtn.addEventListener('click', prevSlide);
-        nextBtn.addEventListener('click', nextSlide);
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-                e.preventDefault();
-                nextSlide();
-            } else if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                prevSlide();
-            }
+    }
+    <span style="color:#ff7b72">return</span> dist;
+    }</div>
+        </div>
+
+    <!-- Pastki qism: Legend/Izohlar -->
+    <div class="anim-fade-up d4" style="display:flex; gap:25px; margin-top:25px; flex-wrap:wrap; justify-content:center; opacity: 0.8;">
+        <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:#8b949e;">
+            <div style="width:12px; height:12px; border-radius:3px; background:#ff7b72;"></div> Kalit so'zlar
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:#8b949e;">
+            <div style="width:12px; height:12px; border-radius:3px; background:#79c0ff;"></div> Tiplar
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:#8b949e;">
+            <div style="width:12px; height:12px; border-radius:3px; background:#d2a8ff;"></div> Funksiyalar
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:#8b949e;">
+            <div style="width:12px; height:12px; border-radius:3px; background:#ffd23f;"></div> Qiymatlar
+        </div>
+    </div>
+</div>
+
+    <!-- ====== 8-SLAID: Graf dasturlashda ====== -->
+    <div class="slide" id="s8">
+        <div class="slide-number"><span>08</span> / 10</div>
+        <h2 class="title-font anim-fade-up d1" style="font-size:clamp(20px,2.8vw,34px);font-weight:700;text-align:center;margin-bottom:6px;">
+            Graf <span class="gradient-text">Dasturlashda</span>
+        </h2>
+        <p class="anim-fade-up d2" style="color:var(--muted);font-size:13px;text-align:center;margin-bottom:26px;">
+            Graflar zamonaviy dasturlashning ko'plab sohalarida qo'llaniladi
+        </p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:720px;width:100%;">
+            <div class="info-card anim-scale-in d2" style="text-align:center;padding:20px 14px;">
+                <i class="fa-solid fa-network-wired icon-bounce" style="color:var(--accent);font-size:26px;margin-bottom:10px;display:block;"></i>
+                <h4 style="font-size:12.5px;font-weight:600;margin-bottom:6px;">Tarmoq Routing</h4>
+                <p style="font-size:10.5px;color:var(--muted);line-height:1.5;">Internet paketlari uchun optimal yo'l topish</p>
+            </div>
+            <div class="info-card anim-scale-in d3" style="text-align:center;padding:20px 14px;">
+                <i class="fa-solid fa-users icon-bounce d1" style="color:var(--accent2);font-size:26px;margin-bottom:10px;display:block;"></i>
+                <h4 style="font-size:12.5px;font-weight:600;margin-bottom:6px;">Ijtimoiy Tarmoq</h4>
+                <p style="font-size:10.5px;color:var(--muted);line-height:1.5;">Do'stlar, tavsiyalar, guruhlar — bular ham graf</p>
+            </div>
+            <div class="info-card anim-scale-in d4" style="text-align:center;padding:20px 14px;">
+                <i class="fa-solid fa-gamepad icon-bounce d2" style="color:var(--accent3);font-size:26px;margin-bottom:10px;display:block;"></i>
+                <h4 style="font-size:12.5px;font-weight:600;margin-bottom:6px;">O'yin Ishlab Chiqish</h4>
+                <p style="font-size:10.5px;color:var(--muted);line-height:1.5;">NPC yo'l topish, xarita generatsiya</p>
+            </div>
+            <div class="info-card anim-scale-in d5" style="text-align:center;padding:20px 14px;">
+                <i class="fa-solid fa-truck-fast icon-bounce d3" style="color:#a78bfa;font-size:26px;margin-bottom:10px;display:block;"></i>
+                <h4 style="font-size:12.5px;font-weight:600;margin-bottom:6px;">Logistika</h4>
+                <p style="font-size:10.5px;color:var(--muted);line-height:1.5;">Yetkazib berish marshrutlarini optimallashtirish</p>
+            </div>
+            <div class="info-card anim-scale-in d6" style="text-align:center;padding:20px 14px;">
+                <i class="fa-solid fa-dna icon-bounce" style="color:#f472b6;font-size:26px;margin-bottom:10px;display:block;"></i>
+                <h4 style="font-size:12.5px;font-weight:600;margin-bottom:6px;">Bioinformatika</h4>
+                <p style="font-size:10.5px;color:var(--muted);line-height:1.5;">Protein tarmoqlari, gen aloqalari</p>
+            </div>
+            <div class="info-card anim-scale-in d7" style="text-align:center;padding:20px 14px;">
+                <i class="fa-solid fa-map-location-dot icon-bounce d1" style="color:#38bdf8;font-size:26px;margin-bottom:10px;display:block;"></i>
+                <h4 style="font-size:12.5px;font-weight:600;margin-bottom:6px;">Xarita / Navigatsiya</h4>
+                <p style="font-size:10.5px;color:var(--muted);line-height:1.5;">Yo'l haritalari, manzil topish</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 9-SLAID: Nima uchun kerak ====== -->
+    <div class="slide" id="s9">
+        <div class="slide-number"><span>09</span> / 10</div>
+        <h2 class="title-font anim-fade-up d1" style="font-size:clamp(20px,2.6vw,32px);font-weight:700;text-align:center;margin-bottom:20px;">
+            Nima Uchun <span style="color:var(--accent2);">Eng Qisqa Yo'l</span> Kerak?
+        </h2>
+
+        <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;justify-content:center;max-width:820px;width:100%;">
+            <!-- GPS vizual -->
+            <div class="anim-scale-in d2" style="position:relative;flex-shrink:0;">
+                <svg viewBox="0 0 280 280" style="width:260px;height:260px;">
+                    <!-- Xarita shakli (abstrakt) -->
+                    <rect x="20" y="20" width="240" height="240" rx="20" fill="rgba(0,229,160,0.03)" stroke="rgba(0,229,160,0.1)" stroke-width="1"/>
+                    <!-- Yo'llar (abstrakt grid) -->
+                    <line x1="60" y1="20" x2="60" y2="260" stroke="rgba(232,236,244,0.06)" stroke-width="1"/>
+                    <line x1="140" y1="20" x2="140" y2="260" stroke="rgba(232,236,244,0.06)" stroke-width="1"/>
+                    <line x1="220" y1="20" x2="220" y2="260" stroke="rgba(232,236,244,0.06)" stroke-width="1"/>
+                    <line x1="20" y1="70" x2="260" y2="70" stroke="rgba(232,236,244,0.06)" stroke-width="1"/>
+                    <line x1="20" y1="140" x2="260" y2="140" stroke="rgba(232,236,244,0.06)" stroke-width="1"/>
+                    <line x1="20" y1="210" x2="260" y2="210" stroke="rgba(232,236,244,0.06)" stroke-width="1"/>
+                    <!-- Noto'g'ri yo'l (kulrang) -->
+                    <polyline points="60,60 60,140 220,140 220,230" fill="none" stroke="rgba(232,236,244,0.12)" stroke-width="3" stroke-dasharray="6 4"/>
+                    <!-- To'g'ri yo'l (rangli) -->
+                    <polyline points="60,60 140,60 140,140 220,140 220,230" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="60,60 140,60 140,140 220,140 220,230" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 8" opacity="0.6" style="animation:flow 1.2s linear infinite;"/>
+                    <!-- Start nuqta -->
+                    <circle cx="60" cy="60" r="8" class="gps-ping"/>
+                    <circle cx="60" cy="60" r="8" class="gps-ping gps-ping-d"/>
+                    <circle cx="60" cy="60" r="7" fill="var(--accent2)"/>
+                    <text x="60" y="42" style="fill:var(--accent2);font-size:8px;font-family:'Orbitron';text-anchor:middle;">A</text>
+                    <!-- Tugun nuqtalari -->
+                    <circle cx="140" cy="60" r="4" fill="var(--accent)" opacity="0.6"/>
+                    <circle cx="140" cy="140" r="4" fill="var(--accent)" opacity="0.6"/>
+                    <circle cx="220" cy="140" r="4" fill="var(--accent)" opacity="0.6"/>
+                    <!-- Target nuqta -->
+                    <circle cx="220" cy="230" r="8" class="gps-ping" style="stroke:var(--accent3);"/>
+                    <circle cx="220" cy="230" r="7" fill="var(--accent3)"/>
+                    <text x="220" y="252" style="fill:var(--accent3);font-size:8px;font-family:'Orbitron';text-anchor:middle;">B</text>
+                    <!-- GPS ikonkasi -->
+                    <text x="140" y="270" style="fill:var(--muted);font-size:9px;font-family:'Orbitron';text-anchor:middle;letter-spacing:2px;">GPS NAVIGATSIA</text>
+                </svg>
+            </div>
+
+            <!-- Misollar -->
+            <div style="flex:1;min-width:260px;">
+                <div class="info-card anim-slide-right d3" style="border-color:rgba(0,229,160,0.25);margin-bottom:12px;padding:16px 18px;">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <i class="fa-solid fa-location-crosshairs" style="color:var(--accent);font-size:18px;"></i>
+                        <h4 style="font-size:13px;font-weight:600;">GPS Navigatsiya</h4>
+                    </div>
+                    <p style="font-size:11.5px;color:var(--muted);line-height:1.6;">
+                        Toshkentdan Samarqandga — <strong style="color:var(--accent);">eng qisqa va tezkor</strong> marshrutni avtomatik hisoblaydi.
+                    </p>
+                </div>
+                <div class="info-card anim-slide-right d4" style="border-color:rgba(255,99,71,0.25);margin-bottom:12px;padding:16px 18px;">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <i class="fa-solid fa-server" style="color:var(--accent2);font-size:18px;"></i>
+                        <h4 style="font-size:13px;font-weight:600;">Internet Paket Routing</h4>
+                    </div>
+                    <p style="font-size:11.5px;color:var(--muted);line-height:1.6;">
+                        Ma'lumot paketlari <strong style="color:var(--accent2);">eng kam oraliq</strong> bilan manzilga yetkaziladi (OSPF protokoli).
+                    </p>
+                </div>
+                <div class="info-card anim-slide-right d5" style="border-color:rgba(255,210,63,0.25);padding:16px 18px;">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <i class="fa-solid fa-boxes-stacked" style="color:var(--accent3);font-size:18px;"></i>
+                        <h4 style="font-size:13px;font-weight:600;">Yetkazib Berish Optimallashtirish</h4>
+                    </div>
+                    <p style="font-size:11.5px;color:var(--muted);line-height:1.6;">
+                        Kurier xizmatlari <strong style="color:var(--accent3);">yoqilg'i va vaqtni</strong> tejash uchun eng qisqa yo'ldan foydalanadi.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 10-SLAID: Rahmat ====== -->
+    <div class="slide" id="s10">
+        <div class="slide-number"><span>10</span> / 10</div>
+
+        <!-- Dekorativ halqalar -->
+        <div style="position:absolute;width:300px;height:300px;border-radius:50%;border:1px solid rgba(0,229,160,0.06);top:50%;left:50%;transform:translate(-50%,-50%);" class="anim-rotate"></div>
+        <div style="position:absolute;width:420px;height:420px;border-radius:50%;border:1px solid rgba(255,210,63,0.04);top:50%;left:50%;transform:translate(-50%,-50%);" class="anim-rotate" style="animation-direction:reverse;animation-duration:30s;"></div>
+
+        <div class="anim-fade-up d2" style="text-align:center;position:relative;z-index:2;">
+            <i class="fa-solid fa-check-circle" style="font-size:48px;color:var(--accent);margin-bottom:20px;display:block;filter:drop-shadow(0 0 20px rgba(0,229,160,0.4));"></i>
+            <h1 class="title-font" style="font-size:clamp(30px,5vw,56px);font-weight:900;line-height:1.15;margin-bottom:12px;">
+                E'tibor Uchun <span class="gradient-text">Rahmat!</span>
+            </h1>
+            <div class="accent-line" style="margin:0 auto 20px;width:80px;height:3px;"></div>
+            <p style="color:var(--muted);font-size:clamp(13px,1.4vw,17px);max-width:500px;margin:0 auto;line-height:1.7;">
+                Graflarda eng qisqa yo'l algoritmlari — zamonaviy texnologiyaning poydevori.
+            </p>
+        </div>
+
+        <!-- Dekorativ tugunlar -->
+        <div class="anim-float d3" style="position:absolute;top:18%;left:12%;opacity:0.15;">
+            <svg width="40" height="40"><circle cx="20" cy="20" r="18" fill="none" stroke="var(--accent)" stroke-width="1.5"/></svg>
+        </div>
+        <div class="anim-float d5" style="position:absolute;bottom:25%;right:10%;opacity:0.12;">
+            <svg width="50" height="50"><circle cx="25" cy="25" r="22" fill="none" stroke="var(--accent3)" stroke-width="1.5"/></svg>
+        </div>
+        <div class="anim-float d7" style="position:absolute;top:30%;right:15%;opacity:0.1;">
+            <svg width="30" height="30"><circle cx="15" cy="15" r="13" fill="none" stroke="var(--accent2)" stroke-width="1.5"/></svg>
+        </div>
+    </div>
+
+</div>
+
+<!-- Navigatsiya paneli -->
+<nav class="nav-bar" id="navbar">
+    <button class="nav-arrow" id="prevBtn" aria-label="Oldingi slayd">
+        <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button class="nav-btn active" data-slide="1">1</button>
+    <button class="nav-btn" data-slide="2">2</button>
+    <button class="nav-btn" data-slide="3">3</button>
+    <button class="nav-btn" data-slide="4">4</button>
+    <button class="nav-btn" data-slide="5">5</button>
+    <button class="nav-btn" data-slide="6">6</button>
+    <button class="nav-btn" data-slide="7">7</button>
+    <button class="nav-btn" data-slide="8">8</button>
+    <button class="nav-btn" data-slide="9">9</button>
+    <button class="nav-btn" data-slide="10">10</button>
+    <button class="nav-arrow" id="nextBtn" aria-label="Keyingi slayd">
+        <i class="fa-solid fa-chevron-right"></i>
+    </button>
+</nav>
+
+<script>
+    /* ===== Partikul Fon ===== */
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    /* Partikullarni yaratish */
+    for (let i = 0; i < 60; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 2 + 0.5,
+            dx: (Math.random() - 0.5) * 0.3,
+            dy: (Math.random() - 0.5) * 0.3,
+            opacity: Math.random() * 0.3 + 0.05,
+            color: Math.random() > 0.7 ? '#ffd23f' : '#00e5a0'
         });
-        
-        // Touch support
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        document.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
+    }
+
+    function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, Math.max(0.5, p.r), 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.opacity;
+            ctx.fill();
+            /* Harakat */
+            p.x += p.dx;
+            p.y += p.dy;
+            if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
         });
-        
-        document.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+
+    /* ===== Slayd Navigatsiyasi ===== */
+    const slides = document.querySelectorAll('.slide');
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    function goToSlide(index) {
+        if (index < 0 || index >= totalSlides || index === currentSlide) return;
+
+        const oldSlide = slides[currentSlide];
+        const newSlide = slides[index];
+
+        /* Chiqish yo'nalishini belgilash */
+        oldSlide.classList.remove('active');
+        oldSlide.classList.add(index > currentSlide ? 'exit-left' : '');
+        oldSlide.style.transform = index > currentSlide
+            ? 'translateX(-60px)' : 'translateX(60px)';
+        oldSlide.style.opacity = '0';
+
+        /* Kirish */
+        newSlide.style.transform = index > currentSlide
+            ? 'translateX(60px)' : 'translateX(-60px)';
+        newSlide.style.opacity = '0';
+        /* Force reflow */
+        void newSlide.offsetWidth;
+        newSlide.classList.remove('exit-left');
+        newSlide.classList.add('active');
+        newSlide.style.transform = '';
+        newSlide.style.opacity = '';
+
+        /* Ichki animatsiyalarni qayta ishga tushirish */
+        restartAnimations(newSlide);
+
+        /* Tugmalarni yangilash */
+        navBtns.forEach(b => b.classList.remove('active'));
+        navBtns[index].classList.add('active');
+
+        /* Bosilish belgisi */
+        createClickMark(navBtns[index]);
+
+        currentSlide = index;
+    }
+
+    /* Ichki animatsiyalarni qayta ishga tushirish */
+    function restartAnimations(slide) {
+        const animEls = slide.querySelectorAll('[class*="anim-"]');
+        animEls.forEach(el => {
+            el.style.animation = 'none';
+            void el.offsetWidth;
+            el.style.animation = '';
         });
-        
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            const diff = touchStartX - touchEndX;
-            
-            if (Math.abs(diff) > swipeThreshold) {
-                if (diff > 0) {
-                    nextSlide();
-                } else {
-                    prevSlide();
-                }
-            }
+    }
+
+    /* Bosilish belgisi (halqa kengayib yo'qoladi) */
+    function createClickMark(btn) {
+        const mark = document.createElement('div');
+        mark.className = 'click-mark';
+        const rect = btn.getBoundingClientRect();
+        mark.style.left = (rect.left + rect.width / 2 - 10) + 'px';
+        mark.style.top = (rect.top + rect.height / 2 - 10) + 'px';
+        mark.style.position = 'fixed';
+        document.body.appendChild(mark);
+        setTimeout(() => mark.remove(), 600);
+    }
+
+    /* Tugma hodisalari */
+    navBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.slide) - 1;
+            goToSlide(idx);
+        });
+    });
+    prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+    nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+
+    /* Klaviatura navigatsiyasi */
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            goToSlide(currentSlide + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            goToSlide(currentSlide - 1);
+        } else if (e.key >= '1' && e.key <= '9') {
+            goToSlide(parseInt(e.key) - 1);
+        } else if (e.key === '0') {
+            goToSlide(9);
         }
-        
-        // Initialize
-        createIndicators();
-        updateSlides();
-        
-        // Respect reduced motion
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-        if (prefersReducedMotion.matches) {
-            document.documentElement.style.setProperty('--transition-speed', '0.01ms');
+    });
+
+    /* Swipe qo'llab-quvvatlash (mobil) */
+    let touchStartX = 0;
+    let touchEndX = 0;
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 60) {
+            if (diff > 0) goToSlide(currentSlide + 1);
+            else goToSlide(currentSlide - 1);
         }
-    </script>
+    }, { passive: true });
+</script>
 </body>
 </html>

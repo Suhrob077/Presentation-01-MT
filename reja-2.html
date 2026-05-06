@@ -821,7 +821,7 @@
                 Malumotlar Tuzilmasi va Algoritmlar
             </div>
             <h1 class="anim-2">Graflarning Turlari</h1>
-            <p class="subtitle anim-3">Og'irlangan va Og'irlanmagan Graf</p>
+            <p class="subtitle anim-3">Yo`naltrilgan va Yo`naltrilmagan Graf</p>
             <div class="line anim-4"></div>
             <div class="meta anim-5">
                 <div class="meta-item">
@@ -865,65 +865,9 @@
         </div>
     </div>
 
-    <!-- === SLAYD 2: GRAF NIMA? === -->
-    <div class="slide" data-slide="2">
-        <div class="split-layout">
-            <div class="text-block">
-                <h2 class="anim-1">Graf <span class="hl">nima?</span></h2>
-                <p class="anim-2">
-                    Graf — bu <strong>tugunlar (vertices)</strong> va ularni bog'laydigan <strong>qirralar (edges)</strong> to'plamidan tuzilgan matematik obyekt.
-                </p>
-                <p class="anim-3">
-                    Graflar murakkab bog'liqliklarni ifodalash uchun ishlatiladi: kompyuter tarmoqlari, ijtimoiy aloqalar, xaritalar va boshqalar.
-                </p>
-                <ul class="feature-list anim-4">
-                    <li>
-                        <div class="icon-circle icon-green"><i class="fas fa-circle-nodes"></i></div>
-                        <span><strong>G(V, E)</strong> — V tugunlar to'plami, E qirralar to'plami</span>
-                    </li>
-                    <li>
-                        <div class="icon-circle icon-orange"><i class="fas fa-arrows-left-right"></i></div>
-                        <span>Yo'naltirilgan va yo'naltirilmagan graf turlari mavjud</span>
-                    </li>
-                    <li>
-                        <div class="icon-circle icon-blue"><i class="fas fa-weight-hanging"></i></div>
-                        <span>Qirralar og'irlikka ega bo'lishi yoki bo'lmasligi mumkin</span>
-                    </li>
-                </ul>
-            </div>
-            <div class="graph-wrapper anim-5">
-                <div class="graph-container" style="position:relative;">
-                    <div class="graph-label">G(V, E) misol</div>
-                    <svg width="320" height="280" viewBox="0 0 320 280">
-                        <!-- Qirralar -->
-                        <line class="svg-edge" x1="160" y1="50" x2="60" y2="140" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="160" y1="50" x2="260" y2="140" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="60" y1="140" x2="260" y2="140" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="60" y1="140" x2="120" y2="240" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="260" y1="140" x2="200" y2="240" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="120" y1="240" x2="200" y2="240" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <!-- Tugunlar -->
-                        <circle class="svg-node" cx="160" cy="50" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="160" y="56" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">1</text>
-                        <circle class="svg-node" cx="60" cy="140" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="60" y="146" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">2</text>
-                        <circle class="svg-node" cx="260" cy="140" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="260" y="146" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">3</text>
-                        <circle class="svg-node" cx="120" cy="240" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="120" y="246" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">4</text>
-                        <circle class="svg-node" cx="200" cy="240" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="200" y="246" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">5</text>
-                        <!-- Etlchalar -->
-                        <text x="200" y="30" text-anchor="middle" fill="var(--muted)" font-size="11" font-family="JetBrains Mono">V = {1,2,3,4,5}</text>
-                        <text x="200" y="270" text-anchor="middle" fill="var(--muted)" font-size="11" font-family="JetBrains Mono">E = {(1,2),(1,3),(2,3),(2,4),(3,5),(4,5)}</text>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- === SLAYD 3: ASOSIY ELEMENTLAR === -->
-    <div class="slide" data-slide="3">
+    <!-- === SLAYD 2: ASOSIY ELEMENTLAR === -->
+    <div class="slide" data-slide="2">
         <div class="section-header anim-1">
             <h2>Grafning <span style="color:var(--accent)">asosiy elementlari</span></h2>
             <p>Har bir graf ikki asosiy komponentdan tuziladi</p>
@@ -957,16 +901,85 @@
         </div>
     </div>
 
+       <!-- === SLAYD 3: GRAF TURLARI === -->
+    <div class="slide" data-slide="3">
+        <div class="split-layout">
+            <div class="text-block">
+                <h2 class="anim-1">Graf <span class="hl">turlari</span></h2>
+                
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                    <!-- Yo'naltirilmagan Graf Box -->
+                    <div class="anim-2" style="background: rgba(255,255,255,0.03); border-left: 4px solid var(--accent); padding: 15px; border-radius: 8px;">
+                        <h3 style="color: var(--accent); font-size: 18px; margin-bottom: 8px;">
+                            <i class="fas fa-arrows-left-right"></i> Yo'naltirilmagan graf
+                        </h3>
+                        <p style="font-size: 13px; line-height: 1.5; color: var(--muted);">
+                            Qirralar ikki tomonlama aloqani ifodalaydi. Agar <b>A</b> va <b>B</b> bog'langan bo'lsa, harakat har ikki tomonga ham mumkin (masalan, do'stlik aloqalari).
+                        </p>
+                    </div>
+
+                    <!-- Yo'naltirilgan Graf Box -->
+                    <div class="anim-3" style="background: rgba(255,255,255,0.03); border-left: 4px solid var(--accent2); padding: 15px; border-radius: 8px;">
+                        <h3 style="color: var(--accent2); font-size: 18px; margin-bottom: 8px;">
+                            <i class="fas fa-arrow-right"></i> Yo'naltirilgan graf (Digraf)
+                        </h3>
+                        <p style="font-size: 13px; line-height: 1.5; color: var(--muted);">
+                            Qirralar ma'lum bir yo'nalishga ega (yoylar). Aloqa faqat ko'rsatilgan tomonga yo'naltirilgan bo'ladi (masalan, Instagram’dagi obunachilar yoki pul o'tkazmalari).
+                        </p>
+                    </div>
+                </div>
+
+                <p class="anim-4" style="margin-top: 20px; font-size: 12px; color: var(--accent); opacity: 0.8; font-style: italic;">
+                    * Quyidagi misolda yo'naltirilmagan G(V, E) grafi tasvirlangan.
+                </p>
+            </div>
+
+            <div class="graph-wrapper anim-5">
+                <div class="graph-container" style="position:relative;">
+                    <div class="graph-label">G(V, E) misol</div>
+                    <svg width="320" height="280" viewBox="0 0 320 280">
+                        <!-- Qirralar -->
+                        <line class="svg-edge" x1="160" y1="50" x2="60" y2="140" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
+                        <line class="svg-edge" x1="160" y1="50" x2="260" y2="140" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
+                        <line class="svg-edge" x1="60" y1="140" x2="260" y2="140" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
+                        <line class="svg-edge" x1="60" y1="140" x2="120" y2="240" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
+                        <line class="svg-edge" x1="260" y1="140" x2="200" y2="240" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
+                        <line class="svg-edge" x1="120" y1="240" x2="200" y2="240" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
+                        
+                        <!-- Tugunlar -->
+                        <circle class="svg-node" cx="160" cy="50" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
+                        <text x="160" y="56" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">1</text>
+                        
+                        <circle class="svg-node" cx="60" cy="140" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
+                        <text x="60" y="146" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">2</text>
+                        
+                        <circle class="svg-node" cx="260" cy="140" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
+                        <text x="260" y="146" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">3</text>
+                        
+                        <circle class="svg-node" cx="120" cy="240" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
+                        <text x="120" y="246" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">4</text>
+                        
+                        <circle class="svg-node" cx="200" cy="240" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
+                        <text x="200" y="246" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">5</text>
+                        
+                        <!-- Malumotlar -->
+                        <text x="160" y="270" text-anchor="middle" fill="var(--muted)" font-size="10" font-family="JetBrains Mono">E = {(1,2), (1,3), (2,3), (2,4), (3,5), (4,5)}</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- === SLAYD 4: OG'IRLANMAGAN GRAF === -->
     <div class="slide" data-slide="4">
         <div class="split-layout">
             <div class="text-block">
-                <h2 class="anim-1">Og'irlanmagan <span class="hl">Graf</span></h2>
+                <h2 class="anim-1">Yo`naltrilmagan <span class="hl">Graf</span></h2>
                 <p class="anim-2">
-                    Og'irlanmagan grafda barcha qirralar <strong>teng ahamiyatga</strong> ega. Har bir qirra faqat "bog'liq" yoki "bog'liq emas" ma'nosini bildiradi.
+                    Yo`naltrilmagan grafda barcha qirralar <strong>teng ahamiyatga</strong> ega. Har bir qirra faqat "bog'liq" yoki "bog'liq emas" ma'nosini bildiradi.
                 </p>
                 <p class="anim-3">
-                    Qirralarda qo'shimcha raqamli qiymat (og'irlik) bo'lmaydi. Masalan, ijtimoiy tarmoqda "do'st" yoki "do'st emas" — bu og'irlanmagan graf.
+                    Qirralarda qo'shimcha raqamli qiymat bo'lmaydi. Masalan, ijtimoiy tarmoqda "do'st" yoki "do'st emas" — bu Yo`naltrilmagan graf.
                 </p>
                 <ul class="feature-list anim-4">
                     <li>
@@ -985,7 +998,7 @@
             </div>
             <div class="graph-wrapper anim-5">
                 <div class="graph-container" style="position:relative;">
-                    <div class="graph-label">Og'irlanmagan graf</div>
+                    <div class="graph-label">Yo`naltrilmagan graf</div>
                     <svg width="320" height="280" viewBox="0 0 320 280">
                         <!-- Qirralar -->
                         <line class="svg-edge" x1="160" y1="40" x2="60" y2="120" stroke="rgba(0,229,160,0.4)" stroke-width="2.5"/>
@@ -1015,12 +1028,12 @@
     <div class="slide" data-slide="5">
         <div class="split-layout reverse">
             <div class="text-block">
-                <h2 class="anim-1">Og'irlangan <span style="color:var(--accent2)">Graf</span></h2>
+                <h2 class="anim-1">Yo`naltrilgan<span style="color:var(--accent2)">Graf</span></h2>
                 <p class="anim-2">
-                    Og'irlangan grafda har bir qirra <strong>sonli qiymat (og'irlik)</strong> ga ega. Bu qiymat masofa, narx, vaqt, xarajat kabi tushunchalarni ifodalaydi.
+                    Yo`naltrilgan grafda har bir qirra <strong>sonli qiymat (og'irlik)</strong> ga ega. Bu qiymat masofa, narx, vaqt, xarajat kabi tushunchalarni ifodalaydi.
                 </p>
                 <p class="anim-3">
-                    Masalan, shaharlar orasidagi yo'llar grafi — har bir yo'lning uzunligi og'irlik bo'lib xizmat qiladi. Dijkstra va Bellman-Ford kabi algoritmlar shu graf turi uchun ishlatiladi.
+                    Masalan, shaharlar orasidagi yo'llar grafi — har bir yo'lning uzunligi Yo`nalgan bo'lib xizmat qiladi. Dijkstra va Bellman-Ford kabi algoritmlar shu graf turi uchun ishlatiladi.
                 </p>
                 <ul class="feature-list anim-4">
                     <li>
@@ -1039,7 +1052,7 @@
             </div>
             <div class="graph-wrapper anim-5">
                 <div class="graph-container" style="position:relative;">
-                    <div class="graph-label" style="color:var(--accent2); border-color:rgba(255,107,53,0.3); background:rgba(255,107,53,0.08);">Og'irlangan graf</div>
+                    <div class="graph-label" style="color:var(--accent2); border-color:rgba(255,107,53,0.3); background:rgba(255,107,53,0.08);">Yo`naltrilgan graf</div>
                     <svg width="320" height="280" viewBox="0 0 320 280">
                         <!-- Qirralar -->
                         <line class="svg-edge" x1="160" y1="40" x2="60" y2="120" stroke="rgba(255,107,53,0.4)" stroke-width="2.5"/>
@@ -1084,7 +1097,7 @@
     <!-- === SLAYD 6: TAQQOSLASH === -->
     <div class="slide" data-slide="6">
         <div class="section-header anim-1">
-            <h2><span style="color:var(--accent)">Og'irlanmagan</span> va <span style="color:var(--accent2)">Og'irlangan</span> taqqoslash</h2>
+            <h2><span style="color:var(--accent)">Yo`naltrilmagan</span> va <span style="color:var(--accent2)">Yo`naltrilgan</span> taqqoslash</h2>
             <p>Ikki tur o'rtasidagi asosiy farqlar</p>
             <div class="line"></div>
         </div>
@@ -1092,8 +1105,8 @@
             <thead>
                 <tr>
                     <th>Xususiyat</th>
-                    <th><i class="fas fa-circle-nodes" style="margin-right:6px"></i>Og'irlanmagan</th>
-                    <th><i class="fas fa-weight-hanging" style="margin-right:6px"></i>Og'irlangan</th>
+                    <th><i class="fas fa-circle-nodes" style="margin-right:6px"></i>Yo`naltrilmagan</th>
+                    <th><i class="fas fa-weight-hanging" style="margin-right:6px"></i>Yo`naltrilgan</th>
                 </tr>
             </thead>
             <tbody>
@@ -1136,153 +1149,145 @@
         </table>
     </div>
 
-    <!-- === SLAYD 7: OG'IRLANMAGAN KOD === -->
+   <!-- === SLAYD 7: OG'IRLANMAGAN KOD (C++) === -->
     <div class="slide" data-slide="7">
         <div class="split-layout">
             <div class="text-block">
-                <h2 class="anim-1">Og'irlanmagan graf <span class="hl">kodi</span></h2>
+                <h2 class="anim-1">Yo`naltrilmagan graf <span class="hl">kodi</span></h2>
                 <p class="anim-2">
-                    Quyida Python tilida <strong>Adjacency List</strong> (qo'shni ro'yxat) usulida og'irlanmagan grafni ifodalash keltirilgan.
+                    Quyida <strong>C++</strong> tilida <code>std::map</code> va <code>vector</code> yordamida yo'naltirilmagan  grafni ifodalash keltirilgan.
                 </p>
                 <p class="anim-3">
-                    Har bir tugun o'z qo'shni tugunlari ro'yxatini saqlaydi. Qo'shish vaqti <strong>O(1)</strong>, qidirish <strong>O(deg(v))</strong>.
+                    Bu usulda har bir tugun (string yoki int) o'z qo'shnilari ro'yxatiga bog'lanadi. Xotira murakkabligi: <strong>O(V + E)</strong>.
                 </p>
                 <ul class="feature-list anim-4">
                     <li>
                         <div class="icon-circle icon-green"><i class="fas fa-bolt"></i></div>
-                        <span>Dictionary (lug'at) yordamida tezkor amal</span>
+                        <span>STL Vector yordamida dinamik xotira</span>
                     </li>
                     <li>
                         <div class="icon-circle icon-green"><i class="fas fa-bolt"></i></div>
-                        <span>Set yordamida takrorlanmaslikni ta'minlash</span>
+                        <span>Yo'naltirilmagan (u ↔ v) aloqa</span>
                     </li>
                     <li>
                         <div class="icon-circle icon-green"><i class="fas fa-bolt"></i></div>
-                        <span>Bo'sh joy murakkabligi: O(V + E)</span>
+                        <span>Qidiruv tezligi: O(deg(v))</span>
                     </li>
                 </ul>
             </div>
+            
             <div class="anim-5">
-                <div class="code-block">
-                    <div class="code-header">
-                        <div class="code-dot r"></div>
-                        <div class="code-dot y"></div>
-                        <div class="code-dot g"></div>
-                        <span>unweighted_graph.py</span>
+                <div class="code-block" style="background: #0d1117; border-radius: 12px; border: 1px solid #30363d; overflow: hidden;">
+                    <div class="code-header" style="background: #161b22; padding: 10px 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #30363d;">
+                        <div class="code-dot r" style="width:10px; height:10px; border-radius:50%; background:#ff5f56;"></div>
+                        <div class="code-dot y" style="width:10px; height:10px; border-radius:50%; background:#ffbd2e;"></div>
+                        <div class="code-dot g" style="width:10px; height:10px; border-radius:50%; background:#27c93f;"></div>
+                        <span style="color: #8b949e; font-size: 12px; font-family: monospace; margin-left: 5px;">graph.cpp</span>
                     </div>
-                    <div class="code-body">
-<span class="cm"># Og'irlanmagan graf - Adjacency List</span>
-<span class="kw">class</span> <span class="cls">UnweightedGraph</span>:
-    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>):
-        <span class="var">self</span>.adj_list = {}
+                    <div class="code-body" style="padding: 20px; font-family: 'Fira Code', monospace; font-size: 12px; line-height: 1.6; color: #c9d1d9; white-space: pre; text-align: left;">
+    <span style="color:#8b949e;">// Og'irlanmagan graf - C++ Adjacency List</span>
+    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;iostream&gt;</span>
+    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;vector&gt;</span>
+    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;map&gt;</span>
 
-    <span class="kw">def</span> <span class="fn">add_vertex</span>(<span class="var">self</span>, <span class="var">v</span>):
-        <span class="kw">if</span> <span class="var">v</span> <span class="kw">not in</span> <span class="var">self</span>.adj_list:
-            <span class="var">self</span>.adj_list[<span class="var">v</span>] = <span class="fn">set</span>()
+    <span style="color:#ff7b72">class</span> <span style="color:#d2a8ff">Graph</span> {
+    <span style="color:#ff7b72">public</span>:
+    std::map&lt;std::string, std::vector&lt;std::string&gt;&gt; adj;
 
-    <span class="kw">def</span> <span class="fn">add_edge</span>(<span class="var">self</span>, <span class="var">u</span>, <span class="var">v</span>):
-        <span class="var">self</span>.add_vertex(<span class="var">u</span>)
-        <span class="var">self</span>.add_vertex(<span class="var">v</span>)
-        <span class="var">self</span>.adj_list[<span class="var">u</span>].add(<span class="var">v</span>)
-        <span class="var">self</span>.adj_list[<span class="var">v</span>].add(<span class="var">u</span>)
+    <span style="color:#ff7b72">void</span> <span style="color:#d2a8ff">addEdge</span>(std::string u, std::string v) {
+        adj[u].push_back(v);
+        adj[v].push_back(u); <span style="color:#8b949e;">// Yo'naltirilmagan</span>
+    }
 
-    <span class="kw">def</span> <span class="fn">display</span>(<span class="var">self</span>):
-        <span class="kw">for</span> <span class="var">v</span> <span class="kw">in</span> <span class="var">self</span>.adj_list:
-            <span class="fn">print</span>(<span class="str">f"</span><span class="var">{v}</span><span class="str"> -> "</span>, <span class="fn">list</span>(
-                <span class="var">self</span>.adj_list[<span class="var">v</span>]))
+    <span style="color:#ff7b72">void</span> <span style="color:#d2a8ff">display</span>() {
+        <span style="color:#ff7b72">for</span> (<span style="color:#ff7b72">auto</span> <span style="color:#ff7b72">const</span>& [node, neighbors] : adj) {
+        std::cout &lt;&lt; node &lt;&lt; <span style="color:#a5d6ff">" -> "</span>;
+        <span style="color:#ff7b72">for</span> (std::string n : neighbors) 
+            std::cout &lt;&lt; n &lt;&lt; <span style="color:#a5d6ff">" "</span>;
+        std::cout &lt;&lt; std::endl;
+        }
+    }
+    };
 
-<span class="cm"># Ishlatish:</span>
-<span class="var">g</span> = <span class="cls">UnweightedGraph</span>()
-<span class="var">g</span>.add_edge(<span class="str">"A"</span>, <span class="str">"B"</span>)
-<span class="var">g</span>.add_edge(<span class="str">"A"</span>, <span class="str">"C"</span>)
-<span class="var">g</span>.add_edge(<span class="str">"B"</span>, <span class="str">"D"</span>)
-<span class="var">g</span>.add_edge(<span class="str">"C"</span>, <span class="str">"D"</span>)
-<span class="var">g</span>.display()
-
-<span class="cm"># Natija:</span>
-<span class="cm"># A -> ['B', 'C']</span>
-<span class="cm"># B -> ['A', 'D']</span>
-<span class="cm"># C -> ['A', 'D']</span>
-<span class="cm"># D -> ['B', 'C']</span>
-                    </div>
+    <span style="color:#ff7b72">int</span> <span style="color:#d2a8ff">main</span>() {
+    Graph g;
+    g.addEdge(<span style="color:#a5d6ff">"A"</span>, <span style="color:#a5d6ff">"B"</span>);
+    g.addEdge(<span style="color:#a5d6ff">"A"</span>, <span style="color:#a5d6ff">"C"</span>);
+    g.addEdge(<span style="color:#a5d6ff">"B"</span>, <span style="color:#a5d6ff">"D"</span>);
+    g.display();
+    <span style="color:#ff7b72">return</span> <span style="color:#79c0ff">0</span>;
+    }</div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- === SLAYD 8: OG'IRLANGAN KOD === -->
+        <!-- === SLAYD 8: OG'IRLANGAN KOD (C++) === -->
     <div class="slide" data-slide="8">
         <div class="split-layout reverse">
             <div class="text-block">
-                <h2 class="anim-1">Og'irlangan graf <span style="color:var(--accent2)">kodi</span></h2>
+                <h2 class="anim-1">Yo`naltrilgan graf <span style="color:var(--accent2)">kodi</span></h2>
                 <p class="anim-2">
-                    Og'irlangan grafda har bir qo'shni tugun bilan birga <strong>og'irlik</strong> ham saqlanadi. Bu (tugun, og'irlik) juftlik ko'rinishida ifodalanadi.
+                    Yo`naltrilgan grafda har bir qo'shni tugun bilan birga <strong>og'irlik</strong> (weight) ham saqlanadi. C++ da bu odatda <code>pair&lt;int, int&gt;</code> ko'rinishida bo'ladi.
                 </p>
                 <p class="anim-3">
-                    Bu struktura <strong>Dijkstra</strong> algoritmida eng qisqa yo'lni topish uchun kerak bo'ladi.
+                    Ushbu struktura <strong>Dijkstra</strong> algoritmi yordamida eng qisqa yo'lni hisoblash uchun asos bo'lib xizmat qiladi.
                 </p>
                 <ul class="feature-list anim-4">
                     <li>
                         <div class="icon-circle icon-orange"><i class="fas fa-bolt"></i></div>
-                        <span>Har bir qirra (qo'shni, og'irlik) saqlaydi</span>
+                        <span>Struktura: <code>vector&lt;pair&lt;Node, Weight&gt;&gt;</code></span>
                     </li>
                     <li>
                         <div class="icon-circle icon-orange"><i class="fas fa-bolt"></i></div>
-                        <span>Priority Queue bilan Dijkstra uchun tayyor</span>
+                        <span>Priority Queue orqali tartiblangan qidiruv</span>
                     </li>
                     <li>
                         <div class="icon-circle icon-orange"><i class="fas fa-bolt"></i></div>
-                        <span>Bo'sh joy: O(V + E), ammo ko'proq ma'lumot</span>
+                        <span>Dijkstra vaqt murakkabligi: O(E log V)</span>
                     </li>
                 </ul>
             </div>
+
             <div class="anim-5">
-                <div class="code-block">
-                    <div class="code-header" style="background:rgba(255,107,53,0.04);">
-                        <div class="code-dot r"></div>
-                        <div class="code-dot y"></div>
-                        <div class="code-dot g"></div>
-                        <span>weighted_graph.py</span>
+                <div class="code-block" style="background: #0d1117; border-radius: 12px; border: 1px solid #30363d; overflow: hidden;">
+                    <div class="code-header" style="background: rgba(255,107,53,0.08); padding: 10px 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #30363d;">
+                        <div class="code-dot r" style="width:10px; height:10px; border-radius:50%; background:#ff5f56;"></div>
+                        <div class="code-dot y" style="width:10px; height:10px; border-radius:50%; background:#ffbd2e;"></div>
+                        <div class="code-dot g" style="width:10px; height:10px; border-radius:50%; background:#27c93f;"></div>
+                        <span style="color: #8b949e; font-size: 12px; font-family: monospace; margin-left: 5px;">weighted_graph.cpp</span>
                     </div>
-                    <div class="code-body">
-<span class="cm"># Og'irlangan graf - Adjacency List</span>
-<span class="kw">import</span> <span class="cls">heapq</span>
+                    <div class="code-body" style="padding: 20px; font-family: 'Fira Code', monospace; font-size: 11px; line-height: 1.6; color: #c9d1d9; white-space: pre; text-align: left;">
+    <span style="color:#8b949e;">// Yo`naltrilgan graf - C++ Adjacency List</span>
+    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;iostream&gt;</span>
+    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;vector&gt;</span>
+    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;map&gt;</span>
 
-<span class="kw">class</span> <span class="cls">WeightedGraph</span>:
-    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>):
-        <span class="var">self</span>.adj_list = {}
+    <span style="color:#ff7b72">class</span> <span style="color:#d2a8ff">WeightedGraph</span> {
+    <span style="color:#ff7b72">public</span>:
+    <span style="color:#8b949e;">// Map&lt;Tugun, Vector&lt;Pair&lt;Qo'shni, yo`naltrilganlik &gt;&gt;&gt;</span>
+    std::map&lt;std::string, std::vector&lt;std::pair&lt;std::string, <span style="color:#79c0ff">int</span>&gt;&gt;&gt; adj;
 
-    <span class="kw">def</span> <span class="fn">add_edge</span>(<span class="var">self</span>, <span class="var">u</span>, <span class="var">v</span>, <span class="var">w</span>):
-        <span class="kw">if</span> <span class="var">u</span> <span class="kw">not in</span> <span class="var">self</span>.adj_list:
-            <span class="var">self</span>.adj_list[<span class="var">u</span>] = []
-        <span class="kw">if</span> <span class="var">v</span> <span class="kw">not in</span> <span class="var">self</span>.adj_list:
-            <span class="var">self</span>.adj_list[<span class="var">v</span>] = []
-        <span class="var">self</span>.adj_list[<span class="var">u</span>].append((<span class="var">v</span>, <span class="var">w</span>))
-        <span class="var">self</span>.adj_list[<span class="var">v</span>].append((<span class="var">u</span>, <span class="var">w</span>))
+    <span style="color:#ff7b72">void</span> <span style="color:#d2a8ff">addEdge</span>(std::string u, std::string v, <span style="color:#79c0ff">int</span> w) {
+        adj[u].push_back({v, w});
+        adj[v].push_back({u, w}); <span style="color:#8b949e;">// Yo'naltirilmagan</span>
+    }
 
-    <span class="kw">def</span> <span class="fn">dijkstra</span>(<span class="var">self</span>, <span class="var">start</span>):
-        <span class="var">dist</span> = {<span class="var">v</span>: <span class="fn">float</span>(<span class="str">'inf'</span>)
-               <span class="kw">for</span> <span class="var">v</span> <span class="kw">in</span> <span class="var">self</span>.adj_list}
-        <span class="var">dist</span>[<span class="var">start</span>] = <span class="num">0</span>
-        <span class="var">pq</span> = [(<span class="num">0</span>, <span class="var">start</span>)]
-        <span class="kw">while</span> <span class="var">pq</span>:
-            <span class="var">d</span>, <span class="var">u</span> = <span class="cls">heapq</span>.heappop(<span class="var">pq</span>)
-            <span class="kw">for</span> <span class="var">v</span>, <span class="var">w</span> <span class="kw">in</span> <span class="var">self</span>.adj_list[<span class="var">u</span>]:
-                <span class="kw">if</span> <span class="var">d</span> + <span class="var">w</span> &lt; <span class="var">dist</span>[<span class="var">v</span>]:
-                    <span class="var">dist</span>[<span class="var">v</span>] = <span class="var">d</span> + <span class="var">w</span>
-                    <span class="cls">heapq</span>.heappush(
-                        <span class="var">pq</span>, (<span class="var">dist</span>[<span class="var">v</span>], <span class="var">v</span>))
-        <span class="kw">return</span> <span class="var">dist</span>
+    <span style="color:#ff7b72">void</span> <span style="color:#d2a8ff">display</span>() {
+        <span style="color:#ff7b72">for</span> (<span style="color:#ff7b72">auto</span> <span style="color:#ff7b72">const</span>& [u, neighbors] : adj) {
+        std::cout &lt;&lt; u &lt;&lt; <span style="color:#a5d6ff">" connections:\n"</span>;
+        <span style="color:#ff7b72">for</span> (<span style="color:#ff7b72">auto</span> <span style="color:#ff7b72">const</span>& [v, w] : neighbors)
+            std::cout &lt;&lt; <span style="color:#a5d6ff">"  -&gt; "</span> &lt;&lt; v &lt;&lt; <span style="color:#a5d6ff">" (vazn: "</span> &lt;&lt; w &lt;&lt; <span style="color:#a5d6ff">")\n"</span>;
+        }
+    }
+    };
 
-<span class="cm"># Ishlatish:</span>
-<span class="var">g</span> = <span class="cls">WeightedGraph</span>()
-<span class="var">g</span>.add_edge(<span class="str">"A"</span>,<span class="str">"B"</span>,<span class="num">4</span>)
-<span class="var">g</span>.add_edge(<span class="str">"A"</span>,<span class="str">"C"</span>,<span class="num">7</span>)
-<span class="var">g</span>.add_edge(<span class="str">"B"</span>,<span class="str">"D"</span>,<span class="num">3</span>)
-<span class="var">g</span>.add_edge(<span class="str">"C"</span>,<span class="str">"D"</span>,<span class="num">5</span>)
-<span class="fn">print</span>(<span class="var">g</span>.dijkstra(<span class="str">"A"</span>))
-<span class="cm"># {'A':0, 'B':4, 'C':7, 'D':7}</span>
-                    </div>
+    <span style="color:#ff7b72">int</span> <span style="color:#d2a8ff">main</span>() {
+    WeightedGraph g;
+    g.addEdge(<span style="color:#a5d6ff">"A"</span>, <span style="color:#a5d6ff">"B"</span>, <span style="color:#79c0ff">4</span>);
+    g.addEdge(<span style="color:#a5d6ff">"B"</span>, <span style="color:#a5d6ff">"C"</span>, <span style="color:#79c0ff">2</span>);
+    g.display();
+    <span style="color:#ff7b72">return</span> <span style="color:#79c0ff">0</span>;
+    }</div>
                 </div>
             </div>
         </div>
@@ -1306,13 +1311,13 @@
                 <div class="app-icon icon-orange"><i class="fas fa-users"></i></div>
                 <h4>Ijtimoiy tarmoqlar</h4>
                 <p>Foydalanuvchilar o'rtasidagi do'stlik aloqalari. Facebook, Instagram.</p>
-                <span class="app-tag tag-uw">Og'irlanmagan</span>
+                <span class="app-tag tag-uw">Yo`naltrilmagan</span>
             </div>
             <div class="app-card anim-4">
                 <div class="app-icon icon-blue"><i class="fas fa-network-wired"></i></div>
                 <h4>Kompyuter tarmoqlari</h4>
                 <p>Routerlar va kompyuterlar bog'lanishi. Paket routing.</p>
-                <span class="app-tag tag-w">Og'irlangan</span>
+                <span class="app-tag tag-w">Yo`naltrilgan</span>
             </div>
             <div class="app-card anim-5">
                 <div class="app-icon icon-green"><i class="fas fa-sitemap"></i></div>
@@ -1344,8 +1349,8 @@
             <h2>💻💻💻</h2>
             <p>
                 Graf — malumotlar tuzilmasining eng kuchli vositalaridan biri. 
-                <strong style="color:var(--accent)">Og'irlanmagan graf</strong> bog'lanish mavjudligini ifodalasa, 
-                <strong style="color:var(--accent2)">og'irlangan graf</strong> bog'lanishning "qanchalik" kuchli yoki qimmat ekanligini ham bildiradi.
+                <strong style="color:var(--accent)">Yo`naltrilmagan graf</strong> bog'lanish mavjudligini ifodalasa, 
+                <strong style="color:var(--accent2)">Yo`naltrilgan graf</strong> bog'lanishning "qanchalik" kuchli yoki qimmat ekanligini ham bildiradi.
             </p>
             <p>
                 To'g'ri graf turini tanlash — muammoni samarali yechishning birinchi qadami.

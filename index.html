@@ -3,1543 +3,886 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graflarning Turlari — Malumotlar Tuzilmasi va Algoritmlar</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <title>Graflar Algoritmlari</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root {
-            --bg: #0a0e1a;
-            --bg2: #101828;
-            --fg: #e8ecf4;
-            --muted: #6b7a99;
-            --accent: #00e5a0;
-            --accent2: #ff6b35;
-            --accent3: #00b4d8;
-            --card: rgba(16, 24, 48, 0.85);
-            --border: rgba(0, 229, 160, 0.15);
-            --code-bg: #0d1220;
-            --glow: rgba(0, 229, 160, 0.25);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
-        * {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--fg);
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
+        :root {
+            --neon-green: #39ff14;
+            --neon-pink: #ff006e;
+            --neon-cyan: #00f5ff;
+            --neon-orange: #ff6b35;
+            --dark-bg: #05060f;
+            --dark-card: rgba(10, 15, 30, 0.7);
+            --glass-border: rgba(57, 255, 20, 0.15);
         }
 
-        /* === FON ORNATMA === */
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--dark-bg);
+            color: #e0e0e0;
+        }
+
+        /* === QATLAMLI FON === */
         .bg-layer {
             position: fixed;
             inset: 0;
             z-index: 0;
-            overflow: hidden;
-            pointer-events: none;
         }
 
         .bg-layer::before {
             content: '';
             position: absolute;
-            top: -30%;
-            left: -20%;
-            width: 70vw;
-            height: 70vw;
-            background: radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 70%);
-            animation: floatBlob 20s ease-in-out infinite;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 60% at 20% 80%, rgba(255, 0, 110, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 20%, rgba(0, 245, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 40% at 50% 50%, rgba(57, 255, 20, 0.04) 0%, transparent 50%);
         }
 
         .bg-layer::after {
             content: '';
             position: absolute;
-            bottom: -20%;
-            right: -15%;
-            width: 60vw;
-            height: 60vw;
-            background: radial-gradient(circle, rgba(255,107,53,0.05) 0%, transparent 70%);
-            animation: floatBlob 25s ease-in-out infinite reverse;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(57, 255, 20, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(57, 255, 20, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridShift 20s linear infinite;
         }
 
-        @keyframes floatBlob {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(40px, -30px) scale(1.05); }
-            66% { transform: translate(-20px, 20px) scale(0.95); }
+        @keyframes gridShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
         }
 
-        .grid-pattern {
+        /* === CANVAS ZARRACHALAR === */
+        #particles-canvas {
             position: fixed;
             inset: 0;
-            z-index: 0;
-            background-image:
-                linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
+            z-index: 1;
             pointer-events: none;
         }
 
-        /* === SLAYD KONTENER === */
-        .slides-container {
-            position: relative;
+        /* === SUZUVCHI GRAF TUGUNLARI === */
+        .floating-nodes {
+            position: fixed;
+            inset: 0;
             z-index: 1;
-            width: 100vw;
-            height: 100vh;
+            pointer-events: none;
+            overflow: hidden;
         }
 
-        .slide {
+        .f-node {
             position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green), 0 0 30px rgba(57, 255, 20, 0.3);
+            animation: floatNode linear infinite;
+            opacity: 0;
+        }
+
+        .f-node:nth-child(odd) {
+            background: var(--neon-pink);
+            box-shadow: 0 0 10px var(--neon-pink), 0 0 30px rgba(255, 0, 110, 0.3);
+            width: 6px;
+            height: 6px;
+        }
+
+        .f-node:nth-child(3n) {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan), 0 0 30px rgba(0, 245, 255, 0.3);
+            width: 5px;
+            height: 5px;
+        }
+
+        @keyframes floatNode {
+            0% { transform: translate(0, 0) scale(0); opacity: 0; }
+            15% { opacity: 0.8; transform: scale(1); }
+            85% { opacity: 0.6; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0.3); opacity: 0; }
+        }
+
+        /* === GRAF SVG ANIMATSIYASI === */
+        .graph-svg-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            opacity: 0.06;
+            animation: rotateGraph 120s linear infinite;
+        }
+
+        @keyframes rotateGraph {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* === SCANLINE EFIKT === */
+        .scanline {
+            position: fixed;
             inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.05) 2px,
+                rgba(0, 0, 0, 0.05) 4px
+            );
+        }
+
+        .scan-beam {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            opacity: 0.15;
+            z-index: 2;
+            pointer-events: none;
+            animation: scanBeam 8s ease-in-out infinite;
+        }
+
+        @keyframes scanBeam {
+            0%, 100% { top: -3px; }
+            50% { top: 100%; }
+        }
+
+        /* === VAQT === */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 30px;
+            background: linear-gradient(180deg, rgba(5, 6, 15, 0.9) 0%, transparent 100%);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--neon-green);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .clock-display {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 12px rgba(0, 245, 255, 0.5);
+        }
+
+        /* === ASOSIY KONTENT === */
+        .main-content {
+            position: relative;
+            z-index: 5;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            padding: 40px 60px;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* === ICON BADGE === */
+        .icon-badge {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.15), rgba(255, 0, 110, 0.15));
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+            animation: iconFloat 4s ease-in-out infinite, iconGlow 3s ease-in-out infinite alternate;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .icon-badge::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 22px;
+            background: conic-gradient(from 0deg, var(--neon-green), var(--neon-pink), var(--neon-cyan), var(--neon-green));
+            z-index: -1;
+            animation: rotateBorder 4s linear infinite;
+            opacity: 0.5;
+        }
+
+        .icon-badge::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: 18px;
+            background: var(--dark-bg);
+            z-index: -1;
+        }
+
+        @keyframes rotateBorder {
+            to { transform: rotate(360deg); }
+        }
+
+        .icon-badge i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes iconGlow {
+            0% { box-shadow: 0 0 20px rgba(57, 255, 20, 0.2); }
+            100% { box-shadow: 0 0 40px rgba(255, 0, 110, 0.3); }
+        }
+
+        /* === SARLAVHA - GLITCH EFIKT === */
+        .glitch-title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(1.6rem, 4vw, 2.8rem);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 8px;
+            position: relative;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+        }
+
+        .glitch-title::before,
+        .glitch-title::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .glitch-title::before {
+            color: var(--neon-cyan);
+            animation: glitch1 3s infinite;
+            clip-path: inset(0 0 65% 0);
+            opacity: 0.7;
+        }
+
+        .glitch-title::after {
+            color: var(--neon-pink);
+            animation: glitch2 3s infinite;
+            clip-path: inset(65% 0 0 0);
+            opacity: 0.7;
+        }
+
+        @keyframes glitch1 {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-3px, 1px); }
+            94% { transform: translate(3px, -1px); }
+            96% { transform: translate(-2px, 0); }
+        }
+
+        @keyframes glitch2 {
+            0%, 88%, 100% { transform: translate(0); }
+            90% { transform: translate(3px, -1px); }
+            93% { transform: translate(-3px, 1px); }
+            95% { transform: translate(2px, 0); }
+        }
+
+        .subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: clamp(0.85rem, 2vw, 1.15rem);
+            font-weight: 300;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.35);
+            margin-bottom: 40px;
+        }
+
+        /* === REJA KARTASI === */
+        .plan-card {
+            background: var(--dark-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 28px 36px;
+            backdrop-filter: blur(20px);
+            margin-bottom: 36px;
+            max-width: 520px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            animation: cardAppear 1s ease-out 0.3s both;
+        }
+
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .plan-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), var(--neon-pink), var(--neon-cyan), transparent);
+        }
+
+        .plan-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(57, 255, 20, 0.03), transparent, rgba(255, 0, 110, 0.03), transparent);
+            animation: rotateBorder 10s linear infinite;
+        }
+
+        .plan-list {
+            list-style: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .plan-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .plan-item:last-child {
+            border-bottom: none;
+        }
+
+        .plan-item:hover {
+            transform: translateX(8px);
+        }
+
+        .plan-item:hover .item-icon {
+            transform: scale(1.2) rotate(10deg);
+            box-shadow: 0 0 20px var(--item-color);
+        }
+
+        .item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .plan-item:nth-child(1) .item-icon {
+            background: rgba(57, 255, 20, 0.12);
+            color: var(--neon-green);
+            --item-color: var(--neon-green);
+            border: 1px solid rgba(57, 255, 20, 0.2);
+        }
+
+        .plan-item:nth-child(2) .item-icon {
+            background: rgba(0, 245, 255, 0.12);
+            color: var(--neon-cyan);
+            --item-color: var(--neon-cyan);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .plan-item:nth-child(3) .item-icon {
+            background: rgba(255, 0, 110, 0.12);
+            color: var(--neon-pink);
+            --item-color: var(--neon-pink);
+            border: 1px solid rgba(255, 0, 110, 0.2);
+        }
+
+        .plan-item:nth-child(4) .item-icon {
+            background: rgba(255, 107, 53, 0.12);
+            color: var(--neon-orange);
+            --item-color: var(--neon-orange);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+        }
+
+        .item-text {
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.75);
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .item-num {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* === TUGMA === */
+        .start-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 48px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--dark-bg);
+            background: linear-gradient(135deg, var(--neon-green), #00cc44);
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: all 0.4s ease;
+            animation: btnAppear 1s ease-out 0.6s both;
+            overflow: hidden;
+        }
+
+        @keyframes btnAppear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-orange));
             opacity: 0;
-            visibility: hidden;
-            transform: scale(0.95) translateY(20px);
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: opacity 0.4s ease;
+            border-radius: 60px;
         }
 
-        .slide.active {
+        .start-btn:hover::before {
             opacity: 1;
-            visibility: visible;
-            transform: scale(1) translateY(0);
         }
 
-        /* === NAVIGATSIYA === */
-        .nav-bar {
+        .start-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 
+                0 0 30px rgba(57, 255, 20, 0.4),
+                0 0 60px rgba(57, 255, 20, 0.2),
+                0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .start-btn span,
+        .start-btn i {
+            position: relative;
+            z-index: 1;
+        }
+
+        .start-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .start-btn:hover i {
+            transform: translateX(4px);
+        }
+
+        /* === PASTKI BAR === */
+        .bottom-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            z-index: 100;
+            z-index: 10;
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 12px;
-            padding: 16px 24px;
-            background: linear-gradient(to top, rgba(10,14,26,0.95), transparent);
-            backdrop-filter: blur(10px);
-        }
-
-        .nav-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: var(--fg);
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
             align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
+            gap: 30px;
+            padding: 16px 30px;
+            background: linear-gradient(0deg, rgba(5, 6, 15, 0.9) 0%, transparent 100%);
         }
 
-        .nav-btn:hover {
-            background: var(--accent);
-            color: var(--bg);
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px var(--glow);
-        }
-
-        .nav-dots {
+        .bottom-stat {
             display: flex;
-            gap: 8px;
-            margin: 0 16px;
-        }
-
-        .nav-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--muted);
-            border: none;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            opacity: 0.4;
-        }
-
-        .nav-dot.active {
-            background: var(--accent);
-            opacity: 1;
-            box-shadow: 0 0 12px var(--glow);
-            transform: scale(1.3);
-        }
-
-        .slide-counter {
-            position: fixed;
-            top: 24px;
-            right: 32px;
-            z-index: 100;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            color: var(--muted);
-            background: var(--card);
-            padding: 8px 16px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-        }
-
-        .slide-counter span {
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        /* === SLAYD 1: SARLAVHA === */
-        .slide-title {
-            text-align: center;
-        }
-
-        .slide-title .badge {
-            display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 20px;
-            border-radius: 50px;
-            background: rgba(0,229,160,0.08);
-            border: 1px solid rgba(0,229,160,0.2);
-            color: var(--accent);
-            font-size: 14px;
-            font-weight: 600;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 28px;
+            color: rgba(255, 255, 255, 0.25);
         }
 
-        .slide-title h1 {
-            font-size: clamp(36px, 5vw, 68px);
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #e8ecf4 30%, var(--accent) 70%, var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .bottom-stat i {
+            font-size: 0.75rem;
         }
 
-        .slide-title .subtitle {
-            font-size: clamp(16px, 2vw, 22px);
-            color: var(--muted);
-            font-weight: 200;
-            margin-top: 16px;
-            letter-spacing: 1px;
+        .bottom-stat .stat-val {
+            color: rgba(255, 255, 255, 0.5);
         }
 
-        .slide-title .line {
-            width: 80px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            border-radius: 4px;
-            margin: 24px auto;
-        }
-
-        .slide-title .meta {
-            display: flex;
-            gap: 32px;
-            justify-content: center;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-
-        .slide-title .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: var(--muted);
-        }
-
-        .slide-title .meta-item i {
-            color: var(--accent);
-            font-size: 16px;
-        }
-
-        .hero-graph {
-            margin-top: 40px;
-            opacity: 0.8;
-        }
-
-        /* === SLAYD 2: GRAF NIMA === */
-        .split-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 48px;
-            align-items: center;
-            width: 100%;
-            max-width: 1200px;
-        }
-
-        .split-layout.reverse {
-            direction: rtl;
-        }
-
-        .split-layout.reverse > * {
-            direction: ltr;
-        }
-        .button {
-        font-size: 20px;
-        background-color: #28a745;
-        color: white;
-        padding: 8px 15px;
-        text-decoration: none;
-        border-radius: 10px;
-        }
-        .button:hover {
-            background-color: #348ff0;
-        }
-
-        .text-block h2 {
-            font-size: clamp(28px, 3.5vw, 42px);
-            font-weight: 800;
-            margin-bottom: 20px;
-            line-height: 1.2;
-        }
-
-        .text-block h2 .hl {
-            color: var(--accent);
-        }
-
-        .text-block p {
-            font-size: 16px;
-            line-height: 1.8;
-            color: var(--muted);
-            margin-bottom: 16px;
-        }
-
-        .text-block p strong {
-            color: var(--fg);
-            font-weight: 600;
-        }
-
-        .feature-list {
-            list-style: none;
-            margin-top: 20px;
-        }
-
-        .feature-list li {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 10px 0;
-            font-size: 15px;
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
-        .feature-list li .icon-circle {
-            min-width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            margin-top: 2px;
-        }
-
-        .icon-green {
-            background: rgba(0,229,160,0.12);
-            color: var(--accent);
-        }
-
-        .icon-orange {
-            background: rgba(255,107,53,0.12);
-            color: var(--accent2);
-        }
-
-        .icon-blue {
-            background: rgba(0,180,216,0.12);
-            color: var(--accent3);
-        }
-
-        /* === SLAYD: ELEMENTLAR === */
-        .elements-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-            width: 100%;
-            max-width: 1100px;
-        }
-
-        .element-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 32px;
-            backdrop-filter: blur(12px);
-            transition: all 0.4s ease;
-        }
-
-        .element-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 40px rgba(0,229,160,0.08);
-        }
-
-        .element-card .card-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .edge-line {
-            stroke: rgba(232,236,244,0.25);
-            stroke-width: 2;
-        }
-        .edge-line-highlight {
-            stroke: var(--accent2);
-            stroke-width: 3;
-            filter: drop-shadow(0 0 6px rgba(255,99,71,0.5));
-        }
-        .weight-label {
-            fill: var(--accent3);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 11px; font-weight: 700;
-            text-anchor: middle; dominant-baseline: central;
-        }
-        .node-circle {
-            fill: url(#nodeGrad);
-            stroke: var(--accent);
-            stroke-width: 2.5;
-            filter: drop-shadow(0 0 8px rgba(0,229,160,0.4));
-        }
-        .node-label {
-            fill: var(--bg); font-family: 'Orbitron', sans-serif;
-            font-size: 14px; font-weight: 700;
-            text-anchor: middle; dominant-baseline: central;
-        }
-
-        .element-card h3 {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 12px;
-        }
-
-        .element-card p {
-            font-size: 14px;
-            line-height: 1.7;
-            color: var(--muted);
-        }
-
-        .element-card .formula {
-            display: inline-block;
-            margin-top: 12px;
-            padding: 6px 14px;
-            border-radius: 8px;
-            background: rgba(0,229,160,0.06);
-            border: 1px solid rgba(0,229,160,0.12);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            color: var(--accent);
-        }
-
-        /* === GRAF SVG STIL === */
-        .graph-container {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 28px;
-            backdrop-filter: blur(12px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .info-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            transition: all 0.3s ease;
-        }
-        .info-card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 0 30px var(--glow);
-            transform: translateY(-4px);
-        }
-        .anim-slide-right { animation: slideRight 0.6s ease both; }
-
-        .graph-label {
-            position: absolute;
-            top: -14px;
-            left: 24px;
-            background: var(--bg2);
-            padding: 4px 14px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--accent);
-            border: 1px solid var(--border);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .graph-wrapper {
-            position: relative;
-        }
-
-        /* === TAQQOSLASH JADVAL === */
-        .compare-table {
-            width: 100%;
-            max-width: 1000px;
-            border-collapse: separate;
-            border-spacing: 0;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-
-        .compare-table thead th {
-            padding: 20px 24px;
-            font-size: 16px;
-            font-weight: 800;
-            text-align: left;
-        }
-
-        .compare-table thead th:first-child {
-            background: var(--bg2);
-            color: var(--muted);
-        }
-
-        .compare-table thead th:nth-child(2) {
-            background: rgba(0,229,160,0.08);
-            color: var(--accent);
-        }
-
-        .compare-table thead th:nth-child(3) {
-            background: rgba(255,107,53,0.08);
-            color: var(--accent2);
-        }
-
-        .compare-table tbody td {
-            padding: 16px 24px;
-            font-size: 14px;
-            color: var(--muted);
-            border-top: 1px solid var(--border);
-            line-height: 1.6;
-        }
-
-        .compare-table tbody tr {
-            background: var(--card);
-            transition: background 0.3s;
-        }
-
-        .compare-table tbody tr:hover {
-            background: rgba(0,229,160,0.03);
-        }
-
-        .compare-table tbody td:first-child {
-            font-weight: 600;
-            color: var(--fg);
-        }
-
-        /* === KOD BLOK === */
-        .code-block {
-            background: var(--code-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-            width: 100%;
-            max-width: 620px;
-        }
-        .d4 { animation-delay: 0.5s; }.d4 { animation-delay: 0.5s; }
-        .code-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 20px;
-            background: rgba(0,229,160,0.04);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .code-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-
-        .code-dot.r { background: #ff5f57; }
-        .code-dot.y { background: #febc2e; }
-        .code-dot.g { background: #28c840; }
-
-        .code-header span {
-            margin-left: 12px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        .code-body {
-            padding: 20px 24px;
-            overflow-x: auto;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            line-height: 1.8;
-            color: #c9d1d9;
-            max-height: 380px;
-            overflow-y: auto;
-        }
-
-        .code-body::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .code-body::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        .kw { color: #ff7b72; }
-        .fn { color: #d2a8ff; }
-        .str { color: #a5d6ff; }
-        .num { color: #79c0ff; }
-        .cm { color: #484f58; font-style: italic; }
-        .var { color: #ffa657; }
-        .op { color: #ff7b72; }
-        .cls { color: #7ee787; }
-
-        /* === SLAYD: AMALIY === */
-        .apps-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            width: 100%;
-            max-width: 1100px;
-        }
-
-        .app-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px;
-            text-align: center;
-            transition: all 0.4s ease;
-        }
-
-        .app-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--accent);
-            box-shadow: 0 12px 40px rgba(0,229,160,0.08);
-        }
-
-        .app-card .app-icon {
+        /* === BURCHAK BEZAKLARI === */
+        .corner-deco {
+            position: fixed;
             width: 60px;
             height: 60px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            margin: 0 auto 16px;
+            z-index: 8;
+            pointer-events: none;
         }
 
-        .app-card h4 {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 8px;
+        .corner-deco.tl {
+            top: 12px;
+            left: 12px;
+            border-top: 2px solid rgba(57, 255, 20, 0.3);
+            border-left: 2px solid rgba(57, 255, 20, 0.3);
         }
 
-        .app-card p {
-            font-size: 13px;
-            color: var(--muted);
-            line-height: 1.6;
+        .corner-deco.tr {
+            top: 12px;
+            right: 12px;
+            border-top: 2px solid rgba(0, 245, 255, 0.3);
+            border-right: 2px solid rgba(0, 245, 255, 0.3);
         }
 
-        .app-tag {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+        .corner-deco.bl {
+            bottom: 12px;
+            left: 12px;
+            border-bottom: 2px solid rgba(255, 0, 110, 0.3);
+            border-left: 2px solid rgba(255, 0, 110, 0.3);
         }
 
-        .tag-uw {
-            background: rgba(0,229,160,0.1);
-            color: var(--accent);
+        .corner-deco.br {
+            bottom: 12px;
+            right: 12px;
+            border-bottom: 2px solid rgba(255, 107, 53, 0.3);
+            border-right: 2px solid rgba(255, 107, 53, 0.3);
         }
 
-        .tag-w {
-            background: rgba(255,107,53,0.1);
-            color: var(--accent2);
-        }
-
-        .tag-both {
-            background: rgba(0,180,216,0.1);
-            color: var(--accent3);
-        }
-
-        /* === SLAYD 10: YAKUN === */
-        .conclusion-box {
-            background: linear-gradient(135deg, rgba(0,229,160,0.06), rgba(255,107,53,0.04));
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 48px;
-            max-width: 800px;
-            text-align: center;
-        }
-
-        .conclusion-box h2 {
-            font-size: 36px;
-            font-weight: 900;
-            margin-bottom: 20px;
-        }
-
-        .conclusion-box p {
-            font-size: 16px;
-            color: var(--muted);
-            line-height: 1.8;
-            margin-bottom: 16px;
-        }
-
-        .conclusion-box .key-points {
-            display: flex;
-            gap: 24px;
-            justify-content: center;
-            margin-top: 32px;
-            flex-wrap: wrap;
-        }
-
-        .key-point {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 20px;
-            border-radius: 12px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        /* === ANIMATSIYALAR === */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes drawLine {
-            from { stroke-dashoffset: 200; }
-            to { stroke-dashoffset: 0; }
-        }
-
-        @keyframes pulseNode {
-            0%, 100% { r: 18; }
-            50% { r: 21; }
-        }
-
-        @keyframes weightPulse {
-            0%, 100% { opacity: 0.9; }
-            50% { opacity: 1; transform: scale(1.05); }
-        }
-
-        .slide.active .anim-1 { animation: fadeInUp 0.6s 0.1s both; }
-        .slide.active .anim-2 { animation: fadeInUp 0.6s 0.2s both; }
-        .slide.active .anim-3 { animation: fadeInUp 0.6s 0.3s both; }
-        .slide.active .anim-4 { animation: fadeInUp 0.6s 0.4s both; }
-        .slide.active .anim-5 { animation: fadeInUp 0.6s 0.5s both; }
-        .slide.active .anim-6 { animation: fadeInUp 0.6s 0.6s both; }
-
-        .slide.active .svg-edge {
-            stroke-dasharray: 200;
-            animation: drawLine 1s ease both;
-        }
-
-        .slide.active .svg-edge:nth-child(2) { animation-delay: 0.1s; }
-        .slide.active .svg-edge:nth-child(3) { animation-delay: 0.2s; }
-        .slide.active .svg-edge:nth-child(4) { animation-delay: 0.3s; }
-        .slide.active .svg-edge:nth-child(5) { animation-delay: 0.4s; }
-        .slide.active .svg-edge:nth-child(6) { animation-delay: 0.5s; }
-
-        .slide.active .svg-node {
-            animation: pulseNode 3s ease-in-out infinite;
-        }
-
-        /* === RESPONSIV === */
-        @media (max-width: 900px) {
-            .slide { padding: 30px 24px; }
-            .split-layout { grid-template-columns: 1fr; gap: 24px; }
-            .split-layout.reverse { direction: ltr; }
-            .elements-grid { grid-template-columns: 1fr; }
-            .apps-grid { grid-template-columns: 1fr 1fr; }
-            .compare-table { font-size: 12px; }
-            .compare-table thead th, .compare-table tbody td { padding: 10px 14px; }
-        }
-
+        /* === RESPONSIVE === */
         @media (max-width: 600px) {
-            .apps-grid { grid-template-columns: 1fr; }
-            .slide-title h1 { font-size: 28px; }
+            .plan-card {
+                padding: 20px 22px;
+            }
+            .item-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 0.75rem;
+            }
+            .start-btn {
+                padding: 14px 32px;
+                font-size: 0.8rem;
+                letter-spacing: 2px;
+            }
+            .bottom-bar {
+                gap: 16px;
+            }
+            .bottom-stat {
+                font-size: 0.5rem;
+            }
         }
 
-        /* Tooltip for weight labels */
-        .weight-label {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-        }
-
-        /* Chiziq tiplari uchun */
-        .dashed-edge {
-            stroke-dasharray: 6 4;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 36px;
-        }
-
-        .section-header h2 {
-            font-size: clamp(26px, 3vw, 38px);
-            font-weight: 900;
-            margin-bottom: 8px;
-        }
-
-        .section-header p {
-            color: var(--muted);
-            font-size: 15px;
-        }
-
-        .section-header .line {
-            width: 50px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            border-radius: 4px;
-            margin: 16px auto 0;
-        }
-
-        /* directed arrow marker */
-        .arrow-green { fill: var(--accent); }
-        .arrow-orange { fill: var(--accent2); }
-
-        .two-graphs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 28px;
-            width: 100%;
-            max-width: 1000px;
-        }
-
-        @media (max-width: 768px) {
-            .two-graphs { grid-template-columns: 1fr; }
+        /* === KAM HARAKAT === */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- Fon qatlami -->
-<div class="bg-layer"></div>
-<div class="grid-pattern"></div>
+    <!-- Qatlamli fon -->
+    <div class="bg-layer"></div>
 
-<!-- Slayd sanagich -->
-<div class="slide-counter">
-    <span id="currentSlide">01</span> / 10
-</div>
+    <!-- Zarrachalar canvas -->
+    <canvas id="particles-canvas"></canvas>
 
-<!-- ============ SLAYDLAR ============ -->
-<div class="slides-container">
+    <!-- Suzuvchi graf tugunlari -->
+    <div class="floating-nodes" id="floating-nodes"></div>
 
-    <!-- === SLAYD 1: SARLAVHA === -->
-    <div class="slide active" data-slide="1">
-        <div class="slide-title">
-            <div class="badge anim-1">
-                <i class="fas fa-project-diagram"></i>
-                Malumotlar Tuzilmasi va Algoritmlar
-            </div>
-            <h1 class="anim-2">Graflarning Turlari</h1>
-            <p class="subtitle anim-3">Yo`naltrilgan va Yo`naltrilmagan Graf</p>
-            <div class="line anim-4"></div>
-            <div class="meta anim-5">
-                <div class="meta-item">
-                    <i class="fas fa-book-open"></i>
-                    MTA fani
-                </div>
-                <div class="meta-item">
-                    <i class="fas fa-layer-group"></i>
-                    Graf nazariyasi
-                </div>
-                <div class="meta-item">
-                    <i class="fas fa-code"></i>
-                    Kod misollari
-                </div>
-            </div>
-            <div class="hero-graph anim-6">
-                <svg width="320" height="180" viewBox="0 0 320 180">
-                    <!-- Qirralar -->
-                    <line class="svg-edge" x1="60" y1="40" x2="160" y2="20" stroke="rgba(0,229,160,0.3)" stroke-width="2"/>
-                    <line class="svg-edge" x1="60" y1="40" x2="80" y2="140" stroke="rgba(0,229,160,0.3)" stroke-width="2"/>
-                    <line class="svg-edge" x1="160" y1="20" x2="260" y2="40" stroke="rgba(0,229,160,0.3)" stroke-width="2"/>
-                    <line class="svg-edge" x1="160" y1="20" x2="160" y2="130" stroke="rgba(0,229,160,0.3)" stroke-width="2"/>
-                    <line class="svg-edge" x1="260" y1="40" x2="240" y2="140" stroke="rgba(0,229,160,0.3)" stroke-width="2"/>
-                    <line class="svg-edge" x1="80" y1="140" x2="160" y2="130" stroke="rgba(0,229,160,0.3)" stroke-width="2"/>
-                    <line class="svg-edge" x1="160" y1="130" x2="240" y2="140" stroke="rgba(0,229,160,0.3)" stroke-width="2"/>
-                    <!-- Tugunlar -->
-                    <circle class="svg-node" cx="60" cy="40" r="16" fill="rgba(0,229,160,0.15)" stroke="var(--accent)" stroke-width="2"/>
-                    <text x="60" y="45" text-anchor="middle" fill="var(--accent)" font-size="13" font-weight="700" font-family="JetBrains Mono">A</text>
-                    <circle class="svg-node" cx="160" cy="20" r="16" fill="rgba(0,229,160,0.15)" stroke="var(--accent)" stroke-width="2"/>
-                    <text x="160" y="25" text-anchor="middle" fill="var(--accent)" font-size="13" font-weight="700" font-family="JetBrains Mono">B</text>
-                    <circle class="svg-node" cx="260" cy="40" r="16" fill="rgba(255,107,53,0.15)" stroke="var(--accent2)" stroke-width="2"/>
-                    <text x="260" y="45" text-anchor="middle" fill="var(--accent2)" font-size="13" font-weight="700" font-family="JetBrains Mono">C</text>
-                    <circle class="svg-node" cx="80" cy="140" r="16" fill="rgba(0,229,160,0.15)" stroke="var(--accent)" stroke-width="2"/>
-                    <text x="80" y="145" text-anchor="middle" fill="var(--accent)" font-size="13" font-weight="700" font-family="JetBrains Mono">D</text>
-                    <circle class="svg-node" cx="160" cy="130" r="16" fill="rgba(0,180,216,0.15)" stroke="var(--accent3)" stroke-width="2"/>
-                    <text x="160" y="135" text-anchor="middle" fill="var(--accent3)" font-size="13" font-weight="700" font-family="JetBrains Mono">E</text>
-                    <circle class="svg-node" cx="240" cy="140" r="16" fill="rgba(255,107,53,0.15)" stroke="var(--accent2)" stroke-width="2"/>
-                    <text x="240" y="145" text-anchor="middle" fill="var(--accent2)" font-size="13" font-weight="700" font-family="JetBrains Mono">F</text>
-                </svg>
-            </div>
+    <!-- Orqa fon grafigi SVG -->
+    <svg class="graph-svg-bg" width="600" height="600" viewBox="0 0 600 600" fill="none">
+        <circle cx="300" cy="80" r="12" stroke="#39ff14" stroke-width="1.5"/>
+        <circle cx="120" cy="200" r="12" stroke="#39ff14" stroke-width="1.5"/>
+        <circle cx="480" cy="200" r="12" stroke="#39ff14" stroke-width="1.5"/>
+        <circle cx="60" cy="400" r="12" stroke="#39ff14" stroke-width="1.5"/>
+        <circle cx="220" cy="350" r="12" stroke="#39ff14" stroke-width="1.5"/>
+        <circle cx="380" cy="350" r="12" stroke="#39ff14" stroke-width="1.5"/>
+        <circle cx="540" cy="400" r="12" stroke="#39ff14" stroke-width="1.5"/>
+        <circle cx="150" cy="520" r="12" stroke="#39ff14" stroke-width="1.5"/>
+        <circle cx="300" cy="480" r="12" stroke="#39ff14" stroke-width="1.5"/>
+        <circle cx="450" cy="520" r="12" stroke="#39ff14" stroke-width="1.5"/>
+        <line x1="300" y1="92" x2="120" y2="188" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="300" y1="92" x2="480" y2="188" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="120" y1="212" x2="60" y2="388" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="120" y1="212" x2="220" y2="338" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="480" y1="212" x2="540" y2="388" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="480" y1="212" x2="380" y2="338" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="220" y1="362" x2="300" y2="468" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="380" y1="362" x2="300" y2="468" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="60" y1="412" x2="150" y2="508" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="540" y1="412" x2="450" y2="508" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="150" y1="520" x2="300" y2="480" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="450" y1="520" x2="300" y2="480" stroke="#39ff14" stroke-width="0.8"/>
+        <line x1="220" y1="350" x2="380" y2="350" stroke="#ff006e" stroke-width="0.5" stroke-dasharray="6 4"/>
+    </svg>
+
+    <!-- Scanline -->
+    <div class="scanline"></div>
+    <div class="scan-beam"></div>
+
+    <!-- Burchak bezaklari -->
+    <div class="corner-deco tl"></div>
+    <div class="corner-deco tr"></div>
+    <div class="corner-deco bl"></div>
+    <div class="corner-deco br"></div>
+
+    <!-- Yuqori bar -->
+    <header class="top-bar">
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            <span>System Online</span>
         </div>
-    </div>
+        <div class="clock-display" id="clock">00:00:00</div>
+    </header>
 
-
-    <!-- === SLAYD 2: ASOSIY ELEMENTLAR === -->
-    <div class="slide" data-slide="2">
-        <div class="section-header anim-1">
-            <h2>Grafning <span style="color:var(--accent)">asosiy elementlari</span></h2>
-            <p>Har bir graf ikki asosiy komponentdan tuziladi</p>
-            <div class="line"></div>
+    <!-- Asosiy kontent -->
+    <main class="main-content">
+        <div class="icon-badge">
+            <i class="fas fa-project-diagram"></i>
         </div>
-        <div class="elements-grid">
-            <div class="element-card anim-2">
-                <div class="card-icon icon-green"><i class="fas fa-circle-dot"></i></div>
-                <h3>Tugun (Vertex / Node)</h3>
-                <p>Grafning asosiy birligi. Ma'lumot yoki obyektni ifodalaydi. Odatda <strong>V</strong> harfi bilan belgilanadi.</p>
-                <div class="formula">V = {v1, v2, v3, ..., vn}</div>
-            </div>
-            <div class="element-card anim-3">
-                <div class="card-icon icon-orange"><i class="fas fa-minus"></i></div>
-                <h3>Qirra (Edge / Link)</h3>
-                <p>Ikkita tugunni bog'laydigan chiziq. Odatda <strong>E</strong> harfi bilan belgilanadi.</p>
-                <div class="formula">E = {e1, e2, e3, ..., em}</div>
-            </div>
-            <div class="element-card anim-4">
-                <div class="card-icon icon-blue"><i class="fas fa-diagram-project"></i></div>
-                <h3>Daraja (Degree)</h3>
-                <p>Bir tugunga bog'langan qirralar soni. <strong>deg(v)</strong> formula bilan ifodalanadi.</p>
-                <div class="formula">deg(A) = 3  (A tuguniga 3 ta qirra)</div>
-            </div>
-            <div class="element-card anim-5">
-                <div class="card-icon icon-green"><i class="fas fa-weight-hanging"></i></div>
-                <h3>Og'irlik (Weight)</h3>
-                <p>Qirraga biriktirilgan sonli qiymat. Masalan, masofa, narx, vaqt kabi.</p>
-                <div class="formula">w(u, v) = 7  (u va v orasida 7)</div>
-            </div>
-        </div>
-    </div>
 
-       <!-- === SLAYD 3: GRAF TURLARI === -->
-    <div class="slide" data-slide="3">
-        <div class="split-layout">
-            <div class="text-block">
-                <h2 class="anim-1">Graf <span class="hl">turlari</span></h2>
-                
-                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
-                    <!-- Yo'naltirilmagan Graf Box -->
-                    <div class="anim-2" style="background: rgba(255,255,255,0.03); border-left: 4px solid var(--accent); padding: 15px; border-radius: 8px;">
-                        <h3 style="color: var(--accent); font-size: 18px; margin-bottom: 8px;">
-                            <i class="fas fa-arrows-left-right"></i> Yo'naltirilmagan graf
-                        </h3>
-                        <p style="font-size: 13px; line-height: 1.5; color: var(--muted);">
-                            Qirralar ikki tomonlama aloqani ifodalaydi. Agar <b>A</b> va <b>B</b> bog'langan bo'lsa, harakat har ikki tomonga ham mumkin (masalan, do'stlik aloqalari).
-                        </p>
+        <h1 class="glitch-title" data-text="Graflarda eng qisqa yo'lni aniqlash algoritmlari">Graflarda eng qisqa yo'lni aniqlash algoritmlari</h1>
+        <p class="subtitle">Ma'lumotlar tuzilmasi va algoritmlar</p>
+
+        <div class="plan-card">
+            Mavzu yuzasidan Reja 
+            <ul class="plan-list">
+                <li class="plan-item">
+                    <div class="item-icon"><i class="fas fa-circle-nodes"></i></div>
+                    <div>
+                        <div class="item-text">Graflar haqida umumiy ma'lumot</div>
+                        <div class="item-num">SECTION 01</div>
                     </div>
-
-                    <!-- Yo'naltirilgan Graf Box -->
-                    <div class="anim-3" style="background: rgba(255,255,255,0.03); border-left: 4px solid var(--accent2); padding: 15px; border-radius: 8px;">
-                        <h3 style="color: var(--accent2); font-size: 18px; margin-bottom: 8px;">
-                            <i class="fas fa-arrow-right"></i> Yo'naltirilgan graf (Digraf)
-                        </h3>
-                        <p style="font-size: 13px; line-height: 1.5; color: var(--muted);">
-                            Qirralar ma'lum bir yo'nalishga ega (yoylar). Aloqa faqat ko'rsatilgan tomonga yo'naltirilgan bo'ladi (masalan, Instagram’dagi obunachilar yoki pul o'tkazmalari).
-                        </p>
+                </li>
+                <li class="plan-item">
+                    <div class="item-icon"><i class="fas fa-sitemap"></i></div>
+                    <div>
+                        <div class="item-text">Graflarning asosiy turlari</div>
+                        <div class="item-num">SECTION 02</div>
                     </div>
-                </div>
-
-                <p class="anim-4" style="margin-top: 20px; font-size: 12px; color: var(--accent); opacity: 0.8; font-style: italic;">
-                    * Quyidagi misolda yo'naltirilmagan G(V, E) grafi tasvirlangan.
-                </p>
-            </div>
-
-            <div class="graph-wrapper anim-5">
-                <div class="graph-container" style="position:relative;">
-                    <div class="graph-label">G(V, E) misol</div>
-                    <svg width="320" height="280" viewBox="0 0 320 280">
-                        <!-- Qirralar -->
-                        <line class="svg-edge" x1="160" y1="50" x2="60" y2="140" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="160" y1="50" x2="260" y2="140" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="60" y1="140" x2="260" y2="140" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="60" y1="140" x2="120" y2="240" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="260" y1="140" x2="200" y2="240" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="120" y1="240" x2="200" y2="240" stroke="rgba(0,229,160,0.35)" stroke-width="2.5"/>
-                        
-                        <!-- Tugunlar -->
-                        <circle class="svg-node" cx="160" cy="50" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="160" y="56" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">1</text>
-                        
-                        <circle class="svg-node" cx="60" cy="140" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="60" y="146" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">2</text>
-                        
-                        <circle class="svg-node" cx="260" cy="140" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="260" y="146" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">3</text>
-                        
-                        <circle class="svg-node" cx="120" cy="240" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="120" y="246" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">4</text>
-                        
-                        <circle class="svg-node" cx="200" cy="240" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="200" y="246" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">5</text>
-                        
-                        <!-- Malumotlar -->
-                        <text x="160" y="270" text-anchor="middle" fill="var(--muted)" font-size="10" font-family="JetBrains Mono">E = {(1,2), (1,3), (2,3), (2,4), (3,5), (4,5)}</text>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- === SLAYD 4: OG'IRLANMAGAN GRAF === -->
-    <div class="slide" data-slide="4">
-        <div class="split-layout">
-            <div class="text-block">
-                <h2 class="anim-1">Yo`naltrilmagan <span class="hl">Graf</span></h2>
-                <p class="anim-2">
-                    Yo`naltrilmagan grafda barcha qirralar <strong>teng ahamiyatga</strong> ega. Har bir qirra faqat "bog'liq" yoki "bog'liq emas" ma'nosini bildiradi.
-                </p>
-                <p class="anim-3">
-                    Qirralarda qo'shimcha raqamli qiymat bo'lmaydi. Masalan, ijtimoiy tarmoqda "do'st" yoki "do'st emas" — bu Yo`naltrilmagan graf.
-                </p>
-                <ul class="feature-list anim-4">
-                    <li>
-                        <div class="icon-circle icon-green"><i class="fas fa-check"></i></div>
-                        <span>Barcha qirralar bir xil ahamiyatga ega</span>
-                    </li>
-                    <li>
-                        <div class="icon-circle icon-green"><i class="fas fa-check"></i></div>
-                        <span>BFS va DFS algoritmlari uchun qulay</span>
-                    </li>
-                    <li>
-                        <div class="icon-circle icon-green"><i class="fas fa-check"></i></div>
-                        <span>Adjacency matrix faqat 0 va 1 dan iborat</span>
-                    </li>
-                </ul>
-            </div>
-            <div class="graph-wrapper anim-5">
-                <div class="graph-container" style="position:relative;">
-                    <div class="graph-label">Yo`naltrilmagan graf</div>
-                    <svg width="320" height="280" viewBox="0 0 320 280">
-                        <!-- Qirralar -->
-                        <line class="svg-edge" x1="160" y1="40" x2="60" y2="120" stroke="rgba(0,229,160,0.4)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="160" y1="40" x2="260" y2="120" stroke="rgba(0,229,160,0.4)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="60" y1="120" x2="160" y2="200" stroke="rgba(0,229,160,0.4)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="260" y1="120" x2="160" y2="200" stroke="rgba(0,229,160,0.4)" stroke-width="2.5"/>
-                        <line class="svg-edge" x1="60" y1="120" x2="260" y2="120" stroke="rgba(0,229,160,0.4)" stroke-width="2.5"/>
-                        <!-- Tugunlar -->
-                        <circle class="svg-node" cx="160" cy="40" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="160" y="46" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">A</text>
-                        <circle class="svg-node" cx="60" cy="120" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="60" y="126" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">B</text>
-                        <circle class="svg-node" cx="260" cy="120" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="260" y="126" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">C</text>
-                        <circle class="svg-node" cx="160" cy="200" r="20" fill="rgba(0,229,160,0.12)" stroke="var(--accent)" stroke-width="2.5"/>
-                        <text x="160" y="206" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700" font-family="JetBrains Mono">D</text>
-                        <!-- Izoh -->
-                        <text x="160" y="260" text-anchor="middle" fill="var(--muted)" font-size="12" font-family="JetBrains Mono">E = {(A,B), (A,C), (B,C), (B,D), (C,D)}</text>
-                        <text x="160" y="276" text-anchor="middle" fill="rgba(0,229,160,0.5)" font-size="11" font-family="JetBrains Mono">Og'irlik yo'q — faqat bog'lanish</text>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- === SLAYD 5: OG'IRLANGAN GRAF === -->
-    <div class="slide" data-slide="5">
-        <div class="split-layout reverse">
-            <div class="text-block">
-                <h2 class="anim-1">Yo`naltrilgan<span style="color:var(--accent2)">Graf</span></h2>
-                <p class="anim-2">
-                    Yo`naltrilgan grafda har bir qirra <strong>sonli qiymat (og'irlik)</strong> ga ega. Bu qiymat masofa, narx, vaqt, xarajat kabi tushunchalarni ifodalaydi.
-                </p>
-                <p class="anim-3">
-                    Masalan, shaharlar orasidagi yo'llar grafi — har bir yo'lning uzunligi Yo`nalgan bo'lib xizmat qiladi. Dijkstra va Bellman-Ford kabi algoritmlar shu graf turi uchun ishlatiladi.
-                </p>
-                <ul class="feature-list anim-4">
-                    <li>
-                        <div class="icon-circle icon-orange"><i class="fas fa-check"></i></div>
-                        <span>Har bir qirra sonli qiymatga ega: w(u,v)</span>
-                    </li>
-                    <li>
-                        <div class="icon-circle icon-orange"><i class="fas fa-check"></i></div>
-                        <span>Eng qisqa yo'l algoritmlari uchun asos</span>
-                    </li>
-                    <li>
-                        <div class="icon-circle icon-orange"><i class="fas fa-check"></i></div>
-                        <span>Adjacency matrix real sonlardan iborat</span>
-                    </li>
-                </ul>
-            </div>
-            <div class="info-card anim-slide-right d4" style="flex:1;min-width:300px;max-width:400px;text-align:center;">
-                <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;">
-                    <i class="fa-solid fa-arrow-right-long" style="color:var(--accent2);font-size:20px;"></i>
-                    <h3 class="title-font" style="font-size:16px;font-weight:700;color:var(--accent2);">Yo'naltirilgan Graf</h3>
-                </div>
-                <svg viewBox="0 0 280 180" style="width:100%;max-width:280px;margin:0 auto;">
-                    <defs>
-                        <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-                            <polygon points="0 0, 8 3, 0 6" class="arrow-head"/>
-                        </marker>
-                    </defs>
-                    <line x1="80" y1="50" x2="200" y2="50" stroke="var(--accent2)" stroke-width="2.5" marker-end="url(#arrowRed)"/>
-                    <line x1="60" y1="50" x2="140" y2="150" stroke="var(--accent2)" stroke-width="2.5" marker-end="url(#arrowRed)"/>
-                    <line x1="220" y1="50" x2="140" y2="150" stroke="var(--accent2)" stroke-width="2.5" marker-end="url(#arrowRed)"/>
-                    <circle cx="60" cy="50" r="20" class="node-circle"/>
-                    <text x="60" y="50" class="node-label" style="font-size:13px;">1</text>
-                    <circle cx="220" cy="50" r="20" class="node-circle"/>
-                    <text x="220" y="50" class="node-label" style="font-size:13px;">2</text>
-                    <circle cx="140" cy="150" r="20" class="node-circle"/>
-                    <text x="140" y="150" class="node-label" style="font-size:13px;">3</text>
-                </svg>
-                <p style="color:var(--muted);font-size:12.5px;margin-top:12px;line-height:1.6;">
-                    Qirralar <strong style="color:var(--fg);">yo'nalishga ega</strong> (o'q).<br>
-                    A → B: faqat A dan B ga o'tish mumkin.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- === SLAYD 6: TAQQOSLASH === -->
-    <div class="slide" data-slide="6">
-        <div class="section-header anim-1">
-            <h2><span style="color:var(--accent)">Yo`naltrilmagan</span> va <span style="color:var(--accent2)">Yo`naltrilgan</span> taqqoslash</h2>
-            <p>Ikki tur o'rtasidagi asosiy farqlar</p>
-            <div class="line"></div>
-        </div>
-        <table class="compare-table anim-2">
-            <thead>
-                <tr>
-                    <th>Xususiyat</th>
-                    <th><i class="fas fa-circle-nodes" style="margin-right:6px"></i>Yo`naltrilmagan</th>
-                    <th><i class="fas fa-weight-hanging" style="margin-right:6px"></i>Yo`naltrilgan</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Qirra qiymati</td>
-                    <td>Faqat bog'lanish (0 yoki 1)</td>
-                    <td>Real son (masofa, narx, vaqt)</td>
-                </tr>
-                <tr>
-                    <td>Adjacency Matrix</td>
-                    <td>0 va 1 lardan iborat</td>
-                    <td>Haqiqiy sonlardan iborat</td>
-                </tr>
-                <tr>
-                    <td>Adjacency List</td>
-                    <td>[qo'shni tugunlar ro'yxati]</td>
-                    <td>[(qo'shni, og'irlik) juftliklari]</td>
-                </tr>
-                <tr>
-                    <td>Asosiy algoritm</td>
-                    <td>BFS, DFS</td>
-                    <td>Dijkstra, Bellman-Ford, Prim</td>
-                </tr>
-                <tr>
-                    <td>Yo'l uzunligi</td>
-                    <td>Qirralar soni (sakrashlar)</td>
-                    <td>Qirralar og'irligi yig'indisi</td>
-                </tr>
-                <tr>
-                    <td>Xotira sarfi</td>
-                    <td>Kamroq (faqat bog'lanish)</td>
-                    <td>Ko'proq (og'irlik ham saqlanadi)</td>
-                </tr>
-                <tr>
-                    <td>Misol</td>
-                    <td>Ijtimoiy tarmoq (do'stlik)</td>
-                    <td>Yo'l xaritasi (masofa)</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-   <!-- === SLAYD 7: OG'IRLANMAGAN KOD (C++) === -->
-    <div class="slide" data-slide="7">
-        <div class="split-layout">
-            <div class="text-block">
-                <h2 class="anim-1">Yo`naltrilmagan graf <span class="hl">kodi</span></h2>
-                <p class="anim-2">
-                    Quyida <strong>C++</strong> tilida <code>std::map</code> va <code>vector</code> yordamida yo'naltirilmagan  grafni ifodalash keltirilgan.
-                </p>
-                <p class="anim-3">
-                    Bu usulda har bir tugun (string yoki int) o'z qo'shnilari ro'yxatiga bog'lanadi. Xotira murakkabligi: <strong>O(V + E)</strong>.
-                </p>
-                <ul class="feature-list anim-4">
-                    <li>
-                        <div class="icon-circle icon-green"><i class="fas fa-bolt"></i></div>
-                        <span>STL Vector yordamida dinamik xotira</span>
-                    </li>
-                    <li>
-                        <div class="icon-circle icon-green"><i class="fas fa-bolt"></i></div>
-                        <span>Yo'naltirilmagan (u ↔ v) aloqa</span>
-                    </li>
-                    <li>
-                        <div class="icon-circle icon-green"><i class="fas fa-bolt"></i></div>
-                        <span>Qidiruv tezligi: O(deg(v))</span>
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="anim-5">
-                <div class="code-block" style="background: #0d1117; border-radius: 12px; border: 1px solid #30363d; overflow: hidden;">
-                    <div class="code-header" style="background: #161b22; padding: 10px 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #30363d;">
-                        <div class="code-dot r" style="width:10px; height:10px; border-radius:50%; background:#ff5f56;"></div>
-                        <div class="code-dot y" style="width:10px; height:10px; border-radius:50%; background:#ffbd2e;"></div>
-                        <div class="code-dot g" style="width:10px; height:10px; border-radius:50%; background:#27c93f;"></div>
-                        <span style="color: #8b949e; font-size: 12px; font-family: monospace; margin-left: 5px;">graph.cpp</span>
+                </li>
+                <li class="plan-item">
+                    <div class="item-icon"><i class="fas fa-route"></i></div>
+                    <div>
+                        <div class="item-text">Graflarda eng qisqa yo'lni aniqlash algoritmlari</div>
+                        <div class="item-num">SECTION 03</div>
                     </div>
-                    <div class="code-body" style="padding: 20px; font-family: 'Fira Code', monospace; font-size: 12px; line-height: 1.6; color: #c9d1d9; white-space: pre; text-align: left;">
-    <span style="color:#8b949e;">// Og'irlanmagan graf - C++ Adjacency List</span>
-    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;iostream&gt;</span>
-    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;vector&gt;</span>
-    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;map&gt;</span>
+                </li>
+                <li class="plan-item">
+                    <div class="item-icon"><i class="fas fa-code"></i></div>
+                    <div>
+                        <div class="item-text">Yakuniy Xulosa</div>
+                        <div class="item-num">SECTION 04</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
 
-    <span style="color:#ff7b72">class</span> <span style="color:#d2a8ff">Graph</span> {
-    <span style="color:#ff7b72">public</span>:
-    std::map&lt;std::string, std::vector&lt;std::string&gt;&gt; adj;
+        <a href="reja-1.html" class="start-btn">
+            <span>Boshlash</span>
+            <i class="fas fa-arrow-right"></i>
+        </a>
+    </main>
 
-    <span style="color:#ff7b72">void</span> <span style="color:#d2a8ff">addEdge</span>(std::string u, std::string v) {
-        adj[u].push_back(v);
-        adj[v].push_back(u); <span style="color:#8b949e;">// Yo'naltirilmagan</span>
-    }
+    <!-- Pastki bar -->
+    <footer class="bottom-bar">
+        <div class="bottom-stat">
+            <i class="fas fa-microchip"></i>
+            <span>Algorithms</span>
+            <span class="stat-val">Dijkstra / BFS</span>
+        </div>
+        <div class="bottom-stat">
+            <i class="fas fa-database"></i>
+            <span>Nodes</span>
+            <span class="stat-val" id="node-count">10</span>
+        </div>
+        <div class="bottom-stat">
+            <i class="fas fa-link"></i>
+            <span>Edges</span>
+            <span class="stat-val" id="edge-count">13</span>
+        </div>
+    </footer>
 
-    <span style="color:#ff7b72">void</span> <span style="color:#d2a8ff">display</span>() {
-        <span style="color:#ff7b72">for</span> (<span style="color:#ff7b72">auto</span> <span style="color:#ff7b72">const</span>& [node, neighbors] : adj) {
-        std::cout &lt;&lt; node &lt;&lt; <span style="color:#a5d6ff">" -> "</span>;
-        <span style="color:#ff7b72">for</span> (std::string n : neighbors) 
-            std::cout &lt;&lt; n &lt;&lt; <span style="color:#a5d6ff">" "</span>;
-        std::cout &lt;&lt; std::endl;
+    <script>
+        /* === VAQT === */
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = h + ':' + m + ':' + s;
         }
-    }
-    };
+        setInterval(updateClock, 1000);
+        updateClock();
 
-    <span style="color:#ff7b72">int</span> <span style="color:#d2a8ff">main</span>() {
-    Graph g;
-    g.addEdge(<span style="color:#a5d6ff">"A"</span>, <span style="color:#a5d6ff">"B"</span>);
-    g.addEdge(<span style="color:#a5d6ff">"A"</span>, <span style="color:#a5d6ff">"C"</span>);
-    g.addEdge(<span style="color:#a5d6ff">"B"</span>, <span style="color:#a5d6ff">"D"</span>);
-    g.display();
-    <span style="color:#ff7b72">return</span> <span style="color:#79c0ff">0</span>;
-    }</div>
-                </div>
-            </div>
-        </div>
-    </div>
-        <!-- === SLAYD 8: OG'IRLANGAN KOD (C++) === -->
-    <div class="slide" data-slide="8">
-        <div class="split-layout reverse">
-            <div class="text-block">
-                <h2 class="anim-1">Yo`naltrilgan graf <span style="color:var(--accent2)">kodi</span></h2>
-                <p class="anim-2">
-                    Yo`naltrilgan grafda har bir qo'shni tugun bilan birga <strong>og'irlik</strong> (weight) ham saqlanadi. C++ da bu odatda <code>pair&lt;int, int&gt;</code> ko'rinishida bo'ladi.
-                </p>
-                <p class="anim-3">
-                    Ushbu struktura <strong>Dijkstra</strong> algoritmi yordamida eng qisqa yo'lni hisoblash uchun asos bo'lib xizmat qiladi.
-                </p>
-                <ul class="feature-list anim-4">
-                    <li>
-                        <div class="icon-circle icon-orange"><i class="fas fa-bolt"></i></div>
-                        <span>Struktura: <code>vector&lt;pair&lt;Node, Weight&gt;&gt;</code></span>
-                    </li>
-                    <li>
-                        <div class="icon-circle icon-orange"><i class="fas fa-bolt"></i></div>
-                        <span>Priority Queue orqali tartiblangan qidiruv</span>
-                    </li>
-                    <li>
-                        <div class="icon-circle icon-orange"><i class="fas fa-bolt"></i></div>
-                        <span>Dijkstra vaqt murakkabligi: O(E log V)</span>
-                    </li>
-                </ul>
-            </div>
+        /* === ZARRACHALAR CANVAS === */
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const PARTICLE_COUNT = 80;
 
-            <div class="anim-5">
-                <div class="code-block" style="background: #0d1117; border-radius: 12px; border: 1px solid #30363d; overflow: hidden;">
-                    <div class="code-header" style="background: rgba(255,107,53,0.08); padding: 10px 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #30363d;">
-                        <div class="code-dot r" style="width:10px; height:10px; border-radius:50%; background:#ff5f56;"></div>
-                        <div class="code-dot y" style="width:10px; height:10px; border-radius:50%; background:#ffbd2e;"></div>
-                        <div class="code-dot g" style="width:10px; height:10px; border-radius:50%; background:#27c93f;"></div>
-                        <span style="color: #8b949e; font-size: 12px; font-family: monospace; margin-left: 5px;">weighted_graph.cpp</span>
-                    </div>
-                    <div class="code-body" style="padding: 20px; font-family: 'Fira Code', monospace; font-size: 11px; line-height: 1.6; color: #c9d1d9; white-space: pre; text-align: left;">
-    <span style="color:#8b949e;">// Yo`naltrilgan graf - C++ Adjacency List</span>
-    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;iostream&gt;</span>
-    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;vector&gt;</span>
-    <span style="color:#ff7b72">#include</span> <span style="color:#a5d6ff">&lt;map&gt;</span>
-
-    <span style="color:#ff7b72">class</span> <span style="color:#d2a8ff">WeightedGraph</span> {
-    <span style="color:#ff7b72">public</span>:
-    <span style="color:#8b949e;">// Map&lt;Tugun, Vector&lt;Pair&lt;Qo'shni, yo`naltrilganlik &gt;&gt;&gt;</span>
-    std::map&lt;std::string, std::vector&lt;std::pair&lt;std::string, <span style="color:#79c0ff">int</span>&gt;&gt;&gt; adj;
-
-    <span style="color:#ff7b72">void</span> <span style="color:#d2a8ff">addEdge</span>(std::string u, std::string v, <span style="color:#79c0ff">int</span> w) {
-        adj[u].push_back({v, w});
-        adj[v].push_back({u, w}); <span style="color:#8b949e;">// Yo'naltirilmagan</span>
-    }
-
-    <span style="color:#ff7b72">void</span> <span style="color:#d2a8ff">display</span>() {
-        <span style="color:#ff7b72">for</span> (<span style="color:#ff7b72">auto</span> <span style="color:#ff7b72">const</span>& [u, neighbors] : adj) {
-        std::cout &lt;&lt; u &lt;&lt; <span style="color:#a5d6ff">" connections:\n"</span>;
-        <span style="color:#ff7b72">for</span> (<span style="color:#ff7b72">auto</span> <span style="color:#ff7b72">const</span>& [v, w] : neighbors)
-            std::cout &lt;&lt; <span style="color:#a5d6ff">"  -&gt; "</span> &lt;&lt; v &lt;&lt; <span style="color:#a5d6ff">" (vazn: "</span> &lt;&lt; w &lt;&lt; <span style="color:#a5d6ff">")\n"</span>;
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-    }
-    };
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-    <span style="color:#ff7b72">int</span> <span style="color:#d2a8ff">main</span>() {
-    WeightedGraph g;
-    g.addEdge(<span style="color:#a5d6ff">"A"</span>, <span style="color:#a5d6ff">"B"</span>, <span style="color:#79c0ff">4</span>);
-    g.addEdge(<span style="color:#a5d6ff">"B"</span>, <span style="color:#a5d6ff">"C"</span>, <span style="color:#79c0ff">2</span>);
-    g.display();
-    <span style="color:#ff7b72">return</span> <span style="color:#79c0ff">0</span>;
-    }</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- === SLAYD 9: AMALIY QO'LLANILISHI === -->
-    <div class="slide" data-slide="9">
-        <div class="section-header anim-1">
-            <h2>Amaliy <span style="color:var(--accent3)">qo'llanilishi</span></h2>
-            <p>Graflar haqiqiy hayotda qayerda ishlatiladi?</p>
-            <div class="line"></div>
-        </div>
-        <div class="apps-grid">
-            <div class="app-card anim-2">
-                <div class="app-icon icon-green"><i class="fas fa-road"></i></div>
-                <h4>Yo'l navigatsiyasi</h4>
-                <p>Shaharlar orasidagi eng qisqa yo'lni topish. Google Maps, Yandex Maps.</p>
-                <span class="app-tag tag-w">Og'irlangan</span>
-            </div>
-            <div class="app-card anim-3">
-                <div class="app-icon icon-orange"><i class="fas fa-users"></i></div>
-                <h4>Ijtimoiy tarmoqlar</h4>
-                <p>Foydalanuvchilar o'rtasidagi do'stlik aloqalari. Facebook, Instagram.</p>
-                <span class="app-tag tag-uw">Yo`naltrilmagan</span>
-            </div>
-            <div class="app-card anim-4">
-                <div class="app-icon icon-blue"><i class="fas fa-network-wired"></i></div>
-                <h4>Kompyuter tarmoqlari</h4>
-                <p>Routerlar va kompyuterlar bog'lanishi. Paket routing.</p>
-                <span class="app-tag tag-w">Yo`naltrilgan</span>
-            </div>
-            <div class="app-card anim-5">
-                <div class="app-icon icon-green"><i class="fas fa-sitemap"></i></div>
-                <h4>Veb sahifa indekslash</h4>
-                <p>Google qidiruv tizimi sahifalarni graf sifatida indekslaydi.</p>
-                <span class="app-tag tag-both">Ikkalasi</span>
-            </div>
-            <div class="app-card anim-5">
-                <div class="app-icon icon-orange"><i class="fas fa-dna"></i></div>
-                <h4>Bioinformatika</h4>
-                <p>Oqsil o'zaro ta'sir tarmoqlari, genetik bog'liqliklar.</p>
-                <span class="app-tag tag-w">Og'irlangan</span>
-            </div>
-            <div class="app-card anim-6">
-                <div class="app-icon icon-blue"><i class="fas fa-gamepad"></i></div>
-                <h4>O'yinlar</h4>
-                <p>Xarita generatsiya, NPC harakat yo'llari (pathfinding).</p>
-                <span class="app-tag tag-both">Ikkalasi</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- === SLAYD 10: YAKUN === -->
-    <div class="slide" data-slide="10">
-        <div class="conclusion-box anim-1">
-            <div style="font-size:48px; margin-bottom:20px;">
-                <i class="fas fa-flag-checkered" style="color:var(--accent)"></i>
-            </div>
-            <h2>💻💻💻</h2>
-            <p>
-                Graf — malumotlar tuzilmasining eng kuchli vositalaridan biri. 
-                <strong style="color:var(--accent)">Yo`naltrilmagan graf</strong> bog'lanish mavjudligini ifodalasa, 
-                <strong style="color:var(--accent2)">Yo`naltrilgan graf</strong> bog'lanishning "qanchalik" kuchli yoki qimmat ekanligini ham bildiradi.
-            </p>
-            <p>
-                To'g'ri graf turini tanlash — muammoni samarali yechishning birinchi qadami.
-            </p>
-            <div class="key-points anim-3">
-                <div class="key-point">
-                    <i class="fas fa-circle-nodes" style="color:var(--accent)"></i>
-                    G(V, E) asosiy model
-                </div>
-                <div class="key-point">
-                    <i class="fas fa-scale-balanced" style="color:var(--accent2)"></i>
-                    Og'irlik = qo'shimcha ma'lumot
-                </div>
-                <div class="key-point">
-                    <i class="fas fa-code" style="color:var(--accent3)"></i>
-                    Adjacency List amaliy yondashish
-                </div>
-                <a href="reja-3.html"> <button class="button">Reja - 3 </button> </a>
-            </div>
-            <div style="margin-top:36px; color:var(--muted); font-size:13px;" class="anim-4">
-                <i class="fas fa-graduation-cap" style="margin-right:6px; color:var(--accent);"></i>
-                Malumotlar Tuzilmasi va Algoritmlar — Graf turlari mavzusi
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<!-- === NAVIGATSIYA PANELI === -->
-<nav class="nav-bar" aria-label="Slayd navigatsiyasi">
-    <button class="nav-btn" id="prevBtn" aria-label="Oldingi slayd">
-        <i class="fas fa-chevron-left"></i>
-    </button>
-    <div class="nav-dots" id="navDots"></div>
-    <button class="nav-btn" id="nextBtn" aria-label="Keyingi slayd">
-        <i class="fas fa-chevron-right"></i>
-    </button>
-</nav>
-
-<script>
-    // === SLAYD NAVIGATSIYA LOGIKASI ===
-    const slides = document.querySelectorAll('.slide');
-    const totalSlides = slides.length;
-    let currentSlide = 0;
-
-    // Navigatsiya nuqtalarini yaratish
-    const dotsContainer = document.getElementById('navDots');
-    for (let i = 0; i < totalSlides; i++) {
-        const dot = document.createElement('button');
-        dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
-        dot.setAttribute('aria-label', `Slayd ${i + 1}`);
-        dot.addEventListener('click', () => goToSlide(i));
-        dotsContainer.appendChild(dot);
-    }
-
-    const dots = document.querySelectorAll('.nav-dot');
-    const counterEl = document.getElementById('currentSlide');
-
-    function goToSlide(index) {
-        // Cheklovlar
-        if (index < 0) index = 0;
-        if (index >= totalSlides) index = totalSlides - 1;
-
-        // Avvalgi slaydni yopish
-        slides[currentSlide].classList.remove('active');
-        dots[currentSlide].classList.remove('active');
-
-        // Yangi slaydni ochish
-        currentSlide = index;
-        slides[currentSlide].classList.add('active');
-        dots[currentSlide].classList.add('active');
-
-        // Slayd sanagichni yangilash
-        counterEl.textContent = String(currentSlide + 1).padStart(2, '0');
-    }
-
-    // Tugmalar
-    document.getElementById('prevBtn').addEventListener('click', () => {
-        goToSlide(currentSlide - 1);
-    });
-
-    document.getElementById('nextBtn').addEventListener('click', () => {
-        goToSlide(currentSlide + 1);
-    });
-
-    // Klaviatura yordamida boshqarish
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
-            e.preventDefault();
-            goToSlide(currentSlide + 1);
-        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-            e.preventDefault();
-            goToSlide(currentSlide - 1);
-        } else if (e.key === 'Home') {
-            e.preventDefault();
-            goToSlide(0);
-        } else if (e.key === 'End') {
-            e.preventDefault();
-            goToSlide(totalSlides - 1);
-        }
-    });
-
-    // Touch/swipe qo'llab-quvvatlash
-    let touchStartX = 0;
-    let touchStartY = 0;
-
-    document.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
-    }, { passive: true });
-
-    document.addEventListener('touchend', (e) => {
-        const dx = e.changedTouches[0].screenX - touchStartX;
-        const dy = e.changedTouches[0].screenY - touchStartY;
-        // Gorizontal swipelarni aniqlash (vertikal harakatdan katta bo'lishi kerak)
-        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
-            if (dx < 0) {
-                goToSlide(currentSlide + 1); // Chapga — keyingi
-            } else {
-                goToSlide(currentSlide - 1); // O'ngga — oldingi
+        /* Zarracha sinfi */
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.radius = Math.max(0.5, Math.random() * 2);
+                /* Tasodifiy rang tanlash */
+                const colors = ['rgba(57,255,20,', 'rgba(255,0,110,', 'rgba(0,245,255,', 'rgba(255,107,53,'];
+                this.colorBase = colors[Math.floor(Math.random() * colors.length)];
+                this.alpha = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.colorBase + this.alpha + ')';
+                ctx.fill();
             }
         }
-    }, { passive: true });
 
-    // === SVG GRAF ANIMATSIYALARI ===
-    // Har bir slayd o'zgarganda SVG chiziqlarini qayta animatsiya qilish
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                const target = mutation.target;
-                if (target.classList.contains('slide') && target.classList.contains('active')) {
-                    // SVG edge larni qayta ishga tushirish
-                    const edges = target.querySelectorAll('.svg-edge');
-                    edges.forEach((edge) => {
-                        edge.style.animation = 'none';
-                        edge.offsetHeight; // reflow
-                        edge.style.animation = '';
-                    });
+        /* Zarrachalarni yaratish */
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push(new Particle());
+        }
 
-                    // Tugunlarni ham qayta ishga tushirish
-                    const nodes = target.querySelectorAll('.svg-node');
-                    nodes.forEach((node) => {
-                        node.style.animation = 'none';
-                        node.offsetHeight;
-                        node.style.animation = '';
-                    });
+        /* Chizish va ulash */
+        function drawConnections() {
+            const maxDist = 120;
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < maxDist) {
+                        const opacity = (1 - dist / maxDist) * 0.15;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = 'rgba(57,255,20,' + opacity + ')';
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
                 }
             }
-        });
-    });
-
-    slides.forEach((slide) => {
-        observer.observe(slide, { attributes: true });
-    });
-
-    // === MOUSE PARALLAX FON UCHUN ===
-    document.addEventListener('mousemove', (e) => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 20;
-        const y = (e.clientY / window.innerHeight - 0.5) * 20;
-        const bgLayer = document.querySelector('.bg-layer');
-        if (bgLayer) {
-            bgLayer.style.transform = `translate(${x}px, ${y}px)`;
         }
-    });
-</script>
 
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            drawConnections();
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        /* === SUZUVCHI TUGUNLAR === */
+        const nodesContainer = document.getElementById('floating-nodes');
+        for (let i = 0; i < 25; i++) {
+            const node = document.createElement('div');
+            node.className = 'f-node';
+            node.style.left = Math.random() * 100 + 'vw';
+            node.style.top = Math.random() * 100 + 'vh';
+            node.style.setProperty('--dx', (Math.random() - 0.5) * 200 + 'px');
+            node.style.setProperty('--dy', (Math.random() - 0.5) * 200 + 'px');
+            node.style.animationDuration = (Math.random() * 8 + 6) + 's';
+            node.style.animationDelay = (Math.random() * 5) + 's';
+            nodesContainer.appendChild(node);
+        }
+
+        /* === PLAN ITEM TARTIB RAQAMI ANIMATSIYASI === */
+        const planItems = document.querySelectorAll('.plan-item');
+        planItems.forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-20px)';
+            item.style.transition = 'all 0.5s ease ' + (0.5 + index * 0.15) + 's';
+            setTimeout(() => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateX(0)';
+            }, 50);
+        });
+    </script>
 </body>
 </html>
